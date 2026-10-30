@@ -1,10 +1,7 @@
 (() => {
   const badgesGrid = document.querySelector("#badges .badges-grid");
   const badgesCount = document.querySelector("#badges .badges-count");
-  const preview = document.getElementById("stamp-preview");
-  if (!badgesGrid || !badgesCount || !preview) return;
-
-  const field = (name) => preview.querySelector(`[data-preview="${name}"]`);
+  if (!badgesGrid || !badgesCount) return;
 
   function iconUrl(icon) {
     const value = String(icon || "").trim();
@@ -13,21 +10,11 @@
     return `../assets/${value}`;
   }
 
-  function showBadge(badge, button) {
+  function selectBadge(button) {
     badgesGrid.querySelectorAll(".badge-item.is-selected").forEach((item) => {
       item.classList.remove("is-selected");
     });
     button.classList.add("is-selected");
-
-    field("tag").textContent = "Badge";
-    field("title").textContent = badge.name;
-    field("desc").textContent = badge.description || "No description yet.";
-    field("icon").src = iconUrl(badge.icon);
-    field("rarity-row").hidden = !badge.rarity;
-    field("rarity").textContent = badge.rarity || "";
-    field("meta").hidden = !badge.awarded_on;
-    field("meta").textContent = badge.awarded_on ? `Collected on ${badge.awarded_on}` : "";
-    field("map").hidden = true;
   }
 
   function renderBadges(badges) {
@@ -54,14 +41,13 @@
       label.className = "badge-label";
       label.textContent = badge.name || "Badge";
       button.append(circle, label);
-      button.addEventListener("click", () => showBadge(badge, button));
+      button.addEventListener("click", () => selectBadge(button));
       badgesGrid.appendChild(button);
     });
 
-    const welcomeBadge = earned.find((badge) => badge.key === "welcome-explorer");
-    if (welcomeBadge) {
+    if (earned.some((badge) => badge.key === "welcome-explorer")) {
       const welcomeButton = badgesGrid.querySelector('[data-badge-key="welcome-explorer"]');
-      showBadge(welcomeBadge, welcomeButton);
+      if (welcomeButton) selectBadge(welcomeButton);
     }
   }
 
