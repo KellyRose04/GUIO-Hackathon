@@ -386,3 +386,115 @@
       })
   });
 })();
+
+(() => {
+  const badgesCard = document.getElementById("badges");
+  const badgesGrid = document.querySelector("#badges .badges-grid");
+  const badgesCount = document.querySelector("#badges .badges-count");
+  const preview = document.getElementById("stamp-preview");
+  if (!badgesGrid || !preview) return;
+
+  const field = (name) => preview.querySelector(`[data-preview="${name}"]`);
+
+  function iconSrc(icon) {
+    const value = String(icon || "").trim();
+    if (!value) return "../assets/pin.png";
+    if (/^https?:\/\//i.test(value) || value.startsWith("/") || value.startsWith("../")) return value;
+    return `../assets/${value}`;
+  }
+
+  function resetPreview() {
+    field("tag").textContent = "Badge";
+    field("title").textContent = "Your badge collection";
+    field("desc").textContent = "Select a badge to see its details.";
+    field("icon").src = "../assets/pin.png";
+    field("rarity-row").hidden = true;
+    field("meta").hidden = true;
+    field("meta").textContent = "";
+    field("map").hidden = false;
+    field("map").textContent = "Explore sites on map";
+    field("map").setAttribute("href", "../index.html");
+  }
+
+  function showBadge(badge, button) {
+    badgesGrid.querySelectorAll(".badge-item.is-selected").forEach((el) => {
+      el.classList.remove("is-selected");
+    });
+    if (button) button.classList.add("is-selected");
+
+    field("tag").textContent = "Badge";
+    field("title").textContent = badge.name || "Badge";
+    field("desc").textContent = badge.description || "No description yet.";
+    field("icon").src = iconSrc(badge.icon);
+
+    const rarity = String(badge.rarity || "").trim();
+    field("rarity-row").hidden = !rarity;
+    field("rarity").textContent = rarity;
+
+    field("meta").hidden = !badge.awarded_on;
+    field("meta").textContent = badge.awarded_on ? `Collected on ${badge.awarded_on}` : "";
+
+    field("map").hidden = true;
+  }
+
+  function renderEarnedBadges(badges) {
+    const earned = (Array.isArray(badges) ? badges : []).filter((badge) => badge.earned);
+    badgesCount.textContent = `${earned.length} earned`;
+    badgesGrid.replaceChildren();
+
+    earned.forEach((badge) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "badge-item unlocked";
+      button.dataset.badgeKey = badge.key || "";
+
+      const circle = document.createElement("span");
+      circle.className = "badge-circle";
+      const img = document.createElement("img");
+      img.src = iconSrc(badge.icon);
+      img.alt = "";
+      img.width = 24;
+      img.height = 24;
+      circle.appendChild(img);
+
+      const label = document.createElement("span");
+      label.className = "badge-label";
+      label.textContent = badge.name || "Badge";
+
+      button.append(circle, label);
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        showBadge(badge, button);
+      });
+      badgesGrid.appendChild(button);
+    });
+  }
+
+  resetPreview();
+
+  const account = window.TourTrailAccount;
+  const url = account
+    ? account.apiUrl("api/passport.php")
+    : "../api/passport.php";
+
+  fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" })
+    .then(async (response) => {
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not load badges.");
+      renderEarnedBadges(data.badges);
+    })
+    .catch((error) => {
+      console.error("Could not load badges:", error);
+    });
+
+  if (badgesCard) {
+    badgesCard.addEventListener("click", (event) => {
+      if (event.target.closest(".badge-item")) {
+        event.preventDefault();
+        const dialog = document.getElementById("dlg-stamp");
+        if (dialog && typeof dialog.close === "function") dialog.close();
+      }
+    }, true);
+  }
+})();

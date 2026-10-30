@@ -96,17 +96,22 @@
                 </section>
 
                 <!-- Stamp preview: a real empty state until a badge/stamp is selected -->
-                <section class="neo-card passport-stamp-preview" aria-labelledby="stamp-preview-heading">
+                <section class="neo-card passport-stamp-preview" id="stamp-preview" aria-labelledby="stamp-preview-heading">
                     <div class="passport-stamp-preview-head">
-                        <span class="dlg-tag">Stamp</span>
+                        <span class="dlg-tag" data-preview="tag">Badge</span>
                         <span class="stamp-preview-symbol" aria-hidden="true">✧</span>
                     </div>
-                    <div class="passport-stamp-emblem" aria-hidden="true">
-                        <img src="../assets/pin.png" alt="" width="36" height="36">
+                    <div class="passport-stamp-emblem" data-preview="emblem" aria-hidden="true">
+                        <img src="../assets/pin.png" alt="" width="36" height="36" data-preview="icon">
                     </div>
-                    <h3 id="stamp-preview-heading">Your stamp collection</h3>
-                    <p class="stamp-preview-help">Select an unlocked badge or stamp to see its details.</p>
-                    <a class="stamp-preview-map" href="../index.html">Explore sites on map</a>
+                    <h3 id="stamp-preview-heading" data-preview="title">Your badge collection</h3>
+                    <p class="dlg-rarity" data-preview="rarity-row" hidden>
+                        <img src="../assets/star.png" class="icon" alt="" width="24" height="24">
+                        <span data-preview="rarity"></span>
+                    </p>
+                    <p class="dlg-meta" data-preview="meta" hidden></p>
+                    <p class="stamp-preview-help" data-preview="desc">Select a badge to see its details.</p>
+                    <a class="stamp-preview-map" data-preview="map" href="../index.html">Explore sites on map</a>
                 </section>
             </div>
 
@@ -117,40 +122,7 @@
                 aria-labelledby="gallery-title"
             >
                 <header id="gallery-header">
-                    <h2 id="gallery-title" class="visually-hidden">
-                        My Gallery
-                    </h2>
-
-                    <div
-                        id="gallery-tabs"
-                        role="tablist"
-                        aria-label="Gallery tabs"
-                    >
-                        <a
-                            href="feed.html"
-                            role="tab"
-                            id="tab-btn-feed"
-                            data-tab="feed"
-                            aria-selected="false"
-                            tabindex="-1"
-                        >Feed</a>
-
-                        <a
-                            href="profile.html"
-                            role="tab"
-                            id="tab-btn-mine"
-                            data-tab="mine"
-                            aria-selected="true"
-                            aria-controls="tab-mine"
-                        >
-                            <span
-                                class="gallery-tab-icon"
-                                aria-hidden="true"
-                            >▧</span>
-                            My Gallery
-                        </a>
-                    </div>
-
+                    <h2 id="gallery-title">My Gallery</h2>
                     <p id="gallery-count" aria-live="polite"></p>
                 </header>
 

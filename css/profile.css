@@ -2274,3 +2274,58 @@ html, body { font-size: 14px; line-height: 1.45; }
     .brand { font-size: 22px; }
     .brand .logo-circle { width: 40px; height: 40px; flex-basis: 40px; }
 }
+
+/* Keep badge collection stacked under profile + badges (same as mobile) */
+@media (min-width: 768px) {
+    .dashboard-content > .left-col,
+    .dashboard-content > .right-col {
+        display: flex !important;
+        flex-direction: column;
+    }
+
+    .left-col .profile-card { order: 1; }
+    .left-col .badges-card { order: 2; }
+    .left-col .passport-stamp-preview { order: 3; position: relative; z-index: 0; }
+}
+
+@media (max-width: 950px) {
+    .passport-stamp-preview { order: 7; }
+}
+
+.badge-item.is-selected .badge-circle {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+}
+
+#gallery-title {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
+    border: 0 !important;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--ink);
+}
+
+#gallery-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    grid-template-columns: none;
+}
+
+#gallery-tabs,
+#tab-btn-mine,
+#tab-btn-feed {
+    display: none !important;
+}
+
+#gallery-count {
+    justify-self: end;
+    margin: 0;
+}
