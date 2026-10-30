@@ -4,16 +4,16 @@
 
 :root {
   --ink: #174B83;
-  --cream: #EAF3FF;
-  --white: #FFFFFF;
-  --gold: #EAF3FF;
-  --gold-tint: #EAF3FF;
+  --cream: #FBF9F2;
+  --white: #FFFEFA;
+  --gold: #F6F4ED;
+  --gold-tint: #F6F4ED;
   --teal: #174B83;
-  --teal-tint: #EAF3FF;
-  --placeholder: #EAF3FF;
-  --line: #D3E2F3;
+  --teal-tint: #F6F4ED;
+  --placeholder: #F6F4ED;
+  --line: #D8E0E9;
   --muted: #536D88;
-  --coral: #E5484D;
+  --coral: #174B83;
   --radius: 14px;
   --shadow: 0 4px 12px rgba(23, 75, 131, 0.15);
   --nav-h: 72px;
@@ -514,13 +514,13 @@ button { cursor: pointer; }
   height: 8px;
   border: 1.5px solid var(--ink);
   border-radius: 99px;
-  background: #EAF3FF;
+  background: var(--gold-tint);
   overflow: hidden;
   appearance: none;
 }
 
 .quest-banner-progress-bar::-webkit-progress-bar {
-  background: #EAF3FF;
+  background: var(--gold-tint);
   border-radius: 99px;
 }
 
@@ -662,7 +662,7 @@ button { cursor: pointer; }
 }
 .site-card:hover {
   transform: translateY(-2px);
-  background: #EAF3FF;
+  background: var(--gold-tint);
 }
 .site-card-thumb {
   position: relative;
@@ -672,7 +672,7 @@ button { cursor: pointer; }
   border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
-  background: #EAF3FF;
+  background: var(--gold-tint);
 }
 .site-card-thumb img {
   width: 100%;
@@ -724,7 +724,7 @@ button { cursor: pointer; }
   padding: 3px 8px;
   border: 1px solid var(--line);
   border-radius: 99px;
-  background: #EAF3FF;
+  background: var(--gold-tint);
   font-size: 11px;
   color: var(--muted);
 }
@@ -942,7 +942,7 @@ button { cursor: pointer; }
   transition: transform 0.15s ease, background 0.15s ease;
 }
 .quest-summary-card:hover {
-  background: #EAF3FF;
+  background: var(--gold-tint);
   transform: translateY(-1px);
 }
 .quest-summary-title {

@@ -3,16 +3,17 @@
    ========================================================================== */
 :root {
     /* Declare initial variables for color palette */
-    --ink: #174B83; 
-    --white: #FFFFFF;
-    --gold: #EAF3FF; 
-    --gold-tint: #EAF3FF; 
-    --teal: #174B83; 
-    --teal-tint: #EAF3FF; 
-    --avatar: #EAF3FF; 
-    --line: #D3E2F3; 
-    --muted: #536D88; 
-    --coral: #E5484D; 
+    --ink: #174B83;
+    --cream: #FBF9F2;
+    --white: #FFFEFA;
+    --gold: #F6F4ED;
+    --gold-tint: #F6F4ED;
+    --teal: #174B83;
+    --teal-tint: #F6F4ED;
+    --avatar: #F6F4ED;
+    --line: #D8E0E9;
+    --muted: #536D88;
+    --coral: #174B83;
     --transparent: #174b8362;
 
     /* Declare values for shared variables*/
@@ -35,6 +36,7 @@
 body {
     margin: 0; /* Set the outer spacing. */
     padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom)); /* Set the bottom inner spacing. */
+    background: var(--cream);
     color: var(--ink); /* Set the text color. */
     font: 400 14px/1.45 var(--font); /* Set font shorthand properties. */
     -webkit-text-size-adjust: 100%; /* Control automatic text resizing in WebKit browsers. */
@@ -623,7 +625,7 @@ button {
 
 .step.unverified-complete .step-indicator {
     border-color: var(--muted); /* Set the border color. */
-    background: #EAF3FF; /* Set the element background. */
+    background: var(--gold-tint); /* Set the element background. */
     color: var(--muted); /* Set the text color. */
 }
 
@@ -916,7 +918,7 @@ button {
 }
 
 .completion-offline {
-    border: 2px dashed #AFC4DD; /* Set the element border. */
+    border: 2px dashed var(--line); /* Set the element border. */
     background: var(--avatar); /* Set the element background. */
     color: #174B83; /* Set the text color. */
 }
