@@ -8,49 +8,23 @@ document.addEventListener("DOMContentLoaded", () => {
     let userLocationMarker = null;
     let userAccuracyCircle = null;
 
-    // 2. Sidebar expansion/collapse & Search Input Handlers
+    // 2. Sidebar expansion/collapse & site list controls
     const sidebar = document.querySelector('.sidebar');
-    const searchInput = document.getElementById('site-search');
-    const filterBtn = document.getElementById('filter-btn');
+    const sidebarToggleButton = document.getElementById('sidebar-toggle-btn');
     const sortSelect = document.getElementById('sort-select');
-    
-    function triggerSearch() {
-        // Ensure sidebar expands on mobile whenever a search is performed
-        if (window.innerWidth < 768 && sidebar) {
-            sidebar.classList.add('expanded');
+
+    function setSidebarExpanded(expanded) {
+        if (!sidebar) return;
+        sidebar.classList.toggle('expanded', expanded);
+        if (sidebarToggleButton) {
+            sidebarToggleButton.setAttribute('aria-expanded', String(expanded));
+            sidebarToggleButton.textContent = expanded ? 'Close sites' : 'Browse sites';
         }
-
-        const activeChip = document.querySelector('.chip.active');
-        const category = activeChip ? activeChip.dataset.cat : 'all';
-        const searchTerm = searchInput ? searchInput.value.trim() : '';
-        const currentSort = sortSelect ? sortSelect.value : 'nearest';
-        fetchSites(category, searchTerm, currentSort);
     }
 
-    // Expand sidebar on mobile when search input is clicked/focused
-    if (searchInput) {
-        searchInput.addEventListener('focus', () => {
-            if (window.innerWidth < 768 && sidebar) {
-                sidebar.classList.add('expanded');
-            }
-        });
-
-        // Trigger search when the user presses the "Enter" key
-        searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                triggerSearch();
-            }
-        });
-    }
-
-    if (filterBtn) {
-        // Trigger search when clicking the "Search" button
-        filterBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            triggerSearch();
-        });
-    }
+    sidebarToggleButton?.addEventListener('click', () => {
+        setSidebarExpanded(!sidebar?.classList.contains('expanded'));
+    });
 
     // 3. Custom Marker Icon Generator (Using raw transparent PNG icons)
     function createCustomIcon(status) {
@@ -134,6 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 } else {
                     console.warn("No saved site snapshot is available yet.");
                     renderSidebarList([]);
+                    renderNoActiveQuest();
                 }
             });
     }
@@ -314,9 +289,8 @@ document.addEventListener("DOMContentLoaded", () => {
                                 markersMap[targetSite.id].openPopup();
                             }
 
-                            const sidebar = document.querySelector('.sidebar');
                             if (window.innerWidth < 768 && sidebar) {
-                                sidebar.classList.remove('expanded');
+                                setSidebarExpanded(false);
                             }
                         }
                     });
@@ -346,8 +320,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sortSelect.addEventListener('change', (e) => {
             const activeChip = document.querySelector('.chip.active');
             const category = activeChip ? activeChip.dataset.cat : 'all';
-            const searchTerm = searchInput ? searchInput.value : '';
-            fetchSites(category, searchTerm, e.target.value);
+            fetchSites(category, '', e.target.value);
         });
     }
 
@@ -396,7 +369,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // On Mobile: Collapse sidebar to reveal the map and popup
                 if (window.innerWidth < 768 && sidebar) {
-                    sidebar.classList.remove('expanded');
+                    setSidebarExpanded(false);
                 }
             });
 
@@ -530,7 +503,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Collapse mobile sidebar when clicking outside on the map
             if (window.innerWidth < 768 && sidebar && sidebar.classList.contains('expanded')) {
                 if (!sidebar.contains(e.target)) {
-                    sidebar.classList.remove('expanded');
+                    setSidebarExpanded(false);
                 }
             }
         });
@@ -548,7 +521,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (e.target.classList.contains('chip')) {
                 document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
                 e.target.classList.add('active');
-                fetchSites(e.target.dataset.cat, searchInput ? searchInput.value : '', sortSelect ? sortSelect.value : 'nearest');
+                fetchSites(e.target.dataset.cat, '', sortSelect ? sortSelect.value : 'nearest');
             }
         });
     }
@@ -618,9 +591,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (event.persisted) {
             const activeChip = document.querySelector('.chip.active');
             const category = activeChip ? activeChip.dataset.cat : 'all';
-            const searchTerm = searchInput ? searchInput.value.trim() : '';
             const currentSort = sortSelect ? sortSelect.value : 'nearest';
-            fetchSites(category, searchTerm, currentSort);
+            fetchSites(category, '', currentSort);
         }
     });
 });

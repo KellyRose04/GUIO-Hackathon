@@ -5,10 +5,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TourTrail - Heritage & Tourism Passport</title>
-    <link rel="icon" type="image/png" href="assets/compass.png">
+    <title>GUIO - Heritage & Tourism Passport</title>
+    <link rel="icon" type="image/png" href="assets/guio_logo.png">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/index.css?v=guiouquest-1">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="api/leaflet/leaflet-css/leaflet.css">
 
@@ -19,14 +19,14 @@
         <h1 class="brand">
             <a href="index.html">
                 <span class="logo">
-                    <img class="logo-icon" src="assets/compass.png" alt="TourTrail Logo">
-                </span>TourTrail
+                    <img class="logo-icon" src="assets/guio_logo.png" alt="GUIO logo">
+                </span>GUIO
             </a>
         </h1>
         <nav id="main-nav" aria-label="Main">
             <ul>
                 <li><a href="index.html" aria-current="page">Map</a></li>
-                <li><a href="camera.html">Check-in</a></li>
+                <li><a href="camera.html">Quests</a></li>
                 <li><a href="gallery.html">Gallery</a></li>
                 <li><a href="passport.html">Passport</a></li>
             </ul>
@@ -43,11 +43,18 @@
     <main class="home-container">
         <!-- Sidebar Controls & List-->
         <aside class="sidebar">
-            <!-- Search Bar-->
-            <div class="search-box">
-                <input type="text" id="site-search" placeholder="Search sites, towns, quests. . .">
-                <button id="filter-btn">Search</button>
-            </div>
+            <!-- Current quest replaces the search control. -->
+            <section class="current-quest-box" aria-labelledby="current-quest-heading">
+                <div class="current-quest-header">
+                    <h2 id="current-quest-heading">Current quest</h2>
+                    <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" type="button" aria-expanded="false">
+                        Browse sites
+                    </button>
+                </div>
+                <div id="sidebar-quest-card-container" aria-live="polite">
+                    <p class="current-quest-loading" role="status">Loading your current quest...</p>
+                </div>
+            </section>
 
             <!-- Categories -->
             <div class="categories" id="category-filters">
@@ -57,9 +64,6 @@
                 <button class="chip" data-cat="food">Food</button>
                 <button class="chip" data-cat="nature">Nature</button>
             </div>
-
-            <!-- Quest Card -->
-            <div id="sidebar-quest-card-container"></div>
 
             <!-- Nearby Sites List (Rendered by DOM API)-->
             <div class="list-header">
@@ -149,6 +153,6 @@
     <!-- Shared account context, then the extracted map API and map UI. -->
     <script src="js/profile.js?v=12"></script>
     <script src="js/map-api.js?v=1"></script>
-    <script src="js/index.js?v=map-api-1"></script>
+    <script src="js/index.js?v=guiouquest-1"></script>
 </body>
 </html>

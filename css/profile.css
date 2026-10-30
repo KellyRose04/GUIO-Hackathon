@@ -1468,7 +1468,7 @@ html, body {
     padding-right: 16px;
 }
 
-/* INDEX ALIGNMENT: Match Map's 32px phone logo and 22px compass image. */
+/* Match the GUIO mark sizing used on the Map page. */
 .brand .logo-circle {
     width: 32px;
     height: 32px;
@@ -1630,7 +1630,7 @@ html, body {
     }
 }
 
-/* Navbar branding: keep the compass logo identical to Index on phones. */
+/* Keep the GUIO logo consistent with Index on phones. */
 @media (max-width: 767px) {
     .brand .logo-circle {
         width: 32px;
