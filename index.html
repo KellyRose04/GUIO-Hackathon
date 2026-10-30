@@ -1,1 +1,154 @@
 <!-- Interactive Map -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TourTrail - Heritage & Tourism Passport</title>
+    <link rel="icon" type="image/png" href="assets/compass.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/index.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="api/leaflet/leaflet-css/leaflet.css">
+
+</head>
+<body>
+    <!-- ===== TOP NAV ===== -->
+    <header id="top-nav">
+        <h1 class="brand">
+            <a href="index.html">
+                <span class="logo">
+                    <img class="logo-icon" src="assets/compass.png" alt="TourTrail Logo">
+                </span>TourTrail
+            </a>
+        </h1>
+        <nav id="main-nav" aria-label="Main">
+            <ul>
+                <li><a href="index.html" aria-current="page">Map</a></li>
+                <li><a href="camera.html">Check-in</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+                <li><a href="passport.html">Passport</a></li>
+            </ul>
+        </nav>
+        <div class="header-stats" id="player-status">
+            <div class="stat-pill flame">Streaks: <span id="streak-count">0</span></div>
+            <div class="stat-pill star"><span id="xp-count">0</span> XP</div>
+            <div class="avatar" id="player-avatar">
+                <img src="assets/user.png" class="icon" alt="user">
+            </div>
+        </div>
+    </header>
+
+    <main class="home-container">
+        <!-- Sidebar Controls & List-->
+        <aside class="sidebar">
+            <!-- Search Bar-->
+            <div class="search-box">
+                <input type="text" id="site-search" placeholder="Search sites, towns, quests. . .">
+                <button id="filter-btn">Search</button>
+            </div>
+
+            <!-- Categories -->
+            <div class="categories" id="category-filters">
+                <button class="chip active" data-cat="all">All</button>
+                <button class="chip" data-cat="gems">Gems</button>
+                <button class="chip" data-cat="heritage">Heritage</button>
+                <button class="chip" data-cat="food">Food</button>
+                <button class="chip" data-cat="nature">Nature</button>
+            </div>
+
+            <!-- Quest Card -->
+            <div id="sidebar-quest-card-container"></div>
+
+            <!-- Nearby Sites List (Rendered by DOM API)-->
+            <div class="list-header">
+                <h3 class="sites-title">Discovery Sites</h3>
+                <select id="sort-select">
+                    <option value="nearest">Sort: Nearest</option>
+                    <option value="xp">Sort: Highest XP</option>
+                </select>
+            </div>
+            <div id="sites-list" class="sites-list"></div>
+        </aside>
+
+        <!-- Site Details Slide-Out Drawer -->
+        <div id="site-details-drawer" class="site-drawer">
+            <div class="drawer-header">
+                <div class="drawer-chips" id="drawer-chips">
+                    <!-- Dynamically populated chips -->
+                </div>
+                <button id="drawer-close-btn" class="drawer-close-btn" onclick="closeSiteDrawer()" aria-label="Close panel">&times;</button>
+            </div>
+
+            <div class="drawer-content">
+                <div class="drawer-img" id="drawer-img"></div>
+                
+                <h2 class="drawer-title" id="drawer-title">Site Title</h2>
+                <p class="drawer-sub" id="drawer-sub">300 m away · Open today 8:00–17:00 · Free entry</p>
+                <p class="drawer-desc" id="drawer-desc">Description goes here...</p>
+
+                <!-- Quest / Trail Box -->
+                <div class="drawer-card trail-card">
+                    <span class="card-icon-box">🚩</span>
+                    <div class="card-text">
+                        <strong>Part of Hidden Gems Trail</strong>
+                        <span id="drawer-trail-stop">stop 4 of 5</span>
+                    </div>
+                </div>
+
+                <!-- Check-in Reward Box -->
+                <div class="drawer-card reward-card">
+                    <span class="card-icon-box">🏆</span>
+                    <div class="card-text">
+                        <strong>Check-in reward</strong>
+                        <span id="drawer-reward-text">+120 XP · Stamp: Salt Keeper</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="drawer-footer">
+                <a id="drawer-checkin-btn" class="drawer-btn-primary" href="camera.html">Check in here</a>
+            </div>
+        </div>
+
+        <!-- Quest Details Modal -->
+        <div id="quest-modal-overlay" class="modal-overlay" hidden>
+            <div class="quest-modal">
+                <div class="quest-modal-header">
+                    <h2 class="quest-modal-title">Your Active Quests</h2>
+                    <button id="quest-modal-close" class="drawer-close-btn" aria-label="Close modal">&times;</button>
+                </div>
+
+                <div id="quest-modal-list" class="quest-modal-body">
+                    <!-- Dynamic list of quests rendered via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Map View Container -->
+        <section class="map-view">
+            <div id="map"></div>
+        </section>
+
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registered successfully:', reg.scope))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+                });
+            }
+        </script>
+
+    </main>
+
+    <!-- Leaflet JavaScript Library -->
+     <script src="api/leaflet/leaflet-js/leaflet.js"></script>
+    
+    <!-- app js -->
+    <script src="js/account.js?v=12"></script>
+    <script src="js/notifications.js?v=2"></script>
+    <script src="js/index.js?v=offline-1"></script>
+</body>
+</html>
