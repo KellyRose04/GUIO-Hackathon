@@ -318,15 +318,6 @@
     document.getElementById("dialog-progress-label").textContent = quest.isActive ? "Quest progress" : "Route length";
     const percent = quest.isActive && quest.target ? Math.min(100, (quest.progress / quest.target) * 100) : 0;
     progressFill.style.width = `${percent}%`;
-<<<<<<< HEAD
-=======
-    rewardTitle.textContent = "Quest reward";
-    rewardCopy.textContent = quest.isDone
-      ? "You have completed this quest."
-      : quest.isActive
-        ? "Complete the destinations to finish this quest."
-        : "Start this quest to begin exploring its destinations.";
->>>>>>> 3c74c87e040657ea1aea96b8615a0c863023967a
     document.getElementById("dialog-mission-total").textContent = `${stops.length || quest.target || 0} total`;
 
     missionList.replaceChildren();
@@ -397,7 +388,7 @@
     scanButton.disabled = true;
     qrStatus.textContent = "Verifying destination code…";
     try {
-      const url = new URL("../api/quests", window.location.href);
+      const url = new URL("../api/quests.php", window.location.href);
       url.searchParams.set("user", username);
       const response = await fetch(url, {
         method: "POST",
@@ -487,7 +478,7 @@
       const startButton = document.getElementById("open-mission");
       startButton.disabled = true;
       try {
-        const url = new URL("../api/quests", window.location.href);
+        const url = new URL("../api/quests.php", window.location.href);
         url.searchParams.set("user", username);
         const response = await fetch(url, {
           method: "POST",
@@ -547,11 +538,11 @@
 
   async function loadQuestCatalog() {
     try {
-      const url = new URL("../api/quests", window.location.href);
+      const url = new URL("../api/quests.php", window.location.href);
       if (username) url.searchParams.set("user", username);
       const response = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
       if (!response.headers.get("content-type")?.includes("application/json")) {
-        throw new Error("The Cloudflare quest API did not return JSON. Check the Pages Function deployment and D1 binding.");
+        throw new Error("The MySQL quest API did not return JSON. Check that the PHP endpoint is running.");
       }
       const payload = await response.json();
       if (!response.ok || !Array.isArray(payload.quests)) {
