@@ -104,6 +104,39 @@ function activeQuestPayload(PDO $pdo, int $userQuestId, int $userId): ?array
     return $quest;
 }
 
+function awardQuestBadge(PDO $pdo, int $userId, int $questId): ?array
+{
+    $lookup = $pdo->prepare(
+        'SELECT q.reward_badge_key, b.badge_name, b.description, b.icon, b.rarity
+           FROM quests AS q
+           JOIN badges AS b ON b.badge_key = q.reward_badge_key
+          WHERE q.id = :quest_id'
+    );
+    $lookup->execute([':quest_id' => $questId]);
+    $badge = $lookup->fetch();
+    if (!$badge || $badge['reward_badge_key'] === null) {
+        return null;
+    }
+
+    $award = $pdo->prepare(
+        'INSERT IGNORE INTO user_badges (user_id, badge_key)
+         VALUES (:user_id, :badge_key)'
+    );
+    $award->execute([
+        ':user_id' => $userId,
+        ':badge_key' => $badge['reward_badge_key'],
+    ]);
+
+    return [
+        'key' => $badge['reward_badge_key'],
+        'name' => $badge['badge_name'],
+        'description' => $badge['description'],
+        'icon' => $badge['icon'],
+        'rarity' => $badge['rarity'],
+        'newly_awarded' => $award->rowCount() > 0,
+    ];
+}
+
 try {
     $pdo = guio_database();
 
@@ -230,11 +263,16 @@ try {
             ]);
             $pdo->commit();
 
+            $awardedBadge = $isComplete
+                ? awardQuestBadge($pdo, $userId, (int) $activeQuest['quest_id'])
+                : null;
+
             respond(200, [
                 'status' => 'success',
                 'quest_status' => $isComplete ? 'done' : 'current',
                 'completed_destination_id' => (int) $stop['site_id'],
                 'progress_count' => $completedCount,
+                'awarded_badge' => $awardedBadge,
                 'active_quest' => $isComplete
                     ? null
                     : activeQuestPayload($pdo, (int) $activeQuest['user_quest_id'], $userId),
@@ -283,27 +321,35 @@ try {
             respond(409, ['status' => 'error', 'quest_status' => 'done', 'error' => 'This quest is already complete.']);
         }
 
-        $active = $pdo->prepare(
-            'SELECT id FROM user_quests
-              WHERE user_id = :user_id AND status = \'active\'
-              LIMIT 1 FOR UPDATE'
+        $abandonOthers = $pdo->prepare(
+            'UPDATE user_quests
+                SET status = \'abandoned\'
+            WHERE user_id = :user_id
+                AND status = \'active\'
+                AND quest_id <> :quest_id'
         );
-        $active->execute([':user_id' => $userId]);
-        $activeQuestId = $active->fetchColumn();
-        if ($activeQuestId !== false) {
-            if (!$userQuest || (int) $activeQuestId !== (int) $userQuest['id']) {
-                $pdo->rollBack();
-                respond(409, ['status' => 'error', 'quest_status' => 'current', 'error' => 'Complete your current quest before starting another.']);
-            }
-            $userQuestId = (int) $activeQuestId;
+        $abandonOthers->execute([
+            ':user_id' => $userId,
+            ':quest_id' => (int) $quest['id'],
+        ]);
+
+        if ($userQuest && $userQuest['status'] === 'active') {
+            $userQuestId = (int) $userQuest['id'];
+        } elseif ($userQuest && $userQuest['status'] === 'abandoned') {
+            $reactivate = $pdo->prepare(
+                'UPDATE user_quests
+                    SET status = \'active\', completed_at = NULL
+                WHERE id = :user_quest_id AND user_id = :user_id'
+            );
+            $reactivate->execute([
+                ':user_quest_id' => (int) $userQuest['id'],
+                ':user_id' => $userId,
+            ]);
+            $userQuestId = (int) $userQuest['id'];
         } else {
-            if ($userQuest) {
-                $pdo->rollBack();
-                respond(409, ['status' => 'error', 'quest_status' => 'done', 'error' => 'This quest cannot be restarted.']);
-            }
             $insert = $pdo->prepare(
                 'INSERT INTO user_quests (user_id, quest_id, status, progress_count)
-                 VALUES (:user_id, :quest_id, \'active\', 0)'
+                VALUES (:user_id, :quest_id, \'active\', 0)'
             );
             $insert->execute([':user_id' => $userId, ':quest_id' => (int) $quest['id']]);
             $userQuestId = (int) $pdo->lastInsertId();

@@ -81,16 +81,22 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     }
 
+    window.addEventListener("storage", (event) => {
+        if (event.key === "guio-active-quest-updated") {
+            fetchSites();
+        }
+    });
+
     // Helper to render sites cleanly whether the response is fresh or saved.
     function processAndRenderSites(sites, quests = []) {
         loadedSites = sites;
-        renderMapMarkers(loadedSites);
-        if (Array.isArray(quests) && quests.length > 0) {
+        const activeQuest = Array.isArray(quests) && quests.length ? quests[0] : null;
+        renderMapMarkers(loadedSites, activeQuest);
+        if (activeQuest) {
             renderSidebarQuests(quests);
         } else {
             renderNoActiveQuest();
         }
-
     }
 
     // 5b. Render Quest Card Data from Database
@@ -322,54 +328,58 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // 6. Render Pins on Map
-    function renderMapMarkers(sites) {
-        markersGroup.clearLayers();
-        markersMap = {};
+// 6. Render Pins on Map
+function renderMapMarkers(sites, activeQuest = null) {
+    markersGroup.clearLayers();
+    markersMap = {};
+    const nextSiteId = activeQuest?.next_site_id
+        ?? activeQuest?.stops?.find((stop) => stop.stop_state === "next" || stop.state === "next")?.site_id
+        ?? null;
 
-        sites.forEach(site => {
-            const marker = L.marker([site.latitude, site.longitude], {
-                icon: createCustomIcon(site.status)
-            });
+    sites.forEach((site) => {
+        const isNextStop = nextSiteId != null && String(site.id) === String(nextSiteId);
+        const marker = L.marker([site.latitude, site.longitude], {
+            icon: createCustomIcon(isNextStop ? "hidden_gem" : site.status)
+        });
 
-            markersMap[site.id] = marker;
+        markersMap[site.id] = marker;
 
-            const metaText = `${site.formatted_distance} · ${capitalize(site.category)}${site.is_hidden_gem ? ' · Hidden gem' : ''}`;
+        const metaText = `${site.formatted_distance} · ${capitalize(site.category)}${site.is_hidden_gem ? " · Hidden gem" : ""}`;
 
-            const popupContent = `
-                <div class="popup-card wireframe-popup-clean">
-                    <div class="popup-body">
-                        <h3 class="popup-title-clean">${site.title}</h3>
-                        <p class="popup-meta-clean">${metaText}</p>
-                        <div class="popup-actions-clean">
-                            <div class="btn-wrapper">
-                                <button class="details-btn-clean" data-site-id="${site.id}">Details</button>
-                            </div>
+        const popupContent = `
+            <div class="popup-card wireframe-popup-clean">
+                <div class="popup-body">
+                    <h3 class="popup-title-clean">${site.title}</h3>
+                    <p class="popup-meta-clean">${metaText}</p>
+                    <div class="popup-actions-clean">
+                        <div class="btn-wrapper">
+                            <button class="details-btn-clean" data-site-id="${site.id}">Details</button>
                         </div>
                     </div>
                 </div>
-            `;
+            </div>
+        `;
 
-            marker.bindPopup(popupContent);
-            markersGroup.addLayer(marker);
-        });
-    }
+        marker.bindPopup(popupContent);
+        markersGroup.addLayer(marker);
+    });
+}
 
-    // Global Event Delegation for Popup Details Buttons
-    const mapContainer = document.getElementById('map');
-    if (mapContainer) {
-        mapContainer.addEventListener('click', (e) => {
-            const detailsBtn = e.target.closest('.details-btn-clean');
-            if (detailsBtn) {
-                const siteId = detailsBtn.getAttribute('data-site-id');
-                const targetSite = loadedSites.find(s => s.id == siteId);
-                if (targetSite) {
-                    openSiteDrawer(targetSite);
-                    map.closePopup();
-                }
+// Global Event Delegation for Popup Details Buttons
+const mapContainer = document.getElementById("map");
+if (mapContainer) {
+    mapContainer.addEventListener("click", (e) => {
+        const detailsBtn = e.target.closest(".details-btn-clean");
+        if (detailsBtn) {
+            const siteId = detailsBtn.getAttribute("data-site-id");
+            const targetSite = loadedSites.find((s) => s.id == siteId);
+            if (targetSite) {
+                openSiteDrawer(targetSite);
+                map.closePopup();
             }
-        });
-    }
+        }
+    });
+}
 
     // 8. Drawer Management Functions
     window.closeSiteDrawer = function() {

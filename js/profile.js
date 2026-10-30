@@ -399,8 +399,10 @@
   function iconSrc(icon) {
     const value = String(icon || "").trim();
     if (!value) return "../assets/pin.png";
-    if (/^https?:\/\//i.test(value) || value.startsWith("/") || value.startsWith("../")) return value;
-    return `../assets/${value}`;
+    if (/^https?:\/\//i.test(value) || value.startsWith("/") || value.startsWith("../") || value.includes(".")) {
+      return value;
+    }
+    return "";
   }
 
   function resetPreview() {
@@ -448,14 +450,16 @@
       button.className = "badge-item unlocked";
       button.dataset.badgeKey = badge.key || "";
 
-      const circle = document.createElement("span");
-      circle.className = "badge-circle";
-      const img = document.createElement("img");
-      img.src = iconSrc(badge.icon);
-      img.alt = "";
-      img.width = 24;
-      img.height = 24;
-      circle.appendChild(img);
+      if (iconSrc(badge.icon)) {
+        const img = document.createElement("img");
+        img.src = iconSrc(badge.icon);
+        img.alt = "";
+        img.width = 24;
+        img.height = 24;
+        circle.appendChild(img);
+      } else {
+        circle.textContent = badge.icon || "🏅";
+      }
 
       const label = document.createElement("span");
       label.className = "badge-label";
@@ -473,12 +477,15 @@
 
   resetPreview();
 
-  const account = window.TourTrailAccount;
-  const url = account
-    ? account.apiUrl("api/passport.php")
+  const account = window.GUIOAccount;
+  const url = account?.apiUrl
+    ? account.apiUrl("../api/passport.php")
     : "../api/passport.php";
+  const headers = account?.apiHeaders
+    ? account.apiHeaders({ Accept: "application/json" })
+    : { Accept: "application/json" };
 
-  fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" })
+  fetch(url, { headers, cache: "no-store" })
     .then(async (response) => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Could not load badges.");
