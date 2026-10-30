@@ -4,16 +4,16 @@
 
 :root {
   --ink: #174B83;
-  --cream: #EAF3FF;
-  --white: #FFFFFF;
-  --gold: #EAF3FF;
-  --gold-tint: #EAF3FF;
+  --cream: #FBF9F2;
+  --white: #FFFEFA;
+  --gold: #F6F4ED;
+  --gold-tint: #F6F4ED;
   --teal: #174B83;
-  --teal-tint: #EAF3FF;
-  --placeholder: #EAF3FF;
-  --line: #D3E2F3;
+  --teal-tint: #F6F4ED;
+  --placeholder: #F6F4ED;
+  --line: #D8E0E9;
   --muted: #536D88;
-  --coral: #E5484D;
+  --coral: #174B83;
   --radius: 14px;
   --shadow: 0 4px 12px rgba(23, 75, 131, 0.15);
   --nav-h: 72px;

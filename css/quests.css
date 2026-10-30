@@ -1,18 +1,18 @@
 :root {
   color-scheme: light;
   --ink: #174B83;
-  --cream: #EAF3FF;
-  --white: #FFFFFF;
+  --cream: #FBF9F2;
+  --white: #FFFEFA;
   --muted: #536D88;
-  --line: #D3E2F3;
-  --coral: #E5484D;
+  --line: #D8E0E9;
+  --coral: #174B83;
   --radius: 14px;
   --shadow: 0 4px 0 var(--ink);
   --nav-h: 72px;
   --bottom-nav-h: 68px;
   --font: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --navy: var(--ink);
-  --pale-blue: var(--cream);
+  --pale-blue: #F6F4ED;
   --muted-blue: var(--muted);
   --page-width: 1080px;
 }
@@ -25,7 +25,7 @@ body {
   min-height: 100dvh;
   margin: 0;
   padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
-  background: var(--pale-blue);
+  background: var(--cream);
   color: var(--navy);
   font: 400 14px/1.45 var(--font);
   -webkit-text-size-adjust: 100%;

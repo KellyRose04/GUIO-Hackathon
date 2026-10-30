@@ -1,28 +1,28 @@
 :root {
-    --bg-body: #E8F2FF;
-    --bg-main: #FFFFFF;
-    --border-dark: #134687;
+    --bg-body: #FBF9F2;
+    --bg-main: #FFFEFA;
+    --border-dark: #174B83;
     --border-width: 2px;
-    --yellow-main: #E8F2FF;
-    --yellow-pale: #E8F2FF;
-    --teal-main: #134687;
-    --teal-pale: #E8F2FF;
-    --red-badge: #134687;
-    --text-dark: #134687;
-    --text-gray: #134687;
-    --text-light-gray: #134687;
-    --gray-locked-bg: #E8F2FF;
-    --gray-locked-border: #E8F2FF;
-    --ink: #134687;
-    --white: #FFFFFF;
-    --gold: #E8F2FF;
-    --gold-tint: #E8F2FF;
-    --teal: #134687;
-    --teal-tint: #E8F2FF;
-    --placeholder: #E8F2FF;
-    --muted: #134687;
-    --coral: #134687;
-    --danger-tint: #E8F2FF;
+    --yellow-main: #F6F4ED;
+    --yellow-pale: #FBF9F2;
+    --teal-main: #174B83;
+    --teal-pale: #F6F4ED;
+    --red-badge: #174B83;
+    --text-dark: #174B83;
+    --text-gray: #536D88;
+    --text-light-gray: #536D88;
+    --gray-locked-bg: #FBF9F2;
+    --gray-locked-border: #D8E0E9;
+    --ink: #174B83;
+    --white: #FFFEFA;
+    --gold: #F6F4ED;
+    --gold-tint: #F6F4ED;
+    --teal: #174B83;
+    --teal-tint: #F6F4ED;
+    --placeholder: #F6F4ED;
+    --muted: #536D88;
+    --coral: #174B83;
+    --danger-tint: #FBF9F2;
     --nav-h: 72px;
     --bottom-nav-h: 68px;
     --font: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -73,7 +73,7 @@ body {
 .neo-card {
     border: var(--border-width) solid var(--border-dark);
     border-radius: 20px;
-    background-color: #FFFFFF;
+    background-color: var(--white);
     width: 100%;
     box-shadow: 0 4px 0 0 var(--border-dark);
 }
@@ -369,13 +369,13 @@ body {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background-color: #E8F2FF;
+    background-color: var(--placeholder);
     border: var(--border-width) solid var(--border-dark);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: #134687;
+    color: var(--ink);
 }
 
 .profile-avatar .icon {
@@ -420,7 +420,7 @@ body {
 .progress-bar-container {
     width: 100%;
     height: 12px;
-    background-color: #E8F2FF;
+    background-color: var(--gray-locked-bg);
     border: var(--border-width) solid var(--border-dark);
     border-radius: 6px;
     overflow: hidden;
@@ -540,7 +540,7 @@ body {
 .quest-progress-bar {
     flex-grow: 1;
     height: 8px;
-    background-color: #FFFFFF;
+    background-color: var(--white);
     border: var(--border-width) solid var(--border-dark);
     border-radius: 4px;
     overflow: hidden;
@@ -742,7 +742,7 @@ body {
 .badge-item[data-open="dlg-stamp"]:hover .badge-circle,
 .stamp-item[data-open="dlg-stamp"]:hover .stamp-circle {
     transform: scale(1.08) rotate(-4deg);
-    filter: drop-shadow(0 3px 2px rgba(19, 70, 135, 0.2));
+    filter: drop-shadow(0 3px 2px rgba(23, 75, 131, 0.2));
 }
 
 .badge-item[data-open="dlg-stamp"]:active,
@@ -814,7 +814,7 @@ dialog {
     color: var(--text-dark);
 }
 
-dialog::backdrop { background: rgba(19, 70, 135, 0.45); }
+dialog::backdrop { background: rgba(23, 75, 131, 0.45); }
 dialog[open] { animation: dlg-pop 0.18s ease-out; }
 
 @keyframes dlg-pop {
@@ -828,10 +828,10 @@ dialog[open] { animation: dlg-pop 0.18s ease-out; }
     max-width: 100%;
     max-height: calc(100dvh - 32px);
     overflow-y: auto;
-    background-color: #FFFFFF;
+    background-color: var(--white);
     border: var(--border-width) solid var(--border-dark);
     border-radius: 16px;
-    box-shadow: 0 12px 32px rgba(19, 70, 135, 0.2);
+    box-shadow: 0 12px 32px rgba(23, 75, 131, 0.2);
     padding: 16px 24px 24px;
     display: flex;
     flex-direction: column;
@@ -942,7 +942,7 @@ dialog[open] { animation: dlg-pop 0.18s ease-out; }
 
 .dlg-bar {
     height: 8px;
-    background-color: #E8F2FF;
+    background-color: var(--placeholder);
     border: var(--border-width) solid var(--border-dark);
     border-radius: 4px;
     overflow: hidden;
@@ -971,7 +971,7 @@ dialog[open] { animation: dlg-pop 0.18s ease-out; }
     cursor: pointer;
     text-decoration: none;
     color: var(--text-dark);
-    background-color: #FFFFFF;
+    background-color: var(--white);
     line-height: 1.2;
 }
 
@@ -1910,7 +1910,7 @@ html, body { font-size: 14px; line-height: 1.45; }
     min-width: 0;
     min-height: 25px;
     padding: 5px 9px;
-    background: rgb(19 70 135 / 80%);
+    background: rgb(23 75 131 / 80%);
     color: #FFFFFF;
     font-size: 11px;
     font-weight: 600;
@@ -1948,7 +1948,7 @@ html, body { font-size: 14px; line-height: 1.45; }
 
 #photo-grid .gem-badge { left: 7px; }
 #photo-grid .gem-badge:empty::before { content: '★'; }
-#photo-grid .sync-badge { right: 7px; background: #FFFFFF; }
+#photo-grid .sync-badge { right: 7px; background: var(--white); }
 
 #mine-loading,
 #mine-empty,
@@ -2027,14 +2027,14 @@ html, body { font-size: 14px; line-height: 1.45; }
     border-radius: 18px;
     background: var(--bg-main);
     color: var(--ink);
-    box-shadow: 0 12px 32px rgba(19, 70, 135, .2);
+    box-shadow: 0 12px 32px rgba(23, 75, 131, .2);
     transform: translate(-50%, -50%);
 }
 
 #dlg-site { width: min(480px, calc(100vw - 32px)); }
 
 #dlg-photo::backdrop,
-#dlg-site::backdrop { background: rgb(19 70 135 / 60%); }
+#dlg-site::backdrop { background: rgb(23 75 131 / 60%); }
 
 #dlg-photo [data-close],
 #dlg-site [data-close] {
@@ -2047,7 +2047,7 @@ html, body { font-size: 14px; line-height: 1.45; }
     padding: 7px 18px;
     border: 2px solid var(--ink);
     border-radius: 12px;
-    background: #FFFFFF;
+    background: var(--white);
     color: var(--ink);
     font: 700 13px/1.2 var(--font);
     cursor: pointer;
@@ -2088,7 +2088,7 @@ html, body { font-size: 14px; line-height: 1.45; }
     padding: 12px;
     border: 1.5px solid var(--ink);
     border-radius: 12px;
-    background: #FFFFFF;
+    background: var(--white);
 }
 
 #photo-view {
@@ -2124,7 +2124,7 @@ html, body { font-size: 14px; line-height: 1.45; }
     padding: 7px 12px;
     border: 1.5px solid var(--ink);
     border-radius: 10px;
-    background: #FFFFFF;
+    background: var(--white);
     font: 700 12px var(--font);
     cursor: pointer;
 }
