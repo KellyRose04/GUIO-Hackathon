@@ -9,7 +9,7 @@
     <title>GUIO - Map</title>
     <link rel="icon" type="image/png" href="assets/guio_logo.png">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="css/index.css?v=next-location-1">
+    <link rel="stylesheet" href="css/index.css?v=map-camera-shortcut-2">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="api/leaflet/leaflet-css/leaflet.css">
 
@@ -115,6 +115,12 @@
         <!-- Map View Container -->
         <section class="map-view">
             <div id="map"></div>
+            <a class="map-camera-shortcut" id="map-camera-shortcut" href="html/camera.html" aria-label="Open camera">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M4 7.5h3l1.5-2h7l1.5 2h3a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 20 19.5H4A1.5 1.5 0 0 1 2.5 18V9A1.5 1.5 0 0 1 4 7.5Z" />
+                    <circle cx="12" cy="13" r="3.5" />
+                </svg>
+            </a>
         </section>
 
         <script>

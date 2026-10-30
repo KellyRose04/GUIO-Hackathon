@@ -1141,3 +1141,241 @@ button {
         min-height: 0;
     }
 }
+
+/* Camera-first layout: keep the existing check-in logic, while showing only
+   the live preview, photo controls, and QR scan mode. */
+:root { --camera: #20242d; }
+
+.main {
+    position: fixed;
+    inset: 56px 0 var(--bottom-nav-h);
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: none;
+    margin: 0;
+    padding: 12px;
+    overflow: hidden;
+}
+
+.camera-panel {
+    width: min(100%, 1100px);
+    height: 100%;
+    min-height: 0;
+    margin: 0 auto;
+    background: var(--camera);
+}
+
+.sidebar,
+.gps-badge,
+.completion-site,
+#completion-verification,
+.completion-rewards,
+.completion-progress,
+.completion-quest,
+#completion-distance-row,
+.completion-offline {
+    display: none !important;
+}
+
+.camera {
+    inset: 78px 9% 135px;
+}
+
+.camera-exit {
+    position: absolute;
+    z-index: 4;
+    top: 14px;
+    left: 14px;
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border: 1px solid rgba(255, 254, 250, 0.65);
+    border-radius: 999px;
+    background: rgba(16, 20, 28, 0.45);
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 750;
+    text-decoration: none;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.camera-exit svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.camera-exit:hover,
+.camera-exit:focus-visible {
+    background: rgba(16, 20, 28, 0.72);
+}
+
+.camera-modes {
+    position: absolute;
+    z-index: 4;
+    top: 14px;
+    right: 14px;
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid rgba(255, 254, 250, 0.65);
+    border-radius: 999px;
+    background: rgba(16, 20, 28, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.camera-mode {
+    min-width: 92px;
+    min-height: 34px;
+    padding: 6px 13px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.camera-mode.is-active {
+    background: var(--white);
+    color: var(--ink);
+}
+
+.camera-mode:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.camera-dock {
+    height: 104px;
+    justify-content: center;
+    padding: 0;
+    background: rgba(16, 20, 28, 0.35);
+}
+
+.shutter-wrap {
+    bottom: 17px;
+}
+
+.shutter {
+    width: 64px;
+    height: 64px;
+}
+
+.shutter::before {
+    width: 46px;
+    height: 46px;
+}
+
+.camera-panel.is-scanning .shutter-wrap {
+    display: none;
+}
+
+.camera-panel.is-scanning .preview-caption {
+    display: none;
+}
+
+.camera-panel.is-scanning .camera {
+    inset: 78px 9% 120px;
+}
+
+.preview-caption {
+    bottom: 116px;
+}
+
+.qr-result {
+    position: absolute;
+    z-index: 5;
+    right: 8%;
+    bottom: 128px;
+    left: 8%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(255, 254, 250, 0.95);
+    color: var(--ink);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+}
+
+.qr-result p {
+    min-width: 0;
+    max-height: 4.2em;
+    overflow: auto;
+    overflow-wrap: anywhere;
+    font-size: 12px;
+}
+
+.qr-result button {
+    flex: 0 0 auto;
+    padding: 7px 10px;
+    border: 1.5px solid var(--ink);
+    border-radius: 9px;
+    background: var(--white);
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.camera-panel.is-captured .camera-feed {
+    visibility: hidden;
+}
+
+.camera-retry,
+.verify-retry {
+    bottom: 116px;
+}
+
+@media (min-width: 768px) {
+    .main {
+        inset: var(--nav-h) 0 0;
+        padding: 18px 28px 22px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .main {
+        position: absolute;
+        inset: var(--nav-h) 0 0;
+        display: block;
+        padding: 20px 32px 24px;
+    }
+}
+
+@media (max-width: 520px) {
+    .main {
+        padding: 8px;
+    }
+
+    .camera {
+        inset: 72px 7% 126px;
+    }
+
+    .camera-dock {
+        height: 94px;
+    }
+
+    .preview-caption {
+        bottom: 104px;
+    }
+
+    .qr-result {
+        right: 5%;
+        bottom: 110px;
+        left: 5%;
+    }
+}

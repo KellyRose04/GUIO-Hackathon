@@ -31,6 +31,11 @@
     cameraRetry: document.getElementById("camera-retry"),
     verifyRetry: document.getElementById("verify-retry"),
     captureButton: document.getElementById("capture-button"),
+    photoMode: document.getElementById("photo-mode"),
+    qrMode: document.getElementById("qr-mode"),
+    qrResult: document.getElementById("qr-result"),
+    qrResultText: document.getElementById("qr-result-text"),
+    qrRescan: document.getElementById("qr-rescan"),
     earnStampButton: document.getElementById("earn-stamp-button"),
     // Nearby-site reward text and account XP in the header.
     rewardTitle: document.getElementById("reward-title"),
@@ -50,6 +55,10 @@
   // Media state controls preview and stream cleanup.
   // Browser stream used by the live preview and photo capture.
   let cameraStream = null;
+  let cameraMode = "photo";
+  let qrDetector = null;
+  let qrScanning = false;
+  let qrAnimationFrame = null;
   // Location and site state drive the distance display and check-in eligibility.
   // Watch handle is cleared when the page is closed.
   let locationWatch = null;
@@ -360,6 +369,7 @@
     // Disable the shutter until the camera is ready and no operation is active.
     elements.captureButton.disabled =
       !cameraReady ||
+      cameraMode !== "photo" ||
       capturing ||
       verifying ||
       awarding ||
@@ -370,6 +380,9 @@
     elements.verifyRetry.hidden =
       !pendingPhoto || Boolean(verifiedSite) || verifying || checkInComplete;
     elements.earnStampButton.disabled = !verifiedSite || awarding || checkInComplete;
+    const modeLocked = capturing || verifying || awarding || Boolean(verifiedSite) || checkInComplete;
+    elements.photoMode.disabled = modeLocked;
+    elements.qrMode.disabled = modeLocked;
   }
 
   // Updates the site card, GPS badge, and map reward shown beside the preview.
@@ -408,11 +421,9 @@
         : "Check in here to earn this site's map XP and stamp.";
     // Avoid replacing verification messages while a photo is being processed.
     if (!pendingPhoto && !verifiedSite) {
-      elements.previewCaption.textContent = stale
-        ? "Using saved nearby-site data. Connect to refresh the nearest spot."
-        : isInRange
-          ? "You’re close enough to check in. Take a photo of this site."
-          : `Move within ${CHECK_IN_RADIUS_METERS} m of ${site.name} to check in.`;
+      elements.previewCaption.textContent = cameraReady
+        ? "Camera ready. Take a photo or scan a QR code."
+        : "Requesting camera access…";
     }
     updateStepStates();
     updateCameraControls();
@@ -429,7 +440,9 @@
     elements.rangeTag.classList.add("out-of-range");
     elements.gpsBadgeText.textContent = "No nearby sites";
     elements.gpsBadge.classList.add("out-of-range");
-    elements.previewCaption.textContent = "No nearby sites";
+    elements.previewCaption.textContent = cameraReady
+      ? "Camera ready. Take a photo or scan a QR code."
+      : "Requesting camera access…";
     elements.rewardTitle.textContent = "No check-in reward available";
     elements.rewardDescription.textContent = "Nearby site information could not be loaded.";
     updateStepStates();
@@ -585,7 +598,7 @@
     // Request camera access only when the browser supports the media API.
     if (!navigator.mediaDevices?.getUserMedia) {
       elements.previewCaption.textContent =
-        "Camera access requires HTTPS or localhost. Open this app at http://localhost/cs312-justiceleague-mid/ or enable HTTPS for this address.";
+        "Camera access needs HTTPS or localhost. Open the app securely and try again.";
       elements.cameraRetry.hidden = false;
       cameraReady = false;
       updateCameraControls();
@@ -604,9 +617,10 @@
       // Start the preview and enable the shutter after camera access succeeds.
       await elements.video.play();
       cameraReady = true;
-      elements.previewCaption.textContent = "Camera ready. Location is checked separately.";
+      elements.previewCaption.textContent = "Camera ready. Take a photo or scan a QR code.";
       elements.cameraRetry.hidden = true;
       updateCameraControls();
+      if (cameraMode === "qr") setCameraMode("qr");
       return true;
     } catch (error) {
       console.error("Could not start the camera:", error);
@@ -624,6 +638,93 @@
     }
   }
 
+  function stopQrScanning() {
+    qrScanning = false;
+    if (qrAnimationFrame !== null) {
+      window.cancelAnimationFrame(qrAnimationFrame);
+      qrAnimationFrame = null;
+    }
+  }
+
+  async function setCameraMode(mode) {
+    cameraMode = mode === "qr" ? "qr" : "photo";
+    stopQrScanning();
+    elements.panel.classList.toggle("is-scanning", cameraMode === "qr");
+    elements.photoMode.classList.toggle("is-active", cameraMode === "photo");
+    elements.photoMode.setAttribute("aria-pressed", String(cameraMode === "photo"));
+    elements.qrMode.classList.toggle("is-active", cameraMode === "qr");
+    elements.qrMode.setAttribute("aria-pressed", String(cameraMode === "qr"));
+    elements.qrResult.hidden = cameraMode !== "qr";
+    elements.qrRescan.hidden = true;
+
+    if (cameraMode === "photo") {
+      elements.qrResultText.textContent = "";
+      elements.previewCaption.textContent = cameraReady
+        ? "Camera ready. Take a photo when you are ready."
+        : "Requesting camera access…";
+      updateCameraControls();
+      return;
+    }
+
+    elements.capturedPhoto.hidden = true;
+    elements.capturedPhoto.removeAttribute("src");
+    elements.video.hidden = false;
+    elements.panel.classList.remove("is-captured");
+    elements.qrResultText.textContent = "Point your camera at a QR code.";
+    if (!cameraReady) {
+      elements.qrResultText.textContent = "Allow camera access to scan a QR code.";
+      updateCameraControls();
+      return;
+    }
+    if (!("BarcodeDetector" in window)) {
+      elements.qrResultText.textContent = "QR scanning is not supported by this browser. Try a recent version of Chrome.";
+      updateCameraControls();
+      return;
+    }
+
+    try {
+      qrDetector = new window.BarcodeDetector({ formats: ["qr_code"] });
+      qrScanning = true;
+      elements.previewCaption.textContent = "Scanning for a QR code…";
+      scanQrFrame();
+    } catch (error) {
+      console.error("Could not start the QR scanner:", error);
+      elements.qrResultText.textContent = "Could not start QR scanning on this device.";
+    }
+    updateCameraControls();
+  }
+
+  async function scanQrFrame() {
+    if (!qrScanning) return;
+    if (elements.video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+      qrAnimationFrame = window.requestAnimationFrame(scanQrFrame);
+      return;
+    }
+
+    try {
+      const results = await qrDetector.detect(elements.video);
+      if (!qrScanning) return;
+      const value = results.find((result) => result.rawValue)?.rawValue;
+      if (value) {
+        stopQrScanning();
+        elements.qrResultText.textContent = value.slice(0, 500);
+        elements.qrRescan.hidden = false;
+        elements.previewCaption.textContent = "QR code scanned.";
+        updateCameraControls();
+        return;
+      }
+    } catch (error) {
+      console.error("Could not read the QR code:", error);
+      stopQrScanning();
+      elements.qrResultText.textContent = "Could not read this QR code. Try scanning again.";
+      elements.qrRescan.hidden = false;
+      updateCameraControls();
+      return;
+    }
+
+    qrAnimationFrame = window.requestAnimationFrame(scanQrFrame);
+  }
+
   // Converts a captured image into the format sent to the check-in API.
   function dataUrlFromBlob(blob) {
     return new Promise((resolve, reject) => {
@@ -633,6 +734,23 @@
       reader.onload = () => resolve(reader.result);
       reader.onerror = () => reject(reader.error || new Error("Could not read the captured photo."));
       reader.readAsDataURL(blob);
+    });
+  }
+
+  function requestPhotoLocation() {
+    if (!navigator.geolocation) return Promise.resolve(null);
+    return new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          currentPosition = position.coords;
+          resolve(position.coords);
+        },
+        () => {
+          currentPosition = null;
+          resolve(null);
+        },
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 12000 }
+      );
     });
   }
 
@@ -767,7 +885,7 @@
       thumbnail.className = "recent-thumb";
       const icon = document.createElement("img");
       icon.className = "recent-icon";
-      icon.src = "assets/building.png";
+      icon.src = "../assets/pin.png";
       icon.alt = "";
       thumbnail.appendChild(icon);
 
@@ -826,7 +944,18 @@
       updateCameraControls();
       throw error;
     }
-    // Attach the latest GPS fix to the photo so the server can validate the visit.
+    elements.capturedPhoto.src = imageUrl;
+    elements.capturedPhoto.hidden = false;
+    elements.video.hidden = true;
+    elements.panel.classList.add("is-captured");
+    elements.previewCaption.textContent = "Preparing your photo…";
+    try {
+      await requestPhotoLocation();
+    } catch (error) {
+      console.warn("Could not get a photo location:", error);
+      currentPosition = null;
+    }
+    // Attach a location fix only when available so the server can validate the check-in.
     const photo = {
       id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       imageUrl,
@@ -848,7 +977,7 @@
       checkInComplete = false;
       completionVerified = false;
       updateStepStates();
-      elements.previewCaption.textContent = "Checking the photo location against the tourist map…";
+      elements.previewCaption.textContent = "Saving your photo…";
       await verifyCheckIn(photo);
     } catch (error) {
       console.error("Could not process the captured photo:", error);
@@ -868,7 +997,7 @@
     verifying = true;
     updateStepStates();
     updateCameraControls();
-    elements.previewCaption.textContent = "Verifying the photo location against registered tourist spots…";
+    elements.previewCaption.textContent = "Verifying your check-in…";
 
     try {
       if (
@@ -927,9 +1056,7 @@
       // Require the chosen site to be within the check-in radius.
       if (!site || site.distance > CHECK_IN_RADIUS_METERS) {
         // A missing selected site or excessive distance is saved as unverified, without reward.
-        const reason = site
-          ? `Move within ${CHECK_IN_RADIUS_METERS} m of ${site.name}. Your current GPS position is ${formatDistance(site.distance)} away.`
-          : "The selected map site could not be found. Open check-in from that site’s map details and try again.";
+        const reason = "This check-in could not be verified. Please try again.";
         await completeUnverifiedPhoto(photo, false, reason);
         return;
       }
@@ -957,8 +1084,7 @@
       elements.rangeTag.classList.remove("out-of-range");
       elements.gpsBadgeText.textContent = `Map verified · ${formatDistance(site.distance)} away`;
       elements.gpsBadge.classList.remove("out-of-range");
-      elements.previewCaption.textContent =
-        `${site.name} is verified. Completing your check-in…`;
+      elements.previewCaption.textContent = "Check-in verified. Completing…";
       updateStepStates();
       // Reward and quest progress are changed only after server-side verification succeeds.
       await earnStamp();
@@ -1087,7 +1213,7 @@
   async function completeUnverifiedPhoto(
     photo,
     alreadySaved = false,
-    reason = "Location unverified. No XP or level was awarded."
+    reason = "This check-in could not be verified."
   ) {
     // Save unverified photos too, unless verification already created the database record.
     if (!alreadySaved && !photo.checkinId) {
@@ -1108,8 +1234,7 @@
     elements.rewardTitle.textContent = "+0 XP · Photo saved to your gallery";
     elements.rewardDescription.textContent =
       "Location unverified. No XP or level was awarded.";
-    document.getElementById("checkin-dialog-title").textContent =
-      "Photo saved to your gallery";
+    document.getElementById("checkin-dialog-title").textContent = "Photo saved";
     document.getElementById("verification-status").textContent = "Location Unverified";
     document.getElementById("verification-status").classList.add("unverified");
     document.getElementById("verification-status").hidden = false;
@@ -1125,7 +1250,7 @@
     document.getElementById("completion-quest").hidden = true;
     document.getElementById("completion-distance-row").hidden = true;
     // Show the popup after all its unverified details have been set.
-    elements.previewCaption.textContent = reason;
+    elements.previewCaption.textContent = "Photo saved. This check-in could not be verified.";
     if (!elements.dialog.open) elements.dialog.showModal();
   }
 
@@ -1186,6 +1311,7 @@
         reward.quests_completed.length ||
         reward.streak_updated
       ) {
+        if (window.TourTrailNotifications?.showEarnedRewards) {
         window.TourTrailNotifications.showEarnedRewards({
           badges: reward.badges_awarded,
           stamp: reward.stamp_status === "awarded"
@@ -1196,12 +1322,13 @@
         }, passport?.badges || []).catch((error) => {
           console.error("Could not show earned reward notifications:", error);
         });
+        }
       }
       completeCheckIn(totalXp, gainedXp, stampStatus);
     } catch (error) {
       console.error("Could not award the verified stamp:", error);
       elements.previewCaption.textContent =
-        "The location is verified, but the stamp could not be saved. Please try again.";
+        "Check-in verified, but it could not be completed. Please try again.";
     } finally {
       awarding = false;
       updateCameraControls();
@@ -1263,15 +1390,15 @@
       "GPS matched a registered tourist spot";
     // Open the popup after updating its verified check-in details.
     elements.previewCaption.textContent =
-      "Verified check-in saved. The camera is still running.";
+      "Check-in complete. Take another photo or scan a QR code.";
     if (!elements.dialog.open) elements.dialog.showModal();
   }
 
   // Sets up the camera page, connects its buttons, and starts camera and GPS.
   function init() {
-    // Set temporary loading labels before GPS, camera, and Passport requests complete.
+    // Set a camera status while the live preview starts.
     elements.previewCaption.textContent = "Requesting camera access…";
-    // Ask for the camera immediately; GPS permission or errors must not delay it.
+    // Ask for camera access immediately. Location is requested only after a photo is taken.
     startCamera();
     elements.siteName.textContent = "Finding nearest spot…";
     elements.siteType.textContent = "Waiting for your location.";
@@ -1279,10 +1406,6 @@
     elements.rewardTitle.textContent = "Nearby site rewards";
     elements.rewardDescription.textContent = "Finding the closest tourist spot.";
     elements.xpCount.textContent = "—";
-    // Load the total XP independently from the check-in reward popup.
-    loadAccountXp().catch((error) => {
-      console.error("Could not load the account XP total:", error);
-    });
     // Both offline indicators should reflect the browser's current network state.
     // Keep offline notices in sync with browser network events.
     const offlineNotices = [
@@ -1325,6 +1448,9 @@
         elements.previewCaption.textContent = "Could not save the photo. Please try again.";
       });
     });
+    elements.photoMode.addEventListener("click", () => setCameraMode("photo"));
+    elements.qrMode.addEventListener("click", () => setCameraMode("qr"));
+    elements.qrRescan.addEventListener("click", () => setCameraMode("qr"));
     elements.cameraRetry.addEventListener("click", startCamera);
     // Let the visitor retry verification using the same captured photo.
     elements.verifyRetry.addEventListener("click", () => {
@@ -1347,6 +1473,11 @@
       verifiedSite = null;
       checkInComplete = false;
       completionVerified = false;
+      elements.capturedPhoto.hidden = true;
+      elements.capturedPhoto.removeAttribute("src");
+      elements.video.hidden = false;
+      elements.panel.classList.remove("is-captured");
+      setCameraMode("photo");
       // Restore default dialog styling so a later check-in starts in a clean state.
       document.getElementById("checkin-dialog-title").textContent =
         "Check-in complete!";
@@ -1362,23 +1493,13 @@
       if (event.target === elements.dialog) closeCheckInDialog();
     });
 
-    // Start GPS updates, or show an unavailable message if geolocation is unsupported.
-    if (!navigator.geolocation) {
-      locationError({ code: 0 });
-    } else {
-      // Watch continuously so the displayed nearest site stays current as the user moves.
-      locationWatch = navigator.geolocation.watchPosition(
-        updateLocation,
-        locationError,
-        { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
-      );
-    }
     // Stop GPS and camera hardware when the visitor leaves the camera page.
     window.addEventListener("pagehide", () => {
       // Release hardware resources when navigating away from the camera page.
       if (locationWatch !== null && navigator.geolocation) {
         navigator.geolocation.clearWatch(locationWatch);
       }
+      stopQrScanning();
       cameraStream?.getTracks().forEach((track) => track.stop());
     }, { once: true });
   }
