@@ -1631,6 +1631,13 @@ html, body { font-size: 14px; line-height: 1.45; }
 
 @media (max-width: 767px) {
     .dashboard-content { top: 56px; }
+    .dashboard-content {
+        scrollbar-width: none;
+    }
+
+    .dashboard-content::-webkit-scrollbar {
+        display: none;
+    }
 }
 
 @media (max-width: 650px) {
