@@ -318,6 +318,15 @@
     document.getElementById("dialog-progress-label").textContent = quest.isActive ? "Quest progress" : "Route length";
     const percent = quest.isActive && quest.target ? Math.min(100, (quest.progress / quest.target) * 100) : 0;
     progressFill.style.width = `${percent}%`;
+<<<<<<< HEAD
+=======
+    rewardTitle.textContent = "Quest reward";
+    rewardCopy.textContent = quest.isDone
+      ? "You have completed this quest."
+      : quest.isActive
+        ? "Complete the destinations to finish this quest."
+        : "Start this quest to begin exploring its destinations.";
+>>>>>>> 3c74c87e040657ea1aea96b8615a0c863023967a
     document.getElementById("dialog-mission-total").textContent = `${stops.length || quest.target || 0} total`;
 
     missionList.replaceChildren();

@@ -144,74 +144,22 @@ button { cursor: pointer; }
   font-weight: 700;
 }
 
-#player-status {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-    min-width: 0;
-}
-
-#player-status .avatar {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    line-height: 0;
-    overflow: hidden;
-}
-
-#player-status .avatar img,
-#player-status .avatar svg,
-#player-status .avatar .icon,
-#player-status .avatar i {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: block;
-    width: 22px;
-    height: 22px;
-    margin: 0;
-    padding: 0;
-    flex: none;
-}
-
-.stat-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 10px;
-    border: 1px solid var(--ink);
-    border-radius: 99px;
-    background: var(--gold-tint);
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1.45;
-    color: var(--ink);
-    white-space: nowrap;
-}
-
-.stat-pill.star {
-    background: var(--teal-tint);
-}
-
+#player-status { display: flex; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
 .avatar {
-    width: 40px;
-    height: 40px;
-    flex: 0 0 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    margin: 0;
-    overflow: hidden;
-    border: 2px solid var(--ink);
-    border-radius: 50%;
-    background: var(--placeholder);
-    line-height: 0;
+  display: flex;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--placeholder);
+  color: var(--ink);
 }
+
+.avatar .icon { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
 .avatar img,
 .avatar .icon {
@@ -223,22 +171,15 @@ button { cursor: pointer; }
     object-fit: contain;
 }
 
-#player-status > .stat-pill:has(#streak-count:empty),
-#player-status > .stat-pill:has(#xp-count:empty) {
-    display: none;
-}
-
 #player-avatar {
     width: 40px;
     height: 40px;
     flex: 0 0 40px;
     margin: 0;
     padding: 0;
-    border: 2px solid var(--ink);
-    border-radius: 50%;
-    background: var(--placeholder);
-    object-fit: cover;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ==========================================================================
@@ -509,47 +450,6 @@ button { cursor: pointer; }
   flex-shrink: 0;
 }
 
-/* Progress Bar Row */
-.quest-banner-progress-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-}
-
-.quest-banner-progress-bar {
-  flex: 1;
-  min-width: 0;
-  height: 8px;
-  border: 1.5px solid var(--ink);
-  border-radius: 99px;
-  background: var(--gold-tint);
-  overflow: hidden;
-  appearance: none;
-}
-
-.quest-banner-progress-bar::-webkit-progress-bar {
-  background: var(--gold-tint);
-  border-radius: 99px;
-}
-
-.quest-banner-progress-bar::-webkit-progress-value {
-  background: var(--teal);
-  border-radius: 99px;
-}
-
-.quest-banner-progress-bar::-moz-progress-bar {
-  background: var(--teal);
-  border-radius: 99px;
-}
-
-.quest-banner-count {
-  font-size: 11px;
-  font-weight: 700;
-  color: #536D88;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
 /* ==========================================================================
    4. WIREFRAME CALLOUT POPUPS & CUSTOM MAP PINS
    ========================================================================== */
@@ -1090,10 +990,6 @@ button { cursor: pointer; }
     justify-content: flex-end;
     gap: 10px;
     min-width: 0;
-  }
-
-  #player-avatar {
-      display: block;
   }
 
   .avatar {

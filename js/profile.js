@@ -4,8 +4,6 @@
   const ACCOUNT_STORAGE_KEY = "tourtrail-active-username";
   const activeUrl = new URL(window.location.href);
   const requestedUser = activeUrl.searchParams.get("user");
-  // The offline flag is an internal navigation detail, not part of the account selection.
-  activeUrl.searchParams.delete("offline");
   let username = "";
 
   try {
@@ -47,7 +45,6 @@
   // Expose account-aware URL helpers for map, camera, passport, and gallery scripts.
   const PENDING_CHECKINS_KEY = "tourtrail-pending-checkins";
   const SERVER_OFFLINE_KEY = "tourtrail-server-offline";
-  const OFFLINE_CONTINUE_KEY = "tourtrail-offline-continue";
   let syncInProgress = false;
   let pendingSyncTimer = null;
 
@@ -66,17 +63,9 @@
   }
 
   function updateConnectionStatus() {
-    let serverOffline = false;
-    try {
-      serverOffline = window.localStorage.getItem(SERVER_OFFLINE_KEY) === "true";
-    } catch (error) {
-      console.error("Could not read the saved connection status:", error);
-    }
-
-    let status = document.getElementById("connection-status");
     let pendingStatus = document.getElementById("pending-status");
-    if (!status || !pendingStatus) {
-      const header = document.querySelector("#top-nav, .offline-nav");
+    if (!pendingStatus) {
+      const header = document.querySelector("#top-nav");
       if (!header) return;
       let bar = document.getElementById("connection-bar");
       if (!bar) {
@@ -85,26 +74,15 @@
         bar.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;padding:8px 16px;";
         header.insertAdjacentElement("afterend", bar);
       }
-      if (!status) {
-        status = document.createElement("p");
-        status.id = "connection-status";
-        status.setAttribute("role", "status");
-        status.setAttribute("aria-live", "polite");
-        status.style.cssText = "margin:0;padding:5px 12px;border:1px solid #174B83;border-radius:99px;background:#FBF9F2;font-size:12px;font-weight:700;";
-        bar.appendChild(status);
-      }
-      if (!pendingStatus) {
-        pendingStatus = document.createElement("p");
-        pendingStatus.id = "pending-status";
-        pendingStatus.setAttribute("role", "status");
-        pendingStatus.setAttribute("aria-live", "polite");
-        pendingStatus.style.cssText = "margin:0;padding:5px 12px;border:1px solid #174B83;border-radius:99px;background:#FBF9F2;font-size:12px;font-weight:700;";
-        pendingStatus.innerHTML = '<span id="pending-count">0</span> record(s) waiting to be sent';
-        bar.appendChild(pendingStatus);
-      }
+      pendingStatus = document.createElement("p");
+      pendingStatus.id = "pending-status";
+      pendingStatus.setAttribute("role", "status");
+      pendingStatus.setAttribute("aria-live", "polite");
+      pendingStatus.style.cssText = "margin:0;padding:5px 12px;border:1px solid #174B83;border-radius:99px;background:#FBF9F2;font-size:12px;font-weight:700;";
+      pendingStatus.innerHTML = '<span id="pending-count">0</span> check-ins pending';
+      bar.appendChild(pendingStatus);
     }
 
-    const isOffline = !navigator.onLine || serverOffline;
     let count = 0;
     try {
       // Keep the pending count and its status pill synchronized with local queued uploads.
@@ -116,12 +94,6 @@
       pendingStatus.hidden = false;
       pendingStatus.textContent = "Pending check-ins could not be read.";
     }
-    status.textContent = isOffline ? "Offline — using saved data" : "Online";
-    status.dataset.state = isOffline ? "offline" : "online";
-    status.hidden = !isOffline && count === 0;
-    status.style.background = isOffline ? "#FFEBEB" : "#FBF9F2";
-    status.style.borderColor = isOffline ? "#E5484D" : "#174B83";
-    status.style.color = isOffline ? "#E5484D" : "#174B83";
   }
 
   function savePendingCheckIns(records) {
@@ -150,7 +122,6 @@
   function markServerOnline() {
     try {
       window.localStorage.removeItem(SERVER_OFFLINE_KEY);
-      window.sessionStorage.removeItem(OFFLINE_CONTINUE_KEY);
     } catch (error) {
       console.error("Could not save the online connection status:", error);
     }
@@ -173,20 +144,6 @@
 
   function pendingCheckInCount() {
     return readPendingCheckIns().length;
-  }
-
-  function showOfflinePage() {
-    if (window.location.pathname.endsWith("/offline.html")) return false;
-    try {
-      if (window.sessionStorage.getItem(OFFLINE_CONTINUE_KEY) === "true") {
-        return false;
-      }
-      window.sessionStorage.setItem("tourtrail-offline-return", window.location.href);
-    } catch (error) {
-      console.error("Could not save the page to return to after offline mode:", error);
-    }
-    window.location.href = accountUrl("offline.html");
-    return true;
   }
 
   function queueCheckIn(photo, siteId = null) {
@@ -323,7 +280,6 @@
     apiUrl: accountUrl,
     markServerOffline,
     markServerOnline,
-    showOfflinePage,
     queueCheckIn,
     syncPendingCheckIns,
     updateConnectionStatus,
@@ -376,7 +332,7 @@
       }
     });
 
-    // Load the account summary once and use it to populate shared XP and streak headers.
+    // Load the account summary once and populate any shared streak indicators.
     if (!username) return;
 
     fetch(account.apiUrl("api/passport.php"), {
@@ -393,17 +349,11 @@
         markServerOnline();
 
         const streak = Number(profile.user.streak_count);
-        const xp = Number(profile.user.xp_count);
         const avatarUrl = profile.user.avatar_url;
 
         // Update all matching header indicators, including pages with duplicate layouts.
         document.querySelectorAll("#streak-count").forEach((element) => {
           element.textContent = Number.isFinite(streak) ? String(streak) : "0";
-        });
-
-        // Update XP count elements
-        document.querySelectorAll("#xp-count").forEach((element) => {
-          element.textContent = Number.isFinite(xp) ? xp.toLocaleString("en-US") : "0";
         });
 
         // Leave the current avatar in place when the account has no saved image.
@@ -417,11 +367,6 @@
           document.querySelector("#streak"),
           "Streaks: ",
           Number.isFinite(streak) ? String(streak) : "0"
-        );
-        setPill(
-          document.querySelector("#xp"),
-          "",
-          `${Number.isFinite(xp) ? xp.toLocaleString("en-US") : "0"} XP`
         );
       })
       .catch((error) => {

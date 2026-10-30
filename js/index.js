@@ -60,7 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     (Number.isInteger(err.status) && err.status >= 500);
                 if (serverUnavailable && window.TourTrailAccount) {
                     window.TourTrailAccount.markServerOffline();
-                    if (window.TourTrailAccount.username && window.TourTrailAccount.showOfflinePage()) return;
                 }
 
                 let cachedSites = [];
@@ -71,10 +70,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     console.error("Could not read the last loaded site data:", cacheError);
                 }
 
-                const renderOfflineSites = (sites) => processAndRenderSites(sites);
+                const renderSavedSites = (sites) => processAndRenderSites(sites);
 
                 if (cachedSites.length) {
-                    renderOfflineSites(cachedSites);
+                    renderSavedSites(cachedSites);
                 } else {
                     console.warn("No saved site snapshot is available yet.");
                     renderNoActiveQuest();
@@ -82,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     }
 
-    // Helper to render sites cleanly for both online and offline paths
+    // Helper to render sites cleanly whether the response is fresh or saved.
     function processAndRenderSites(sites, quests = []) {
         loadedSites = sites;
         renderMapMarkers(loadedSites);
@@ -398,6 +397,12 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('drawer-title').textContent = site.title;
         document.getElementById('drawer-sub').textContent = `${site.formatted_distance} · Open ${site.operating_hours} · ${site.entrance_fee}`;
         document.getElementById('drawer-desc').textContent = site.description;
+<<<<<<< HEAD
+=======
+        document.getElementById('drawer-reward-text').textContent =
+            `Stamp: ${site.stamp_name || 'Unavailable'}`;
+
+>>>>>>> 3c74c87e040657ea1aea96b8615a0c863023967a
         // Check-in button link
         const checkinBtn = document.getElementById('drawer-checkin-btn');
         if (checkinBtn) {

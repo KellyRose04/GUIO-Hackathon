@@ -253,19 +253,6 @@ body {
     font-weight: 600;
 }
 
-#connection-status {
-    background: var(--teal-tint);
-    border: 1.5px solid var(--teal);
-}
-
-#connection-status[data-state="offline"] {
-    background: var(--danger-tint);
-    border-color: var(--coral);
-    color: var(--coral);
-}
-
-#connection-status:empty { display: none; }
-
 #pending-status {
     background: var(--gold-tint);
     border: 1.5px solid var(--ink);
@@ -363,41 +350,6 @@ body {
     font-size: 18px;
     color: var(--text-dark);
     overflow-wrap: anywhere;
-}
-
-.profile-badge {
-    background-color: var(--yellow-main);
-    font-size: 10px;
-    font-weight: 800;
-    padding: 2px 8px;
-    border-radius: 12px;
-    border: 1px solid var(--border-dark);
-    display: inline-block;
-    width: fit-content;
-    margin-bottom: 4px;
-}
-
-.progress-text {
-    font-size: 10px;
-    color: var(--text-gray);
-    font-weight: 600;
-}
-
-.progress-bar-container {
-    width: 100%;
-    height: 12px;
-    background-color: var(--gray-locked-bg);
-    border: var(--border-width) solid var(--border-dark);
-    border-radius: 6px;
-    overflow: hidden;
-    position: relative;
-}
-
-.progress-bar-fill {
-    height: 100%;
-    background-color: var(--teal-main);
-    width: 0;
-    border-right: var(--border-width) solid var(--border-dark);
 }
 
 .stats-grid {
@@ -1230,12 +1182,6 @@ dialog[open] { animation: dlg-pop 0.18s ease-out; }
         color: var(--ink);
         font-weight: 700;
     }
-}
-
-#connection-status[data-state="cached"] {
-    background: var(--gold-tint);
-    border: 1.5px solid var(--gold);
-    color: var(--ink);
 }
 
 @media (max-width: 650px) {
@@ -2205,8 +2151,6 @@ html, body { font-size: 14px; line-height: 1.45; }
 }
 .dashboard-content .profile-avatar .icon { width: 30px; height: 30px; }
 .dashboard-content .profile-name { font-size: 16px; line-height: 1.2; }
-.dashboard-content .profile-badge { font-size: 10px; padding: 2px 8px; margin-bottom: 1px; }
-.dashboard-content .progress-bar-container { height: 8px; border-width: 1px; }
 .dashboard-content .badges-card { padding: 14px 12px; flex-grow: 0; }
 .dashboard-content .badges-header { margin-bottom: 10px; align-items: center; }
 .dashboard-content .badges-header .section-title,

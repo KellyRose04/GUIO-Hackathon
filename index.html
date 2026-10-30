@@ -8,8 +8,7 @@
     <meta name="theme-color" content="#FBF9F2">
     <title>GUIO - Map</title>
     <link rel="icon" type="image/png" href="assets/guio_logo.png">
-    <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="css/index.css?v=map-camera-shortcut-2">
+    <link rel="stylesheet" href="css/index.css?v=no-xp-rewards-1">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="api/leaflet/leaflet-css/leaflet.css">
 
@@ -83,6 +82,14 @@
                     </div>
                 </div>
 
+                <!-- Check-in Reward Box -->
+                <div class="drawer-card reward-card">
+                    <span class="card-icon-box">🏆</span>
+                    <div class="card-text">
+                        <strong>Check-in reward</strong>
+                        <span id="drawer-reward-text">Stamp: Salt Keeper</span>
+                    </div>
+                </div>
             </div>
 
             <div class="drawer-footer">
@@ -115,24 +122,14 @@
             </a>
         </section>
 
-        <script>
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker registered successfully:', reg.scope))
-                    .catch(err => console.log('Service Worker registration failed:', err));
-                });
-            }
-        </script>
-
     </main>
 
     <!-- Leaflet JavaScript Library -->
      <script src="api/leaflet/leaflet-js/leaflet.js"></script>
     
     <!-- Shared account context, then the extracted map API and map UI. -->
-    <script src="js/profile.js?v=14"></script>
+    <script src="js/profile.js?v=15"></script>
     <script src="js/map-api.js?v=1"></script>
-    <script src="js/index.js?v=next-location-1"></script>
+    <script src="js/index.js?v=no-xp-rewards-1"></script>
 </body>
 </html>
