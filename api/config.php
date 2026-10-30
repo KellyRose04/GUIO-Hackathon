@@ -90,34 +90,51 @@ function guio_find_or_create_anonymous_user_id(PDO $pdo, string $anonymousId): i
     $existing->execute([':anonymous_id' => $anonymousId]);
     $userId = $existing->fetchColumn();
     if ($userId !== false) {
-        return (int) $userId;
+        $resolvedUserId = (int) $userId;
+    } else {
+        $legacyUser = $pdo->prepare('SELECT id FROM users WHERE username = :username');
+        $legacyUser->execute([':username' => $username]);
+        $userId = $legacyUser->fetchColumn();
+        if ($userId !== false) {
+            $upgrade = $pdo->prepare(
+                'UPDATE users SET anonymous_id = :anonymous_id
+                  WHERE id = :user_id AND anonymous_id IS NULL'
+            );
+            $upgrade->execute([':anonymous_id' => $anonymousId, ':user_id' => (int) $userId]);
+            $resolvedUserId = (int) $userId;
+        } else {
+            $statement = $pdo->prepare(
+                'INSERT INTO users (username, anonymous_id)
+                 VALUES (:username, :anonymous_id)
+                 ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)'
+            );
+            $statement->execute([':username' => $username, ':anonymous_id' => $anonymousId]);
+            $resolvedUserId = (int) $pdo->lastInsertId();
+            if ($resolvedUserId < 1) {
+                throw new PDOException('Could not resolve the anonymous user record.');
+            }
+        }
     }
 
-    $legacyUser = $pdo->prepare('SELECT id FROM users WHERE username = :username');
-    $legacyUser->execute([':username' => $username]);
-    $userId = $legacyUser->fetchColumn();
-    if ($userId !== false) {
-        $upgrade = $pdo->prepare(
-            'UPDATE users SET anonymous_id = :anonymous_id
-              WHERE id = :user_id AND anonymous_id IS NULL'
-        );
-        $upgrade->execute([':anonymous_id' => $anonymousId, ':user_id' => (int) $userId]);
+    guio_award_welcome_badge($pdo, $resolvedUserId);
 
-        return (int) $userId;
+    return $resolvedUserId;
+}
+
+/** Grant the default badge once to each user who opens GUIO. */
+function guio_award_welcome_badge(PDO $pdo, int $userId): void
+{
+    $badgeExists = $pdo->prepare("SELECT 1 FROM badges WHERE badge_key = 'welcome-explorer'");
+    $badgeExists->execute();
+    if ($badgeExists->fetchColumn() === false) {
+        throw new PDOException('The welcome badge is not configured in the database.');
     }
 
-    $statement = $pdo->prepare(
-        'INSERT INTO users (username, anonymous_id)
-         VALUES (:username, :anonymous_id)
-         ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)'
+    $award = $pdo->prepare(
+        "INSERT IGNORE INTO user_badges (user_id, badge_key, is_new)
+         VALUES (:user_id, 'welcome-explorer', 1)"
     );
-    $statement->execute([':username' => $username, ':anonymous_id' => $anonymousId]);
-    $userId = (int) $pdo->lastInsertId();
-    if ($userId < 1) {
-        throw new PDOException('Could not resolve the anonymous device record.');
-    }
-
-    return $userId;
+    $award->execute([':user_id' => $userId]);
 }
 
 /** Look up an account's database ID without exposing other user fields. */

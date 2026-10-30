@@ -380,9 +380,12 @@
 
       stopQrCamera();
       qrInput.value = "";
+      const badgeMessage = payload.badge_awarded?.name
+        ? ` You earned the ${payload.badge_awarded.name} badge!`
+        : "";
       qrStatus.textContent = payload.quest_status === "done"
-        ? "Quest complete! You finished every destination."
-        : "Destination verified. Your next mission is now current.";
+        ? `Quest complete! You finished every destination.${badgeMessage}`
+        : `Destination verified. Your next mission is now current.${badgeMessage}`;
       await loadQuestCatalog();
       if (payload.quest_status === "done") {
         missionDialog.close();

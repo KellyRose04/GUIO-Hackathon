@@ -18,10 +18,15 @@ function fail(int $code, string $message): void
     exit;
 }
 
+$anonymousId = null;
+$username = '';
 try {
-    $username = guio_requested_username();
+    $anonymousId = guio_requested_anonymous_id();
+    if ($anonymousId === null) {
+        $username = guio_requested_username();
+    }
 } catch (InvalidArgumentException $error) {
-    fail(400, $error->getMessage());
+    fail(400, 'A valid account or anonymous ID is required.');
 }
 
 try {
@@ -32,18 +37,32 @@ try {
     $pdo->exec("SET time_zone = '+08:00'");
 
     // 1. The user (never select email or password_hash)
-    $stmt = $pdo->prepare(
-        'SELECT id, username, COALESCE(NULLIF(display_name, \'\'), username) AS display_name,
-                streak_count, longest_streak
-           FROM users
-          WHERE username = :u'
-    );
-    $stmt->execute([':u' => $username]);
+    if ($anonymousId !== null) {
+        $userId = guio_find_or_create_anonymous_user_id($pdo, $anonymousId);
+        $stmt = $pdo->prepare(
+            'SELECT id, username, COALESCE(NULLIF(display_name, \'\'), username) AS display_name,
+                    streak_count, longest_streak
+               FROM users
+              WHERE id = :user_id'
+        );
+        $stmt->execute([':user_id' => $userId]);
+    } else {
+        $stmt = $pdo->prepare(
+            'SELECT id, username, COALESCE(NULLIF(display_name, \'\'), username) AS display_name,
+                    streak_count, longest_streak
+               FROM users
+              WHERE username = :u'
+        );
+        $stmt->execute([':u' => $username]);
+    }
     $user = $stmt->fetch();
     if (!$user) {
         fail(404, 'User not found');
     }
     $uid = (int) $user['id'];
+    if ($anonymousId === null) {
+        guio_award_welcome_badge($pdo, $uid);
+    }
 
     // Passport site counts include only verified check-ins linked to a registered site.
     $stmt = $pdo->prepare(

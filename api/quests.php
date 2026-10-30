@@ -193,6 +193,18 @@ try {
                 respond(422, ['status' => 'error', 'error' => 'This QR code is invalid or is not for your current destination.']);
             }
 
+            $badgeLookup = $pdo->prepare(
+                'SELECT badge_key, badge_name, description, icon
+                   FROM badges
+                  WHERE site_id = :site_id
+                  LIMIT 1'
+            );
+            $badgeLookup->execute([':site_id' => (int) $stop['site_id']]);
+            $badge = $badgeLookup->fetch();
+            if (!$badge) {
+                throw new PDOException('No badge is configured for the completed destination.');
+            }
+
             $completeStop = $pdo->prepare(
                 'INSERT INTO user_quest_stops (user_quest_id, quest_stop_id)
                  VALUES (:user_quest_id, :quest_stop_id)'
@@ -201,6 +213,16 @@ try {
                 ':user_quest_id' => (int) $activeQuest['user_quest_id'],
                 ':quest_stop_id' => (int) $stop['quest_stop_id'],
             ]);
+
+            $awardBadge = $pdo->prepare(
+                'INSERT IGNORE INTO user_badges (user_id, badge_key, is_new)
+                 VALUES (:user_id, :badge_key, 1)'
+            );
+            $awardBadge->execute([
+                ':user_id' => $userId,
+                ':badge_key' => $badge['badge_key'],
+            ]);
+            $badgeAwarded = $awardBadge->rowCount() === 1;
 
             $progress = $pdo->prepare(
                 'SELECT COUNT(*) AS completed_count,
@@ -234,6 +256,12 @@ try {
                 'status' => 'success',
                 'quest_status' => $isComplete ? 'done' : 'current',
                 'completed_destination_id' => (int) $stop['site_id'],
+                'badge_awarded' => $badgeAwarded ? [
+                    'key' => $badge['badge_key'],
+                    'name' => $badge['badge_name'],
+                    'description' => $badge['description'],
+                    'icon' => $badge['icon'],
+                ] : null,
                 'progress_count' => $completedCount,
                 'active_quest' => $isComplete
                     ? null

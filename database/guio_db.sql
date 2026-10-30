@@ -37,6 +37,71 @@ CREATE TABLE IF NOT EXISTS sites (
     KEY idx_sites_location (latitude, longitude)
 ) ENGINE=InnoDB;
 
+-- A destination badge is catalogued once and awarded per user after mission completion.
+CREATE TABLE IF NOT EXISTS badges (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    badge_key VARCHAR(100) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    badge_name VARCHAR(180) NOT NULL,
+    description TEXT NOT NULL,
+    icon VARCHAR(1000) NOT NULL DEFAULT '',
+    rarity VARCHAR(32) NOT NULL DEFAULT 'common',
+    sort_order INT UNSIGNED NOT NULL DEFAULT 0,
+    site_id BIGINT UNSIGNED NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_badges_key (badge_key),
+    UNIQUE KEY uq_badges_site (site_id),
+    CONSTRAINT fk_badges_site
+        FOREIGN KEY (site_id) REFERENCES sites (id)
+        ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Allow catalog badges that are not tied to a destination, such as Welcome.
+SET @make_badge_site_optional_sql = (
+    SELECT IF(
+        IS_NULLABLE = 'NO',
+        'ALTER TABLE badges MODIFY site_id BIGINT UNSIGNED NULL',
+        'SELECT ''badge site_id already nullable'' AS migration_status'
+    )
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'badges'
+      AND COLUMN_NAME = 'site_id'
+);
+
+PREPARE make_badge_site_optional_stmt FROM @make_badge_site_optional_sql;
+EXECUTE make_badge_site_optional_stmt;
+DEALLOCATE PREPARE make_badge_site_optional_stmt;
+
+CREATE TABLE IF NOT EXISTS user_badges (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED NOT NULL,
+    badge_key VARCHAR(100) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    awarded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_new TINYINT(1) NOT NULL DEFAULT 1,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_user_badges_user_badge (user_id, badge_key),
+    CONSTRAINT fk_user_badges_user
+        FOREIGN KEY (user_id) REFERENCES users (id)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_user_badges_badge
+        FOREIGN KEY (badge_key) REFERENCES badges (badge_key)
+        ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+INSERT INTO badges
+    (badge_key, badge_name, description, icon, rarity, sort_order, site_id)
+VALUES
+    ('welcome-explorer', 'Welcome Explorer',
+     'Welcome to GUIO! Your exploration starts here.',
+     'guio_logo.png', 'common', 0, NULL)
+ON DUPLICATE KEY UPDATE
+    badge_name = VALUES(badge_name),
+    description = VALUES(description),
+    icon = VALUES(icon),
+    rarity = VALUES(rarity),
+    sort_order = VALUES(sort_order),
+    site_id = NULL;
+
 
 -- Remove the old column if it exists in an existing database.
 
@@ -485,6 +550,27 @@ VALUES
      '📍',
      'Newtown Convention Center');
 
+-- Create one badge for each destination mission.
+INSERT INTO badges
+    (badge_key, badge_name, description, icon, rarity, sort_order, site_id)
+SELECT
+    CONCAT('destination-', SUBSTRING(m.quest_key, 8)),
+    CONCAT(s.title, ' Explorer'),
+    CONCAT('Complete the mission at ', s.title, ' to earn this badge.'),
+    'pin.png',
+    'common',
+    ROW_NUMBER() OVER (ORDER BY m.quest_key),
+    s.id
+FROM tmp_baguio_quest_map AS m
+JOIN sites AS s ON s.title = m.site_title
+ON DUPLICATE KEY UPDATE
+    badge_name = VALUES(badge_name),
+    description = VALUES(description),
+    icon = VALUES(icon),
+    rarity = VALUES(rarity),
+    sort_order = VALUES(sort_order),
+    site_id = VALUES(site_id);
+
 -- Create or update the nine individual quests.
 -- Each quest has exactly one required destination.
 INSERT INTO quests
@@ -604,6 +690,18 @@ WHERE q.quest_key IN (
     'baguio-discover-newtown'
 )
 AND uq.status = 'completed';
+
+-- Backfill badges for destination missions completed before this badge catalog existed.
+INSERT IGNORE INTO user_badges (user_id, badge_key, awarded_at, is_new)
+SELECT
+    uq.user_id,
+    b.badge_key,
+    uqs.completed_at,
+    0
+FROM user_quest_stops AS uqs
+JOIN user_quests AS uq ON uq.id = uqs.user_quest_id
+JOIN quest_stops AS qs ON qs.id = uqs.quest_stop_id
+JOIN badges AS b ON b.site_id = qs.site_id;
 
 -- Remove the former combined quest only after its progress has been migrated.
 -- Cascading deletion removes only the old quest's own progress and stop records.
