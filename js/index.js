@@ -12,7 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function createCustomIcon(status) {
         let iconPath = 'assets/pin.png';
 
-        if (status === 'visited') {
+        if (status === 'active_quest') {
+            iconPath = 'assets/star-icon.png';
+        } else if (status === 'visited') {
             iconPath = 'assets/marker-check.png';
         } 
 
@@ -115,6 +117,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const card = document.createElement('div');
         card.className = 'quest-card-banner';
+        card.setAttribute('role', 'button');
+        card.tabIndex = 0;
+        card.setAttribute('aria-label', `View details for ${quest.title}`);
 
         card.innerHTML = `
             <div class="quest-banner-header">
@@ -131,12 +136,37 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `;
 
-        card.addEventListener('click', () => {
+        const showQuestDetails = () => {
+            focusQuestLocation(quest);
             openQuestsModal(quests);
+        };
+        card.addEventListener('click', showQuestDetails);
+        card.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                showQuestDetails();
+            }
         });
 
         container.appendChild(card);
         renderNextLocation(quest);
+    }
+
+    function focusQuestLocation(quest) {
+        const nextStop = Array.isArray(quest?.stops)
+            ? quest.stops.find(stop => stop.stop_state === 'next' || stop.state === 'next')
+            : null;
+        const siteId = nextStop?.site_id ?? quest?.next_site_id ?? quest?.next_stop_site_id;
+        const site = siteId == null
+            ? null
+            : loadedSites.find(candidate => String(candidate.id) === String(siteId));
+
+        if (!site) {
+            console.warn("The active quest location is not available on the map.");
+            return;
+        }
+
+        focusSiteOnMap(site);
     }
 
     function renderNextLocation(quest) {
@@ -145,17 +175,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
         container.replaceChildren();
 
-        const nextStop = Array.isArray(quest?.stops)
-            ? quest.stops.find(stop => stop.stop_state === 'next' || stop.state === 'next')
-            : null;
-        const nextSiteId = nextStop?.site_id ?? quest?.next_site_id ?? quest?.next_stop_site_id;
-        const nextSite = nextSiteId == null
+        const questStops = Array.isArray(quest?.stops) ? quest.stops : [];
+        const currentStop = questStops.find(
+            stop => stop.stop_state === 'next' || stop.state === 'next'
+        ) || questStops[0];
+        const currentSiteId = currentStop?.site_id ?? quest?.next_site_id ?? quest?.next_stop_site_id;
+        const currentQuestSite = currentSiteId == null
             ? null
-            : loadedSites.find(site => String(site.id) === String(nextSiteId));
-        const title = nextStop?.title || nextSite?.title || quest?.next_site_title || quest?.next_site_name;
+            : loadedSites.find(site => String(site.id) === String(currentSiteId));
+        const currentLatitude = Number(currentQuestSite?.latitude);
+        const currentLongitude = Number(currentQuestSite?.longitude);
+        const nearbySite = currentQuestSite
+            && Number.isFinite(currentLatitude)
+            && Number.isFinite(currentLongitude)
+            ? loadedSites
+                .filter(site => String(site.id) !== String(currentQuestSite.id))
+                .map(site => ({
+                    site,
+                    distance: distanceBetween(
+                        currentLatitude,
+                        currentLongitude,
+                        Number(site.latitude),
+                        Number(site.longitude)
+                    )
+                }))
+                .filter(candidate => Number.isFinite(candidate.distance))
+                .sort((a, b) => a.distance - b.distance)[0]
+            : null;
+        const resolvedSite = nearbySite?.site || null;
+        const title = resolvedSite?.title || (quest ? 'No nearby location' : 'No active quest');
 
         const card = document.createElement('div');
-        card.className = `next-location-card${title ? '' : ' is-empty'}`;
+        card.className = `next-location-card${resolvedSite ? '' : ' is-empty'}`;
+        if (resolvedSite) {
+            card.setAttribute('role', 'button');
+            card.tabIndex = 0;
+            card.setAttribute('aria-label', `Show ${resolvedSite.title} on map`);
+        }
 
         const pin = document.createElement('span');
         pin.className = 'next-location-pin';
@@ -165,41 +221,64 @@ document.addEventListener("DOMContentLoaded", () => {
         const copy = document.createElement('div');
         copy.className = 'next-location-copy';
         const titleElement = document.createElement('h3');
-        titleElement.textContent = title || (quest ? 'No upcoming stop' : 'No active quest');
+        titleElement.textContent = title;
         const meta = document.createElement('p');
         const locationMeta = [
-            nextSite?.category ? capitalize(nextSite.category) : '',
-            nextSite?.formatted_distance || ''
+            resolvedSite?.category ? capitalize(resolvedSite.category) : '',
+            nearbySite ? `${nearbySite.distance.toFixed(1)} km from ${currentQuestSite.title}` : ''
         ].filter(Boolean);
         if (locationMeta.length) {
             meta.textContent = locationMeta.join(' · ');
-        } else if (title) {
-            meta.textContent = 'Next stop in your active quest';
         } else if (quest?.quest_type === 'streak') {
             meta.textContent = 'Keep checking in to continue this quest.';
         } else if (quest) {
-            meta.textContent = 'Your next stop will appear here when it is available.';
+            meta.textContent = `No other locations found near ${currentQuestSite?.title || 'this quest'}.`;
         } else {
             meta.textContent = 'Start a quest to see your next location here.';
         }
         copy.append(titleElement, meta);
         card.append(pin, copy);
 
-        const latitude = Number(nextSite?.latitude);
-        const longitude = Number(nextSite?.longitude);
-        if (title && Number.isFinite(latitude) && Number.isFinite(longitude)) {
-            const button = document.createElement('button');
-            button.className = 'next-location-button';
-            button.type = 'button';
-            button.textContent = 'Show on map';
-            button.addEventListener('click', () => {
-                map.flyTo([latitude, longitude], 16);
-                if (markersMap[nextSite.id]) markersMap[nextSite.id].openPopup();
+        if (resolvedSite) {
+            const focusLocation = () => focusSiteOnMap(resolvedSite);
+            card.addEventListener('click', focusLocation);
+            card.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    focusLocation();
+                }
             });
-            card.append(button);
         }
 
         container.append(card);
+    }
+
+    function distanceBetween(latitudeA, longitudeA, latitudeB, longitudeB) {
+        if (![latitudeA, longitudeA, latitudeB, longitudeB].every(Number.isFinite)) {
+            return Number.NaN;
+        }
+
+        const radians = degrees => degrees * Math.PI / 180;
+        const latitudeDifference = radians(latitudeB - latitudeA);
+        const longitudeDifference = radians(longitudeB - longitudeA);
+        const haversine = Math.sin(latitudeDifference / 2) ** 2
+            + Math.cos(radians(latitudeA))
+            * Math.cos(radians(latitudeB))
+            * Math.sin(longitudeDifference / 2) ** 2;
+
+        return 6371 * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+    }
+
+    function focusSiteOnMap(site) {
+        const latitude = Number(site?.latitude);
+        const longitude = Number(site?.longitude);
+        if (!site || !Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+            console.warn("The selected location has invalid coordinates.");
+            return;
+        }
+
+        map.flyTo([latitude, longitude], 16);
+        markersMap[site.id]?.openPopup();
     }
 
     function renderNoActiveQuest() {
@@ -242,71 +321,30 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `;
 
-        // If quest_type is 'sites', filter sites specific to this quest
         if (quest.quest_type === 'sites' && loadedSites && loadedSites.length > 0) {
-            
-            // 1. Filter sites based on quest category / hidden gem status
-            let filteredSites = loadedSites;
-            const qKey = (quest.quest_key || quest.title || '').toLowerCase();
-
-            if (qKey.includes('hidden-gems') || qKey.includes('hidden gem')) {
-                filteredSites = loadedSites.filter(s => s.is_hidden_gem == 1);
-            } else if (qKey.includes('heritage')) {
-                filteredSites = loadedSites.filter(s => s.category === 'heritage');
-            } else if (qKey.includes('nature')) {
-                filteredSites = loadedSites.filter(s => s.category === 'nature');
-            } else if (qKey.includes('food')) {
-                filteredSites = loadedSites.filter(s => s.category === 'food');
-            }
-
-            // Fallback: if no specific match found, display all sites
-            if (filteredSites.length === 0) {
-                filteredSites = loadedSites;
-            }
-
             const nextBox = document.createElement('div');
             nextBox.className = 'quest-next-destination-box';
 
-            let optionsHtml = '';
-            filteredSites.forEach(site => {
-                const isSelected = quest.next_site_id == site.id ? 'selected' : '';
-                const visitedTag = site.status === 'visited' ? ' (Visited)' : '';
-                optionsHtml += `<option value="${site.id}" ${isSelected}>${site.title}${visitedTag}</option>`;
-            });
+            const nextMission = Array.isArray(quest.stops)
+                ? quest.stops.find(stop => stop.stop_state === 'next' || stop.state === 'next') || quest.stops[0]
+                : null;
+            const nextSite = nextMission?.site_id != null
+                ? loadedSites.find(site => String(site.id) === String(nextMission.site_id))
+                : null;
+            const missionTitle = nextMission?.title || 'Current mission';
+            const missionLocation = nextSite?.title || nextMission?.site_title || nextMission?.location || 'Explore the next destination';
+            const missionDescription = nextMission?.description || quest.description || 'Complete this mission to continue the quest.';
 
             nextBox.innerHTML = `
-                <span class="quest-next-label">📍 Where to go next?</span>
-                <div class="quest-next-select-row">
-                    <select class="quest-site-select" id="quest-site-select-${quest.quest_id}">
-                        ${optionsHtml}
-                    </select>
-                    <button class="quest-site-go-btn" id="quest-go-btn-${quest.quest_id}">Go</button>
+                <span class="quest-next-label">Mission details</span>
+                <div class="quest-next-copy">
+                    <strong>${missionTitle}</strong>
+                    <span>${missionLocation}</span>
+                    <small>${missionDescription}</small>
                 </div>
             `;
 
             item.appendChild(nextBox);
-
-            // Click listener to fly map to chosen destination
-            setTimeout(() => {
-                const goBtn = document.getElementById(`quest-go-btn-${quest.quest_id}`);
-                const selectEl = document.getElementById(`quest-site-select-${quest.quest_id}`);
-
-                if (goBtn && selectEl) {
-                    goBtn.addEventListener('click', () => {
-                        const targetSiteId = selectEl.value;
-                        const targetSite = loadedSites.find(s => s.id == targetSiteId);
-
-                        if (targetSite) {
-                            modal.hidden = true;
-                            map.flyTo([targetSite.latitude, targetSite.longitude], 16);
-                            if (markersMap[targetSite.id]) {
-                                markersMap[targetSite.id].openPopup();
-                            }
-
-                        }
-                    });
-                }
-            }, 0);
         }
 
         listContainer.appendChild(item);
@@ -330,17 +368,23 @@ document.addEventListener("DOMContentLoaded", () => {
 function renderMapMarkers(sites, activeQuest = null) {
     markersGroup.clearLayers();
     markersMap = {};
-    const nextSiteId = activeQuest?.next_site_id
-        ?? activeQuest?.stops?.find((stop) => stop.stop_state === "next" || stop.state === "next")?.site_id
+    const nextStop = activeQuest?.stops?.find(
+        (stop) => stop.stop_state === "next" || stop.state === "next"
+    );
+    const nextSiteId = nextStop?.site_id
+        ?? activeQuest?.next_site_id
+        ?? activeQuest?.next_stop_site_id
         ?? null;
+    let activeQuestMarker = null;
 
     sites.forEach((site) => {
-        const isNextStop = nextSiteId != null && String(site.id) === String(nextSiteId);
+        const isActiveQuestStop = nextSiteId != null && String(site.id) === String(nextSiteId);
         const marker = L.marker([site.latitude, site.longitude], {
-            icon: createCustomIcon(isNextStop ? "hidden_gem" : site.status)
+            icon: createCustomIcon(isActiveQuestStop ? "active_quest" : site.status)
         });
 
         markersMap[site.id] = marker;
+        if (isActiveQuestStop) activeQuestMarker = marker;
 
         const metaText = `${site.formatted_distance} · ${capitalize(site.category)}${site.is_hidden_gem ? " · Hidden gem" : ""}`;
 
@@ -361,6 +405,11 @@ function renderMapMarkers(sites, activeQuest = null) {
         marker.bindPopup(popupContent);
         markersGroup.addLayer(marker);
     });
+
+    if (activeQuestMarker) {
+        map.flyTo(activeQuestMarker.getLatLng(), 16);
+        activeQuestMarker.openPopup();
+    }
 }
 
 // Global Event Delegation for Popup Details Buttons
@@ -405,18 +454,6 @@ if (mapContainer) {
         document.getElementById('drawer-title').textContent = site.title;
         document.getElementById('drawer-sub').textContent = `${site.formatted_distance} · Open ${site.operating_hours} · ${site.entrance_fee}`;
         document.getElementById('drawer-desc').textContent = site.description;
-        // Check-in button link
-        const checkinBtn = document.getElementById('drawer-checkin-btn');
-        if (checkinBtn) {
-            const cameraUrl = window.TourTrailAccount
-                ? window.TourTrailAccount.pageUrl(`html/camera.html?siteId=${site.id}`)
-                : `html/camera.html?siteId=${site.id}`;
-            checkinBtn.href = cameraUrl;
-            checkinBtn.onclick = (e) => {
-                e.preventDefault();
-                window.location.href = cameraUrl;
-            };
-        }
 
         drawer.classList.add('open');
 

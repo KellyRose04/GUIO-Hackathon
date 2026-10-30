@@ -340,6 +340,11 @@ button { cursor: pointer; }
   background: var(--white);
   box-shadow: 0 4px 0 var(--ink);
 }
+.next-location-card[role="button"] { cursor: pointer; }
+.next-location-card[role="button"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--ink);
+}
 .next-location-card.is-empty { background: var(--gold-tint); }
 .next-location-pin {
   display: grid;
@@ -357,20 +362,6 @@ button { cursor: pointer; }
 .next-location-copy { min-width: 0; flex: 1; }
 .next-location-copy h3 { overflow: hidden; color: var(--ink); font-size: 13px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
 .next-location-copy p { margin-top: 3px; color: var(--muted); font-size: 11px; line-height: 1.35; }
-.next-location-button {
-  flex: 0 0 auto;
-  min-height: 32px;
-  padding: 6px 9px;
-  border: 1.5px solid var(--ink);
-  border-radius: 9px;
-  background: var(--gold-tint);
-  color: var(--ink);
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-}
-.next-location-button:hover { background: var(--cream); }
-
 /* Quest Card */
 .quest-card-banner {
   display: flex;
@@ -661,36 +652,6 @@ button { cursor: pointer; }
   margin-bottom: 20px;
 }
 
-.drawer-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border: 1.5px solid var(--ink);
-  border-radius: 12px;
-  background: var(--white);
-  margin-bottom: 12px;
-}
-
-.drawer-card.reward-card {
-  background: var(--gold-tint);
-}
-
-.card-icon-box {
-  font-size: 20px;
-}
-
-.card-text {
-  display: flex;
-  flex-direction: column;
-  font-size: 13px;
-}
-
-.card-text strong {
-  font-weight: 800;
-  color: var(--ink);
-}
-
 .drawer-footer {
   display: flex;
   gap: 12px;
@@ -877,50 +838,33 @@ button { cursor: pointer; }
   letter-spacing: 0.5px;
 }
 
-.quest-next-select-row {
+.quest-next-copy {
   display: flex;
-  gap: 8px;
-  align-items: center;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.quest-site-select {
-  flex: 1;
-  min-width: 0; /* Prevents long option text from breaking flex item width */
-  width: 100%;
-  padding: 8px 10px;
-  border: 1.5px solid var(--ink);
-  border-radius: 8px;
-  background: var(--cream);
-  font-size: 12px;
-  font-weight: 600;
+  flex-direction: column;
+  gap: 6px;
   color: var(--ink);
-  cursor: pointer;
-  box-sizing: border-box;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
 }
 
-.quest-site-go-btn {
-  padding: 8px 12px;
-  border: 1.5px solid var(--ink);
-  border-radius: 8px;
-  background: var(--gold);
-  font-size: 12px;
+.quest-next-copy strong {
+  font-size: 13px;
   font-weight: 800;
-  color: var(--ink);
-  box-shadow: 0 2px 0 var(--ink);
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.quest-site-go-btn:active {
-  transform: translateY(2px);
-  box-shadow: 0 0 0 var(--ink);
+.quest-next-copy span,
+.quest-next-copy small {
+  display: block;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.quest-next-copy span {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.quest-next-copy small {
+  font-size: 11px;
+  font-style: normal;
 }
 
 /* ==========================================================================

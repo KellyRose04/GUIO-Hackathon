@@ -2361,6 +2361,8 @@ html, body { font-size: 14px; line-height: 1.45; }
     flex-direction: column;
     align-items: stretch;
     gap: clamp(14px, 2vw, 24px);
+    width: min(100%, 680px);
+    margin-inline: auto;
 }
 
 .dashboard-content > .left-col > .neo-card {
