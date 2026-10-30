@@ -31,7 +31,9 @@
       const circle = document.createElement("span");
       circle.className = "badge-circle";
       const image = document.createElement("img");
-      image.src = iconUrl(badge.icon);
+      image.src = badge.key === "welcome-explorer"
+        ? "../assets/guio_badge_logo.png"
+        : iconUrl(badge.icon);
       image.alt = "";
       image.width = 24;
       image.height = 24;

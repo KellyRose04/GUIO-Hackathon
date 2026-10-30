@@ -2312,10 +2312,9 @@ html, body { font-size: 14px; line-height: 1.45; }
 }
 
 .badge-item[data-badge-key="welcome-explorer"] .badge-circle img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
 }
 
 #gallery-title {
