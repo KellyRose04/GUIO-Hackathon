@@ -3,17 +3,17 @@
    ========================================================================== */
 :root {
     /* Declare initial variables for color palette */
-    --ink: #1F2430; 
+    --ink: #174B83; 
     --white: #FFFFFF;
-    --gold: #F5B82E; 
-    --gold-tint: #FFF1CC; 
-    --teal: #2BB39A; 
-    --teal-tint: #D9F4EE; 
-    --avatar: #E6E1D5; 
-    --line: #D9D4C7; 
-    --muted: #6B7280; 
+    --gold: #EAF3FF; 
+    --gold-tint: #EAF3FF; 
+    --teal: #174B83; 
+    --teal-tint: #EAF3FF; 
+    --avatar: #EAF3FF; 
+    --line: #D3E2F3; 
+    --muted: #536D88; 
     --coral: #E5484D; 
-    --transparent: #1f243062;
+    --transparent: #174b8362;
 
     /* Declare values for shared variables*/
     --radius: 14px; /* Card corner radius */
@@ -446,7 +446,7 @@ button {
 
 .dock-button.flash.active {
     background: var(--gold); /* Set the element background. */
-    box-shadow: 0 0 18px rgba(245, 184, 46, 0.8); /* Add a shadow behind the element. */
+    box-shadow: 0 0 18px rgba(23, 75, 131, 0.4); /* Add a shadow behind the element. */
 }
 
 .dock-button.flash:disabled {
@@ -600,6 +600,7 @@ button {
 
 .step.complete .step-indicator {
     background: var(--teal); /* Set the element background. */
+    color: var(--white);
 }
 
 .step.unverified-complete {
@@ -608,7 +609,7 @@ button {
 
 .step.unverified-complete .step-indicator {
     border-color: var(--muted); /* Set the border color. */
-    background: #E5E7EB; /* Set the element background. */
+    background: #EAF3FF; /* Set the element background. */
     color: var(--muted); /* Set the text color. */
 }
 
@@ -739,11 +740,11 @@ button {
     border: 2px solid var(--ink); /* Set the element border. */
     border-radius: 28px; /* Round the element corners. */
     color: var(--ink); /* Set the text color. */
-    box-shadow: 0 4px 0 var(--ink), 0 8px 30px rgba(31, 36, 48, 0.25); /* Add a shadow behind the element. */
+    box-shadow: 0 4px 0 var(--ink), 0 8px 30px rgba(23, 75, 131, 0.25); /* Add a shadow behind the element. */
 }
 
 .checkin-dialog::backdrop {
-    background: rgba(31, 36, 48, 0.62); /* Set the element background. */
+    background: rgba(23, 75, 131, 0.62); /* Set the element background. */
 }
 
 .checkin-dialog-content {
@@ -790,7 +791,7 @@ button {
 }
 
 .verification-status.unverified {
-    color: #4B5563; /* Set the text color. */
+    color: #536D88; /* Set the text color. */
 }
 
 .checkin-dialog-content > #completion-verification {
@@ -901,9 +902,9 @@ button {
 }
 
 .completion-offline {
-    border: 2px dashed #9B9584; /* Set the element border. */
+    border: 2px dashed #AFC4DD; /* Set the element border. */
     background: var(--avatar); /* Set the element background. */
-    color: #394052; /* Set the text color. */
+    color: #174B83; /* Set the text color. */
 }
 
 #completion-distance-row {
@@ -957,7 +958,8 @@ button {
 }
 
 .view-passport {
-    background: var(--gold); /* Set the element background. */
+    background: var(--teal); /* Set the element background. */
+    color: var(--white); /* Set the text color. */
     text-decoration: none; /* Set text decoration. */
 }
 

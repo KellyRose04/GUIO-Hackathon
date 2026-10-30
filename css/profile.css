@@ -1,31 +1,31 @@
 /* Defines reusable site colors, typography, and navigation dimensions. */
 :root {
-    --bg-body: #E5E7EB;
-    --bg-main: #FDFDFB;
-    --border-dark: #2F3135;
+    --bg-body: #EAF3FF;
+    --bg-main: #FFFFFF;
+    --border-dark: #174B83;
     --border-width: 2px;
 
-    --yellow-main: #F6B83B;
-    --yellow-pale: #FBE6B1;
-    --teal-main: #38B291;
-    --teal-pale: #D6EFE9;
+    --yellow-main: #EAF3FF;
+    --yellow-pale: #EAF3FF;
+    --teal-main: #174B83;
+    --teal-pale: #EAF3FF;
     --red-badge: #EF5350;
 
-    --text-dark: #2F3135;
-    --text-gray: #6B7280;
-    --text-light-gray: #9CA3AF;
+    --text-dark: #174B83;
+    --text-gray: #536D88;
+    --text-light-gray: #8CA2BA;
 
-    --gray-locked-bg: #F3F4F6;
-    --gray-locked-border: #D1D5DB;
+    --gray-locked-bg: #EAF3FF;
+    --gray-locked-border: #D3E2F3;
 
-    --ink: #1F2430;
+    --ink: #174B83;
     --white: #FFFFFF;
-    --gold: #F5B82E;
-    --gold-tint: #FFF1CC;
-    --teal: #2BB39A;
-    --teal-tint: #D9F4EE;
-    --placeholder: #E6E1D5;
-    --muted: #6B7280;
+    --gold: #EAF3FF;
+    --gold-tint: #EAF3FF;
+    --teal: #174B83;
+    --teal-tint: #EAF3FF;
+    --placeholder: #EAF3FF;
+    --muted: #536D88;
     --coral: #E5484D;
     --danger-tint: #FDE7E8;
     --nav-h: 72px;
@@ -386,13 +386,13 @@ body {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background-color: #E2E2E2;
+    background-color: #EAF3FF;
     border: var(--border-width) solid var(--border-dark);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: #999;
+    color: #536D88;
 }
 
 /* Controls icon or avatar appearance for .profile-avatar .icon. */
@@ -443,7 +443,7 @@ body {
 .progress-bar-container {
     width: 100%;
     height: 12px;
-    background-color: #E5E7EB;
+    background-color: #EAF3FF;
     border: var(--border-width) solid var(--border-dark);
     border-radius: 6px;
     overflow: hidden;
@@ -700,7 +700,7 @@ body {
 /* Defines interactive and focus states for .stamp-item[data-open="dlg-stamp"]:hover .stamp-circle. */
 .stamp-item[data-open="dlg-stamp"]:hover .stamp-circle {
     transform: scale(1.08) rotate(-4deg);
-    filter: drop-shadow(0 3px 2px rgba(47, 49, 53, 0.2));
+    filter: drop-shadow(0 3px 2px rgba(23, 75, 131, 0.2));
 }
 .badge-item[data-open="dlg-stamp"]:active,
 /* Defines interactive and focus states for .stamp-item[data-open="dlg-stamp"]:active. */
@@ -753,7 +753,7 @@ dialog {
 }
 /* Styles modal popups for stats, stamps, badges, and quests. */
 dialog::backdrop {
-    background: rgba(47, 49, 53, 0.45);
+    background: rgba(23, 75, 131, 0.45);
 }
 /* Styles modal popups for stats, stamps, badges, and quests. */
 dialog[open] { animation: dlg-pop 0.18s ease-out; }
@@ -928,7 +928,7 @@ dialog[open] { animation: dlg-pop 0.18s ease-out; }
 /* Controls chart display and labels for .dlg-bar. */
 .dlg-bar {
     height: 8px;
-    background-color: #E5E7EB;
+    background-color: #EAF3FF;
     border: var(--border-width) solid var(--border-dark);
     border-radius: 4px;
     overflow: hidden;
@@ -968,7 +968,7 @@ dialog[open] { animation: dlg-pop 0.18s ease-out; }
 /* Controls icon or avatar appearance for .dlg-btn .icon. */
 .dlg-btn .icon { width: 14px; height: 14px; }
 /* Controls dialog components for .dlg-btn.primary. */
-.dlg-btn.primary { background-color: var(--yellow-main); }
+.dlg-btn.primary { background-color: var(--teal-main); color: var(--white); }
 /* Defines interactive and focus states for .dlg-btn:hover. */
 .dlg-btn:hover { filter: brightness(0.96); }
 /* Defines interactive and focus states for .dlg-btn:focus-visible. */
