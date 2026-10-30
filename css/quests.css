@@ -175,6 +175,7 @@ h1, h2, h3, h4, p, ul, ol { margin: 0; padding: 0; }
 .quest-emblem { display: grid; width: 46px; height: 46px; flex: 0 0 46px; place-items: center; border: 2px solid var(--navy); border-radius: 50%; background: var(--white); font-size: 23px; }
 .current-quest-info { min-width: 0; flex: 1; }
 .current-quest-info h3 { margin: 0 0 3px; font-size: 17px; }
+.current-quest-info .quest-tag { margin: 2px 0 5px; }
 .current-quest-info p { margin: 0; color: var(--muted-blue); font-size: 12px; line-height: 1.45; }
 .current-quest-actions { display: flex; align-items: center; gap: 12px; }
 .progress-count { color: var(--muted-blue); font-size: 11px; font-weight: 800; white-space: nowrap; }
@@ -190,6 +191,7 @@ h1, h2, h3, h4, p, ul, ol { margin: 0; padding: 0; }
 .filters::-webkit-scrollbar { display: none; }
 .filter-chip { min-height: 34px; flex: 0 0 auto; padding: 6px 13px; border: 1.5px solid var(--navy); border-radius: 999px; background: var(--white); color: var(--navy); font-size: 12px; font-weight: 750; cursor: pointer; }
 .filter-chip.is-active { background: var(--navy); color: var(--white); }
+.category-description { margin: -7px 0 14px; color: var(--muted-blue); font-size: 12px; }
 .quest-grid { display: grid; grid-template-columns: 1fr; gap: 13px; }
 .quest-card { display: flex; align-items: flex-start; gap: 12px; min-width: 0; padding: 14px; color: var(--navy); text-align: left; cursor: pointer; transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease; }
 .quest-card:hover, .quest-card:focus-visible { transform: translateY(-2px); background: var(--pale-blue); box-shadow: 0 5px 0 var(--navy); }

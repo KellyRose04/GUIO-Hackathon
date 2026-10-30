@@ -138,7 +138,7 @@ try {
         'SELECT uq.id AS user_quest_id, uq.status, uq.progress_count,
                 uq.started_at, uq.expires_at, uq.completed_at,
                 q.id AS quest_id, q.quest_key, q.title, q.description, q.icon,
-                q.quest_type, q.target_count, q.xp_reward,
+                q.quest_type, q.quest_category, q.target_count, q.xp_reward,
                 b.badge_name AS reward_badge_name
            FROM user_quests uq
            JOIN quests q ON q.id = uq.quest_id
