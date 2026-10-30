@@ -7,9 +7,9 @@
     <!-- Page settings: character encoding, responsive viewport, and browser tab title -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUIO - Passport</title>
+    <title>GUIO - Profile</title>
 
-    <!-- Browser tab icon and Passport page stylesheet -->
+    <!-- Browser tab icon and Profile page stylesheet -->
     <link rel="icon" type="image/png" href="../assets/guio_logo.png">
     <link rel="stylesheet" href="css/profile.css?v=badge-notifications-6">
 
@@ -44,15 +44,12 @@
             <ul>
                 <li><a href="../index.html" class="nav-item">Map</a></li>
                 <li><a href="camera.html" class="nav-item">Quests</a></li>
-                <li><a href="gallery.html" class="nav-item">Gallery</a></li>
-                <li><a href="passport.html" class="nav-item active" aria-current="page">Passport</a></li>
+                <li><a href="profile.html" class="nav-item active" aria-current="page">Profile</a></li>
             </ul>
         </nav>
 
         <!-- Current streak, total XP, and desktop user avatar -->
         <div class="header-stats" id="player-status">
-            <div class="stat-pill flame" id="streak">Streaks: 0</div>
-            <div class="stat-pill star" id="xp">0 XP</div>
             <div class="avatar desktop-only" id="player-avatar">
                 <img src="assets/user.png" class="icon" alt="" />
             </div>
@@ -62,7 +59,7 @@
     <!-- DASHBOARD CONTENT -->
     <main class="dashboard-content" id="view-passport" aria-labelledby="passport-title">
         <!-- Accessible page heading hidden from the visual layout -->
-        <h2 id="passport-title" hidden>Passport</h2>
+        <h2 id="passport-title" hidden>Profile</h2>
         
         <!-- LEFT COLUMN -->
         <div class="left-col" id="passport-left">
@@ -73,7 +70,7 @@
                 <div class="profile-avatar">
                     <img src="assets/user.png" class="icon" alt="" width="32" height="32" />
                 </div>
-                <!-- Username, current level, and XP loaded by Passport JavaScript -->
+                <!-- Username, current level, and XP loaded by the Profile data script -->
                 <div class="profile-info">
                     <h3 class="profile-name">Explorer</h3>
                     <div class="profile-badge">Level 1 · Bronze Drifter</div>
@@ -201,8 +198,7 @@
         <!-- Mobile navigation uses the same destinations as the desktop menu -->
         <a href="../index.html" class="nav-item">Map</a>
         <a href="camera.html" class="nav-item">Quests</a>
-        <a href="gallery.html" class="nav-item">Gallery</a>
-        <a href="passport.html" class="nav-item active" aria-current="page">Passport</a>
+        <a href="profile.html" class="nav-item active" aria-current="page">Profile</a>
     </nav>
 
 </div>
@@ -212,7 +208,7 @@
 <dialog id="dlg-stat" aria-labelledby="dlg-stat-title">
     <div class="dlg-card">
         <div class="dlg-top">
-            <span class="dlg-tag">Passport stats</span>
+            <span class="dlg-tag">Profile stats</span>
 
         </div>
         <!-- The title, summary, and list are filled when a statistic is selected -->
@@ -248,7 +244,7 @@
         <!-- Collection progress count and its fill bar -->
         <div class="dlg-progress">
             <div class="dlg-progress-row">
-                <span data-field="progress-label">Passport</span>
+                <span data-field="progress-label">Profile</span>
                 <span data-field="progress-count">0 stamps</span>
             </div>
             <div class="dlg-bar" role="progressbar" aria-valuemin="0" aria-valuemax="24" aria-valuenow="0" data-field="progress-bar">
@@ -297,7 +293,7 @@
     </div>
 </dialog>
 
-<!-- Passport script: fetches account data, updates cards, and controls dialogs -->
+<!-- Profile data script: fetches account data, updates cards, and controls dialogs -->
 <script src="js/modules/passport.js?v=18" defer></script>
 </body>
 </html>

@@ -124,16 +124,18 @@ button {
     overflow: hidden; /* Keep the logo image inside its circle. */
     border: 2px solid var(--ink); /* Set the element border. */
     border-radius: 50%; /* Round the element corners. */
-    background: var(--gold); /* Set the element background. */
+    padding: 4px; /* Create a white ring around the mark. */
+    background: var(--white); /* Set the element background. */
 }
 
 .brand .logo-icon {
-    width: 22px; /* Set the element width. */
-    height: 22px; /* Set the element height. */
+    width: 100%; /* Set the element width. */
+    height: 100%; /* Set the element height. */
     max-width: 100%; /* Keep the image within the logo circle. */
     max-height: 100%; /* Keep the image within the logo circle. */
     z-index: 1; /* Set the stacking order. */
-    object-fit: contain; /* Control how replaced content fits its box. */
+    border-radius: 50%; /* Clip the square logo asset into a round mark. */
+    object-fit: cover; /* Control how replaced content fits its box. */
     pointer-events: none; /* Control pointer interaction with the element. */
 }
 
@@ -1060,8 +1062,8 @@ button {
     }
 
     .brand .logo-icon {
-        width: 26px; /* Set the element width. */
-        height: 26px; /* Set the element height. */
+        width: 100%; /* Set the element width. */
+        height: 100%; /* Set the element height. */
     }
 
     #main-nav {
