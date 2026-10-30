@@ -35,17 +35,13 @@ function tourtrail_requested_device_id(): ?string
 /** Create the shared MySQL connection from server-side environment variables. */
 function tourtrail_database(): PDO
 {
-    $host = getenv('GUIO_DB_HOST');
-    $name = getenv('GUIO_DB_NAME');
-    $user = getenv('GUIO_DB_USER');
+    $host = getenv('GUIO_DB_HOST') ?: '127.0.0.1';
+    $name = getenv('GUIO_DB_NAME') ?: 'guio_db';
+    $user = getenv('GUIO_DB_USER') ?: 'root';
     $password = getenv('GUIO_DB_PASSWORD');
     $port = getenv('GUIO_DB_PORT');
-
-    if ($host === false || trim($host) === '' ||
-        $name === false || trim($name) === '' ||
-        $user === false || trim($user) === '' ||
-        $password === false) {
-        throw new PDOException('Database connection is not configured.');
+    if ($password === false) {
+        $password = '';
     }
 
     $portNumber = $port === false || $port === '' ? 3306 : filter_var($port, FILTER_VALIDATE_INT);
