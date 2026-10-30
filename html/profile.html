@@ -1,27 +1,18 @@
-<!-- Profile (Badge Gallery)-->
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <!-- Page settings: character encoding, responsive viewport, and browser tab title -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#134687">
     <title>GUIO - Passport</title>
 
-    <!-- Browser tab icon and Passport page stylesheet -->
     <link rel="icon" type="image/png" href="../assets/guio_logo.png">
-    <link rel="stylesheet" href="css/profile.css?v=guiologo-fill-1">
+    <link rel="stylesheet" href="../css/profile.css?v=blue-2">
+    <link rel="manifest" href="../manifest.json">
 
-    <!-- Shared scripts for account selection and notifications -->
-    <script src="js/account.js?v=12" defer></script>
-    <script src="js/notifications.js?v=7" defer></script>
-
-    <!-- PWA manifest for application installation -->
-    <link rel="manifest" href="manifest.json">
-
-    <!-- Registers the service worker for offline page loading -->
-    <script src="js/pwa-register.js" defer></script>
+    <script src="../js/account.js?v=12" defer></script>
+    <script src="../js/notifications.js?v=7" defer></script>
+    <script src="../js/pwa-register.js" defer></script>
 </head>
 
 <body>
@@ -43,446 +34,740 @@
         <nav id="main-nav" class="desktop-only" aria-label="Main">
             <ul>
                 <li><a href="../index.html" class="nav-item">Map</a></li>
-                <li><a href="quests.html" class="nav-item">Quests</a></li>
+                <li><a href="camera.html" class="nav-item">Quests</a></li>
                 <li><a href="profile.html" class="nav-item active" aria-current="page">Profile</a></li>
             </ul>
         </nav>
 
-        <!-- Current streak, total XP, and desktop user avatar -->
-        <div class="header-stats" id="player-status">
-            <div class="avatar desktop-only" id="player-avatar">
-                <img src="assets/user.png" class="icon" alt="" />
+            <div class="header-stats" id="player-status">
+                <div class="avatar desktop-only" id="player-avatar">
+                    <img
+                        src="../assets/user.png"
+                        class="icon"
+                        alt=""
+                        width="22"
+                        height="22"
+                    >
+                </div>
             </div>
+        </header>
+
+        <!-- Connection status -->
+        <div id="connection-bar">
+            <p
+                id="connection-status"
+                role="status"
+                aria-live="polite"
+            ></p>
+
+            <p
+                id="pending-status"
+                role="status"
+                aria-live="polite"
+                hidden
+            >
+                <span id="pending-count">0</span>
+                record(s) waiting to be sent
+            </p>
         </div>
-    </header>
 
-    <div id="connection-bar">
-    <!-- Announces connectivity changes to screen readers -->
-    <p id="connection-status" role="status" aria-live="polite"></p>
+        <!-- Dashboard -->
+        <main
+            class="dashboard-content"
+            id="view-passport"
+            aria-labelledby="passport-title"
+        >
+            <h2 id="passport-title" class="visually-hidden">Profile</h2>
 
-    <!-- Shown only when records are queued for later sync -->
-    <p id="pending-status" role="status" aria-live="polite" hidden>
-      <span id="pending-count">0</span> record(s) waiting to be sent
-    </p>
-  </div> <!-- end of connection bar -->
-
-    <!-- DASHBOARD CONTENT -->
-    <main class="dashboard-content" id="view-passport" aria-labelledby="passport-title">
-        <!-- Accessible page heading hidden from the visual layout -->
-        <h2 id="passport-title" hidden>Profile</h2>
-        
-        <!-- LEFT COLUMN -->
-        <div class="left-col" id="passport-left">
-            
-            <!-- Profile -->
-            <article class="neo-card profile-card" id="player-card">
-                <!-- Default profile avatar image -->
-                <div class="profile-avatar">
-                    <img src="assets/user.png" class="icon" alt="" width="32" height="32" />
-                </div>
-                <!-- Username, current level, and XP loaded by the Profile data script -->
-                <div class="profile-info">
-                    <h3 class="profile-name">Explorer</h3>
-                    <div class="profile-badge">Level 1 · Bronze Drifter</div>
-                    <div class="progress-text">0 / 500 XP to Level 1</div>
-                    <!-- Progress bar fill is updated from the account XP -->
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-fill"></div>
+            <div class="left-col" id="passport-left">
+                <!-- Profile card -->
+                <article class="neo-card profile-card" id="player-card">
+                    <div class="profile-avatar">
+                        <img
+                            src="../assets/user.png"
+                            class="icon"
+                            alt=""
+                            width="32"
+                            height="32"
+                        >
                     </div>
-                </div>
-            </article>
 
-            <!-- Stats -->
-            <section class="stats-section" id="stats">
-                <h3 class="section-title">My Stats</h3>
-                <!-- Statistics cards open the matching details in the Stats dialog -->
-                <div class="stats-grid">
-                    <!-- Total distinct sites visited -->
-                    <button type="button" class="neo-card stat-card" data-open="dlg-stat" data-stat="sites" aria-label="Show visited sites">
-                        <div class="stat-icon yellow">
-                            <img src="assets/pin.png" class="icon" alt="" width="24" height="24" />
+                    <div class="profile-info">
+                        <h3 class="profile-name">Explorer</h3>
+                        <div class="profile-badge">
+                            Level 1 · Bronze Drifter
                         </div>
-                        <div class="stat-content">
-                            <div class="stat-number">0</div>
-                            <div class="stat-label">Sites visited</div>
+                        <div class="progress-text">
+                            0 / 500 XP to Level 1
                         </div>
-                    </button>
-                    <!-- Hidden-gem sites visited -->
-                    <button type="button" class="neo-card stat-card" data-open="dlg-stat" data-stat="gems" aria-label="Show visited hidden gems">
-                        <div class="stat-icon yellow">
-                            <img src="assets/gem.png" class="icon" alt="" width="24" height="24" />
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-number">0</div>
-                            <div class="stat-label">Hidden gems</div>
-                        </div>
-                    </button>
-                    <!-- Completed quests -->
-                    <button type="button" class="neo-card stat-card" data-open="dlg-stat" data-stat="quests" aria-label="Show completed quests">
-                        <div class="stat-icon yellow">
-                            <img src="assets/flag.png" class="icon" alt="" width="24" height="24" />
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-number">0</div>
-                            <div class="stat-label">Quests done</div>
-                        </div>
-                    </button>
-                    <!-- Check-in day streak -->
-                    <button type="button" class="neo-card stat-card" data-open="dlg-stat" data-stat="streak" aria-label="Show check-in streak history">
-                        <div class="stat-icon yellow">
-                            <img src="assets/flame.png" class="icon" alt="" width="24" height="24" />
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-number">0</div>
-                            <div class="stat-label">Day streak</div>
-                        </div>
-                    </button>
-                </div>
-            </section>
 
-            <!-- Active Quest -->
-            <article class="neo-card active-quest" id="active-quest" data-open="dlg-quest">
-                <!-- Optional marker for new quest activity -->
-                <div class="badge-bubble" data-field="quest-bubble">0</div>
-                
-                <!-- Active quest icon, title, next stop, and chevron -->
-                <div class="quest-top">
-                    <div class="quest-icon">
-                        <img src="assets/flag.png" class="icon" alt="" width="24" height="24" />
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill"></div>
+                        </div>
                     </div>
-                    <div class="quest-info">
-                        <h3 class="quest-title" data-field="quest-card-title">Active quest</h3>
-                        <div class="quest-subtitle" data-field="quest-card-subtitle">Loading quest...</div>
-                    </div>
-                    
-                    <div class="quest-chevron">
-                        <img src="assets/chev.png" class="icon" alt="" width="24" height="24" />
-                    </div>
-                </div>
+                </article>
 
-                <!-- Current quest completion bar and numeric progress -->
-                <div class="quest-progress-row">
-                    <div class="quest-progress-bar">
-                        <div class="quest-progress-fill" data-field="quest-card-fill"></div>
+                <!-- Statistics -->
+                <section class="stats-section" id="stats">
+                    <h3 class="section-title">My Stats</h3>
+
+                    <div class="stats-grid">
+                        <button
+                            type="button"
+                            class="neo-card stat-card"
+                            data-open="dlg-stat"
+                            data-stat="sites"
+                            aria-label="Show visited sites"
+                        >
+                            <div class="stat-icon yellow">
+                                <img
+                                    src="../assets/pin.png"
+                                    class="icon"
+                                    alt=""
+                                    width="24"
+                                    height="24"
+                                >
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Sites visited</div>
+                            </div>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="neo-card stat-card"
+                            data-open="dlg-stat"
+                            data-stat="gems"
+                            aria-label="Show visited hidden gems"
+                        >
+                            <div class="stat-icon yellow">
+                                <img
+                                    src="../assets/gem.png"
+                                    class="icon"
+                                    alt=""
+                                    width="24"
+                                    height="24"
+                                >
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Hidden gems</div>
+                            </div>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="neo-card stat-card"
+                            data-open="dlg-stat"
+                            data-stat="quests"
+                            aria-label="Show completed quests"
+                        >
+                            <div class="stat-icon yellow">
+                                <img
+                                    src="../assets/flag.png"
+                                    class="icon"
+                                    alt=""
+                                    width="24"
+                                    height="24"
+                                >
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Quests done</div>
+                            </div>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="neo-card stat-card"
+                            data-open="dlg-stat"
+                            data-stat="streak"
+                            aria-label="Show check-in streak history"
+                        >
+                            <div class="stat-icon yellow">
+                                <img
+                                    src="../assets/flame.png"
+                                    class="icon"
+                                    alt=""
+                                    width="24"
+                                    height="24"
+                                >
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Day streak</div>
+                            </div>
+                        </button>
                     </div>
-                    <div class="quest-progress-text" data-field="quest-card-progress">0 / 0</div>
-                </div>
-            </article>
+                </section>
 
-            <!-- Badges (Dynamically populated) -->
-            <section class="neo-card badges-card" id="badges">
-                <!-- Badge title and total number earned -->
-                <h3 class="section-title badges-header">
-                    Badges
-                    <span class="badges-count">0 earned</span>
-                </h3>
-                <!-- JavaScript inserts earned badges and locked badge slots here -->
-                <div class="badges-grid">
-                </div>
-            </section>
-
-            <section class="neo-card badge-notification-card" aria-label="Badge notifications">
-                <p id="badge-notification-description">
-                    Allow browser notifications to be updated when you earn rewards.
-                </p>
-                <button
-                    id="enable-badge-notifications"
-                    class="badge-notification-toggle"
-                    type="button"
-                    role="switch"
-                    aria-checked="false"
-                    aria-label="Badge notifications"
-                    aria-describedby="badge-notification-description badge-notification-status"
+                <!-- Active quest -->
+                <article
+                    class="neo-card active-quest"
+                    id="active-quest"
+                    data-open="dlg-quest"
                 >
-                    <span class="badge-notification-toggle-thumb"></span>
-                </button>
-                <p id="badge-notification-status" role="status" aria-live="polite"></p>
-            </section>
-            
-        </div>
+                    <div class="badge-bubble" data-field="quest-bubble">
+                        0
+                    </div>
 
-        <!-- RIGHT COLUMN: My Gallery integrated into Passport -->
-        <section class="right-col passport-gallery" id="view-gallery" aria-labelledby="gallery-title">
-            <header id="gallery-header">
-                <h2 id="gallery-title" class="visually-hidden">My Gallery</h2>
+                    <div class="quest-top">
+                        <div class="quest-icon">
+                            <img
+                                src="../assets/flag.png"
+                                class="icon"
+                                alt=""
+                                width="24"
+                                height="24"
+                            >
+                        </div>
 
-                <div id="gallery-tabs" role="tablist" aria-label="Gallery tabs">
-                    <a href="feed.html" role="tab" id="tab-btn-feed" data-tab="feed" aria-selected="false" tabindex="-1">Feed</a>
-                    <a href="passport.html" role="tab" id="tab-btn-mine" data-tab="mine" aria-selected="true">
-                        <span class="gallery-tab-icon" aria-hidden="true">▧</span> My Gallery
-                    </a>
+                        <div class="quest-info">
+                            <h3
+                                class="quest-title"
+                                data-field="quest-card-title"
+                            >Active quest</h3>
+
+                            <div
+                                class="quest-subtitle"
+                                data-field="quest-card-subtitle"
+                            >Loading quest...</div>
+                        </div>
+
+                        <div class="quest-chevron">
+                            <img
+                                src="../assets/chev.png"
+                                class="icon"
+                                alt=""
+                                width="24"
+                                height="24"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="quest-progress-row">
+                        <div class="quest-progress-bar">
+                            <div
+                                class="quest-progress-fill"
+                                data-field="quest-card-fill"
+                            ></div>
+                        </div>
+
+                        <div
+                            class="quest-progress-text"
+                            data-field="quest-card-progress"
+                        >0 / 0</div>
+                    </div>
+                </article>
+
+                <!-- Badges -->
+                <section class="neo-card badges-card" id="badges">
+                    <h3 class="section-title badges-header">
+                        Badges
+                        <span class="badges-count">0 earned</span>
+                    </h3>
+
+                    <div class="badges-grid"></div>
+                </section>
+
+                <!-- Notification settings -->
+                <section
+                    class="neo-card badge-notification-card"
+                    aria-label="Badge notifications"
+                >
+                    <p id="badge-notification-description">
+                        Allow browser notifications to be updated when
+                        you earn rewards.
+                    </p>
+
+                    <button
+                        id="enable-badge-notifications"
+                        class="badge-notification-toggle"
+                        type="button"
+                        role="switch"
+                        aria-checked="false"
+                        aria-label="Badge notifications"
+                        aria-describedby="badge-notification-description badge-notification-status"
+                    >
+                        <span class="badge-notification-toggle-thumb"></span>
+                    </button>
+
+                    <p
+                        id="badge-notification-status"
+                        role="status"
+                        aria-live="polite"
+                    ></p>
+                </section>
+            </div>
+
+            <!-- Gallery -->
+            <section
+                class="right-col passport-gallery"
+                id="view-gallery"
+                aria-labelledby="gallery-title"
+            >
+                <header id="gallery-header">
+                    <h2 id="gallery-title" class="visually-hidden">
+                        My Gallery
+                    </h2>
+
+                    <div
+                        id="gallery-tabs"
+                        role="tablist"
+                        aria-label="Gallery tabs"
+                    >
+                        <a
+                            href="feed.html"
+                            role="tab"
+                            id="tab-btn-feed"
+                            data-tab="feed"
+                            aria-selected="false"
+                            tabindex="-1"
+                        >Feed</a>
+
+                        <a
+                            href="profile.html"
+                            role="tab"
+                            id="tab-btn-mine"
+                            data-tab="mine"
+                            aria-selected="true"
+                            aria-controls="tab-mine"
+                        >
+                            <span
+                                class="gallery-tab-icon"
+                                aria-hidden="true"
+                            >▧</span>
+                            My Gallery
+                        </a>
+                    </div>
+
+                    <p id="gallery-count" aria-live="polite"></p>
+                </header>
+
+                <div
+                    id="tab-mine"
+                    role="tabpanel"
+                    aria-labelledby="tab-btn-mine"
+                >
+                    <p id="mine-loading" role="status">
+                        Loading your photos...
+                    </p>
+
+                    <p id="mine-empty" hidden>
+                        You have no photos yet.
+                        <a href="camera.html">Check in at a site</a>
+                        to add your first one.
+                    </p>
+
+                    <p id="mine-error" role="alert" hidden>
+                        Could not load your photos.
+                        <button type="button" id="mine-retry">
+                            Try again
+                        </button>
+                    </p>
+
+                    <ul id="photo-grid"></ul>
+
+                    <button type="button" id="mine-more" hidden>
+                        Load more
+                    </button>
                 </div>
-
-                <p id="gallery-count" aria-live="polite"></p>
-            </header>
-
-            <div id="tab-mine" role="tabpanel" aria-labelledby="tab-btn-mine">
-
-        <!-- Loading, empty, and error states for the photo grid -->
-        <p id="mine-loading" role="status">Loading your photos...</p>
-        <p id="mine-empty" hidden>You have no photos yet. <a href="camera.html">Check in at a site</a> to add your first one.</p>
-        <p id="mine-error" role="alert" hidden>Could not load your photos. <button type="button" id="mine-retry">Try again</button></p>
-
-        <!-- Photo thumbnails are rendered here from the tpl-photo template -->
-        <ul id="photo-grid"></ul>
-
-        <!-- Appends the next page of photos -->
-        <button type="button" id="mine-more" hidden>Load more</button>
-      </div> <!-- end of my gallery tab panel -->
-        </section>
-
-    </main>
+            </section>
+        </main>
 
     <!-- MOBILE BOTTOM NAVIGATION (Hidden on Desktop) -->
     <nav class="bottom-nav mobile-only-flex" aria-label="Mobile Bottom">
         <!-- Mobile navigation uses the same destinations as the desktop menu -->
         <a href="../index.html" class="nav-item">Map</a>
-        <a href="quests.html" class="nav-item">Quests</a>
+        <a href="camera.html" class="nav-item">Quests</a>
         <a href="profile.html" class="nav-item active" aria-current="page">Profile</a>
     </nav>
 
 </div>
 
-  <!-- Short messages such as "Caption saved" -->
-  <div id="toast" role="status" aria-live="polite"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- ===== TEMPLATES: JS clones these with template.content.cloneNode(true) ===== -->
+    <!-- Photo tile template -->
+    <template id="tpl-photo">
+        <li class="gallery-post-item" data-photo-id="">
+            <article class="post gallery-post">
+                <button
+                    type="button"
+                    class="photo-open"
+                    aria-label="View post details"
+                >
+                    <span class="photo-thumb">
+                        <img
+                            class="photo-img"
+                            src=""
+                            alt=""
+                            loading="lazy"
+                        >
+                    </span>
 
-  <!-- Template: a square photo tile for the My Gallery grid -->
-  <template id="tpl-photo">
-    <li class="gallery-post-item" data-photo-id="">
-      <article class="post gallery-post">
-        <!-- Clicking the tile opens the photo details dialog -->
-        <button type="button" class="photo-open" aria-label="View post details">
-          <span class="photo-thumb"><img class="photo-img" src="" alt="" loading="lazy"></span>
-          <span class="photo-location">
-            <img src="assets/pin-location.png" alt="" aria-hidden="true">
-            <span class="photo-location-name"></span>
-          </span>
-          <span class="caption"></span>
+                    <span class="photo-location">
+                        <img
+                            src="../assets/pin-location.png"
+                            alt=""
+                            aria-hidden="true"
+                        >
+                        <span class="photo-location-name"></span>
+                    </span>
+
+                    <span class="caption"></span>
+                </button>
+            </article>
+        </li>
+    </template>
+
+    <!-- Shared feed post template -->
+    <template id="tpl-post">
+        <li>
+            <article class="post" data-post-id="" data-site-id="">
+                <header>
+                    <img
+                        class="avatar"
+                        src="../assets/user.png"
+                        alt=""
+                    >
+                    <h3 class="post-author"></h3>
+                    <p class="post-meta"></p>
+                    <span class="own-post-label" hidden>Your post</span>
+
+                    <button
+                        type="button"
+                        class="follow-btn"
+                        aria-pressed="false"
+                    >Follow</button>
+                </header>
+
+                <img class="photo-img" src="" alt="" loading="lazy">
+                <p class="site-tag"></p>
+                <p class="caption"></p>
+
+                <footer>
+                    <button
+                        type="button"
+                        class="like-btn"
+                        aria-pressed="false"
+                    >
+                        Like
+                        (<span class="like-count" aria-live="polite">0</span>)
+                    </button>
+
+                    <button type="button" class="comment-btn">
+                        Comment (<span class="comment-count">0</span>)
+                    </button>
+
+                    <button
+                        type="button"
+                        class="view-site-btn"
+                        data-open="dlg-site"
+                    >View site</button>
+                </footer>
+            </article>
+        </li>
+    </template>
+
+    <!-- Shared trending template -->
+    <template id="tpl-trending">
+        <li data-site-id="">
+            <h4 class="site-name"></h4>
+            <p class="site-meta"></p>
+            <span class="reward"></span>
+        </li>
+    </template>
+
+    <!-- Shared explorer template -->
+    <template id="tpl-explorer">
+        <li data-user-id="">
+            <img class="avatar" src="../assets/user.png" alt="">
+            <h4 class="explorer-name"></h4>
+            <p class="explorer-level"></p>
+            <span class="explorer-xp"></span>
+        </li>
+    </template>
+
+    <!-- Photo dialog -->
+    <dialog id="dlg-photo" aria-labelledby="photo-site-name">
+        <button type="button" data-close aria-label="Close">
+            Close
         </button>
-      </article> <!-- end of gallery post -->
-    </li>
-  </template> <!-- end of tpl-photo -->
 
-  <!-- Template: a single feed post (not used on this page, shared with feed.html) -->
-  <template id="tpl-post">
-    <li>
-      <!-- data attributes are filled by feed.js and read by event handlers -->
-      <article class="post" data-post-id="" data-site-id="">
-        <!-- Author info and an owner label or follow action -->
-        <header>
-          <img class="avatar" src="assets/user.png" alt="">
-          <h3 class="post-author"></h3>
-          <p class="post-meta"></p>
-          <span class="own-post-label" hidden>Your post</span>
-          <button type="button" class="follow-btn" aria-pressed="false">Follow</button>
-        </header>
+        <div id="photo-content">
+            <input type="hidden" id="photo-id" value="">
 
-        <!-- Check-in photo, site name, and caption -->
-        <img class="photo-img" src="" alt="" loading="lazy">
-        <p class="site-tag"></p>
-        <p class="caption"></p>
+            <img id="photo-large" src="" alt="">
+            <h2 id="photo-site-name"></h2>
+            <p id="photo-gem" hidden>Hidden gem</p>
 
-        <!-- Post actions: like, comment, and view site details -->
-        <footer>
-          <button type="button" class="like-btn" aria-pressed="false">Like (<span class="like-count" aria-live="polite">0</span>)</button>
-          <button type="button" class="comment-btn">Comment (<span class="comment-count">0</span>)</button>
-          <button type="button" class="view-site-btn" data-open="dlg-site">View site</button>
-        </footer>
-      </article> <!-- end of post -->
-    </li>
-  </template> <!-- end of tpl-post -->
-
-  <!-- Template: a row in the "Trending hidden gems" list (not used on this page) -->
-  <template id="tpl-trending">
-    <li data-site-id="">
-      <h4 class="site-name"></h4>
-      <p class="site-meta"></p>
-      <span class="reward"></span>
-    </li>
-  </template> <!-- end of tpl-trending -->
-
-  <!-- Template: a row in the "Top explorers" list (not used on this page) -->
-  <template id="tpl-explorer">
-    <li data-user-id="">
-      <img class="avatar" src="assets/user.png" alt="">
-      <h4 class="explorer-name"></h4>
-      <p class="explorer-level"></p>
-      <span class="explorer-xp"></span>
-    </li>
-  </template> <!-- end of tpl-explorer -->
-
-  <!-- ===== POP-UPS: native <dialog>. Open with showModal(), close with close() ===== -->
-
-  <!-- Gallery post details, with caption editing -->
-  <dialog id="dlg-photo" aria-labelledby="photo-site-name">
-    <button type="button" data-close aria-label="Close">Close</button>
-    <div id="photo-content">
-      <!-- Stores the ID of the photo currently open -->
-      <input type="hidden" id="photo-id" value="">
-
-      <img id="photo-large" src="" alt="">
-      <h2 id="photo-site-name"></h2>
-      <p id="photo-gem" hidden>Hidden gem</p>
-
-      <!-- Post author -->
-      <div id="photo-author">
-        <img id="photo-author-avatar" src="assets/user.png" alt="">
-        <p>Posted by <strong id="photo-author-name"></strong></p>
-      </div> <!-- end of post author -->
-
-      <!-- Read-only caption view with an Edit button -->
-      <div id="photo-view">
-        <p id="photo-caption"></p>
-        <button type="button" data-action="edit-caption">Edit</button>
-      </div> <!-- end of caption view -->
-
-      <!-- Caption edit form (hidden until Edit is clicked) -->
-      <form id="photo-edit-form" hidden>
-        <label for="photo-caption-input">Caption</label>
-        <textarea id="photo-caption-input" name="caption" maxlength="200"></textarea>
-        <p id="photo-edit-error" role="alert" hidden></p>
-        <button type="submit">Save caption</button>
-        <button type="button" data-action="cancel-edit">Cancel</button>
-      </form> <!-- end of caption edit form -->
-
-      <!-- Photo metadata: date, coordinates, and XP -->
-      <ul id="photo-meta">
-        <li>Posted: <time id="photo-date"></time></li>
-        <li>Latitude: <span id="photo-lat"></span></li>
-        <li>Longitude: <span id="photo-lng"></span></li>
-        <li>XP earned: <span id="photo-xp"></span></li>
-      </ul> <!-- end of photo metadata -->
-
-      <button type="button" data-action="delete">Delete</button>
-
-      <div id="photo-delete-confirm" role="alertdialog" aria-labelledby="delete-title" hidden>
-        <h3 id="delete-title">Delete this photo?</h3>
-        <p>This cannot be undone.</p>
-        <p id="photo-delete-error" role="alert" hidden></p>
-        <button type="button" data-action="confirm-delete">Yes, delete</button>
-        <button type="button" data-action="cancel-delete">Keep it</button>
-      </div>
-    </div> <!-- end of photo content -->
-
-  </dialog> <!-- end of photo dialog -->
-
-  <!-- Destination details (opened from "View site" on a feed post).
-       Same pop-up as on index.html and passport.html. -->
-  <dialog id="dlg-site" aria-labelledby="site-name">
-    <button type="button" data-close aria-label="Close">Close</button>
-    <!-- Stores the ID of the site currently open -->
-    <input type="hidden" id="site-id" value="">
-
-    <p><span id="site-gem" hidden>Hidden gem</span> <span id="site-category"></span></p>
-    <img id="site-photo" src="" alt="">
-    <h2 id="site-name"></h2>
-    <p id="site-info"></p>
-    <p id="site-description"></p>
-    <p id="site-quest" hidden></p>
-    <p>Check-in reward: <span id="site-reward"></span></p>
-
-    <!-- Actions: go to the camera page or save the site -->
-    <a id="site-checkin" href="camera.html">Check in here</a>
-    <button type="button" data-action="save-site">Save</button>
-  </dialog> <!-- end of site dialog -->
-
-
-<!-- ===== POP-UPS: native <dialog>, hidden until JS calls showModal(). ===== -->
-<!-- Stats dialog: displays detailed lists for selected statistic cards -->
-<dialog id="dlg-stat" aria-labelledby="dlg-stat-title">
-    <div class="dlg-card">
-        <div class="dlg-top">
-            <span class="dlg-tag">Profile stats</span>
-
-        </div>
-        <!-- The title, summary, and list are filled when a statistic is selected -->
-        <h2 class="dlg-title" id="dlg-stat-title" data-field="stats-title">Sites visited</h2>
-        <p class="dlg-desc stats-detail-summary" data-field="stats-summary"></p>
-        <ul class="stats-detail-list" data-field="stats-list"></ul>
-        <!-- Bottom Close button dismisses the Stats dialog -->
-        <div class="dlg-actions">
-            <button type="button" class="dlg-btn" data-close>Close</button>
-        </div>
-    </div>
-</dialog>
-
-<!-- Stamp and Badge dialog: shared details for collected and locked items -->
-<dialog id="dlg-stamp" aria-labelledby="dlg-stamp-title">
-    <div class="dlg-card">
-        <div class="dlg-top">
-            <span class="dlg-tag" data-field="tag">Stamp</span>
-
-        </div>
-        <!-- The selected stamp or badge icon is displayed here -->
-        <div class="dlg-stamp-icon" data-field="icon">
-            <img src="assets/pin.png" class="icon" alt="Stamp Icon" width="24" height="24" />
-        </div>
-        <!-- Item name, rarity, awarded date, and description -->
-        <h2 class="dlg-title" id="dlg-stamp-title" data-field="title">Salt Keeper</h2>
-        <div class="dlg-rarity">
-            <img src="assets/star.png" class="icon" alt="Stamp Icon" width="24" height="24" />
-            <span data-field="rarity">Rare</span>
-        </div>
-        <p class="dlg-meta" data-field="meta">Collected</p>
-        <p class="dlg-desc" data-field="desc"></p>
-        <!-- Collection progress count and its fill bar -->
-        <div class="dlg-progress">
-            <div class="dlg-progress-row">
-                <span data-field="progress-label">Profile</span>
-                <span data-field="progress-count">0 stamps</span>
+            <div id="photo-author">
+                <img
+                    id="photo-author-avatar"
+                    src="../assets/user.png"
+                    alt=""
+                >
+                <p>
+                    Posted by
+                    <strong id="photo-author-name"></strong>
+                </p>
             </div>
-            <div class="dlg-bar" role="progressbar" aria-valuemin="0" aria-valuemax="24" aria-valuenow="0" data-field="progress-bar">
-                <div class="dlg-bar-fill" data-field="progress-fill"></div>
+
+            <div id="photo-view">
+                <p id="photo-caption"></p>
+                <button type="button" data-action="edit-caption">
+                    Edit
+                </button>
+            </div>
+
+            <form id="photo-edit-form" hidden>
+                <label for="photo-caption-input">Caption</label>
+                <textarea
+                    id="photo-caption-input"
+                    name="caption"
+                    maxlength="200"
+                ></textarea>
+
+                <p id="photo-edit-error" role="alert" hidden></p>
+
+                <button type="submit">Save caption</button>
+                <button type="button" data-action="cancel-edit">
+                    Cancel
+                </button>
+            </form>
+
+            <ul id="photo-meta">
+                <li>Posted: <time id="photo-date"></time></li>
+                <li>Latitude: <span id="photo-lat"></span></li>
+                <li>Longitude: <span id="photo-lng"></span></li>
+                <li>XP earned: <span id="photo-xp"></span></li>
+            </ul>
+
+            <button type="button" data-action="delete">Delete</button>
+
+            <div
+                id="photo-delete-confirm"
+                role="alertdialog"
+                aria-labelledby="delete-title"
+                hidden
+            >
+                <h3 id="delete-title">Delete this photo?</h3>
+                <p>This cannot be undone.</p>
+                <p id="photo-delete-error" role="alert" hidden></p>
+
+                <button type="button" data-action="confirm-delete">
+                    Yes, delete
+                </button>
+                <button type="button" data-action="cancel-delete">
+                    Keep it
+                </button>
             </div>
         </div>
-        <!-- Close dialog or open the related map location when available -->
-        <div class="dlg-actions">
-            <button type="button" class="dlg-btn" data-close>Close</button>
-            <a class="dlg-btn primary" data-field="map" href="../index.html">Show site on map</a>
-        </div>
-    </div>
-</dialog>
+    </dialog>
 
-<!-- Active Quest dialog: quest description, reward, and ordered stops -->
-<dialog id="dlg-quest" aria-labelledby="dlg-quest-title">
-    <div class="dlg-card">
-        <div class="dlg-top">
-            <span class="dlg-tag">Quest</span>
+    <!-- Destination dialog -->
+    <dialog id="dlg-site" aria-labelledby="site-name">
+        <button type="button" data-close aria-label="Close">
+            Close
+        </button>
 
-        </div>
-        <!-- Active quest icon and its information -->
-        <div class="dlg-stamp-icon dlg-quest-icon" data-field="quest-icon">
-            <img src="assets/flag.png" class="icon" alt="Quest Icon" width="24" height="24" />
-        </div>
-        <h2 class="dlg-title" id="dlg-quest-title" data-field="quest-title">Active quest</h2>
-        <p class="dlg-desc" data-field="quest-description"></p>
-        <!-- Quest progress count and its fill bar -->
-        <div class="dlg-progress">
-            <div class="dlg-progress-row">
-                <span data-field="quest-progress-label">Progress</span>
-                <span data-field="quest-progress-count">0 of 0</span>
+        <input type="hidden" id="site-id" value="">
+
+        <p>
+            <span id="site-gem" hidden>Hidden gem</span>
+            <span id="site-category"></span>
+        </p>
+
+        <img id="site-photo" src="" alt="">
+        <h2 id="site-name"></h2>
+        <p id="site-info"></p>
+        <p id="site-description"></p>
+        <p id="site-quest" hidden></p>
+        <p>Check-in reward: <span id="site-reward"></span></p>
+
+        <a id="site-checkin" href="camera.html">Check in here</a>
+        <button type="button" data-action="save-site">Save</button>
+    </dialog>
+
+    <!-- Statistics dialog -->
+    <dialog id="dlg-stat" aria-labelledby="dlg-stat-title">
+        <div class="dlg-card">
+            <div class="dlg-top">
+                <span class="dlg-tag">Profile stats</span>
             </div>
-            <div class="dlg-bar" role="progressbar" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" data-field="quest-progress-bar">
-                <div class="dlg-bar-fill" data-field="quest-progress-fill"></div>
+
+            <h2
+                class="dlg-title"
+                id="dlg-stat-title"
+                data-field="stats-title"
+            >Sites visited</h2>
+
+            <p
+                class="dlg-desc stats-detail-summary"
+                data-field="stats-summary"
+            ></p>
+
+            <ul
+                class="stats-detail-list"
+                data-field="stats-list"
+            ></ul>
+
+            <div class="dlg-actions">
+                <button type="button" class="dlg-btn" data-close>
+                    Close
+                </button>
             </div>
         </div>
-        <!-- Quest reward and ordered list of completed, next, and locked stops -->
-        <p class="dlg-reward" data-field="quest-reward"></p>
-        <ol class="dlg-stops" data-field="quest-stops"></ol>
-        <!-- Close dialog or view the next quest stop on the map -->
-        <div class="dlg-actions">
-            <button type="button" class="dlg-btn" data-close>Close</button>
-            <a class="dlg-btn primary" data-field="quest-map" href="../index.html">Show next stop on map</a>
-        </div>
-    </div>
-</dialog>
+    </dialog>
 
-<!-- Profile data script: fetches account data, updates cards, and controls dialogs -->
-<script src="js/modules/passport.js?v=18" defer></script>
-<!-- Keep Gallery's original shared module before its page controller. -->
-<script src="js/modules/gallery/shared.js?v=9" defer></script>
-<script src="js/modules/gallery/gallery.js?v=5" defer></script>
+    <!-- Stamp and badge dialog -->
+    <dialog id="dlg-stamp" aria-labelledby="dlg-stamp-title">
+        <div class="dlg-card">
+            <div class="dlg-top">
+                <span class="dlg-tag" data-field="tag">Stamp</span>
+            </div>
+
+            <div class="dlg-stamp-icon" data-field="icon">
+                <img
+                    src="../assets/pin.png"
+                    class="icon"
+                    alt=""
+                    width="24"
+                    height="24"
+                >
+            </div>
+
+            <h2
+                class="dlg-title"
+                id="dlg-stamp-title"
+                data-field="title"
+            >Salt Keeper</h2>
+
+            <div class="dlg-rarity">
+                <img
+                    src="../assets/star.png"
+                    class="icon"
+                    alt=""
+                    width="24"
+                    height="24"
+                >
+                <span data-field="rarity">Rare</span>
+            </div>
+
+            <p class="dlg-meta" data-field="meta">Collected</p>
+            <p class="dlg-desc" data-field="desc"></p>
+
+            <div class="dlg-progress">
+                <div class="dlg-progress-row">
+                    <span data-field="progress-label">Profile</span>
+                    <span data-field="progress-count">0 stamps</span>
+                </div>
+
+                <div
+                    class="dlg-bar"
+                    role="progressbar"
+                    aria-label="Stamp collection progress"
+                    aria-valuemin="0"
+                    aria-valuemax="24"
+                    aria-valuenow="0"
+                    data-field="progress-bar"
+                >
+                    <div
+                        class="dlg-bar-fill"
+                        data-field="progress-fill"
+                    ></div>
+                </div>
+            </div>
+
+            <div class="dlg-actions">
+                <button type="button" class="dlg-btn" data-close>
+                    Close
+                </button>
+                <a
+                    class="dlg-btn primary"
+                    data-field="map"
+                    href="../index.html"
+                >Show site on map</a>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Active quest dialog -->
+    <dialog id="dlg-quest" aria-labelledby="dlg-quest-title">
+        <div class="dlg-card">
+            <div class="dlg-top">
+                <span class="dlg-tag">Quest</span>
+            </div>
+
+            <div
+                class="dlg-stamp-icon dlg-quest-icon"
+                data-field="quest-icon"
+            >
+                <img
+                    src="../assets/flag.png"
+                    class="icon"
+                    alt=""
+                    width="24"
+                    height="24"
+                >
+            </div>
+
+            <h2
+                class="dlg-title"
+                id="dlg-quest-title"
+                data-field="quest-title"
+            >Active quest</h2>
+
+            <p
+                class="dlg-desc"
+                data-field="quest-description"
+            ></p>
+
+            <div class="dlg-progress">
+                <div class="dlg-progress-row">
+                    <span data-field="quest-progress-label">
+                        Progress
+                    </span>
+                    <span data-field="quest-progress-count">
+                        0 of 0
+                    </span>
+                </div>
+
+                <div
+                    class="dlg-bar"
+                    role="progressbar"
+                    aria-label="Quest progress"
+                    aria-valuemin="0"
+                    aria-valuemax="0"
+                    aria-valuenow="0"
+                    data-field="quest-progress-bar"
+                >
+                    <div
+                        class="dlg-bar-fill"
+                        data-field="quest-progress-fill"
+                    ></div>
+                </div>
+            </div>
+
+            <p class="dlg-reward" data-field="quest-reward"></p>
+            <ol class="dlg-stops" data-field="quest-stops"></ol>
+
+            <div class="dlg-actions">
+                <button type="button" class="dlg-btn" data-close>
+                    Close
+                </button>
+                <a
+                    class="dlg-btn primary"
+                    data-field="quest-map"
+                    href="../index.html"
+                >Show next stop on map</a>
+            </div>
+        </div>
+    </dialog>
+
+    <script src="../js/modules/passport.js?v=18" defer></script>
+    <script src="../js/modules/gallery/shared.js?v=9" defer></script>
+    <script src="../js/modules/gallery/gallery.js?v=5" defer></script>
 </body>
 </html>
