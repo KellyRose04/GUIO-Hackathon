@@ -1,3 +1,4 @@
+-- Requires the quest_category column from database/add_quest_category.sql.
 USE guio_db;
 
 START TRANSACTION;
@@ -57,17 +58,19 @@ FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM sites WHERE title = 'Newtown Convention Center');
 
 INSERT INTO quests
-    (quest_key, title, description, icon, quest_type, target_count, xp_reward, reward_badge_key)
+    (quest_key, title, description, icon, quest_type, quest_category,
+     target_count, xp_reward, reward_badge_key)
 SELECT 'burnham-secrets-walk', 'Burnham Secrets Walk',
        'Explore Baguio’s city-center landmarks, public spaces, and local culture on foot.',
-       '⚑', 'sites', 6, 500, NULL
+       '⚑', 'sites', 'historical', 6, 500, NULL
 FROM DUAL
 WHERE NOT EXISTS (
     SELECT 1 FROM quests WHERE quest_key = 'burnham-secrets-walk'
 );
 
 UPDATE quests
-SET target_count = 6
+SET target_count = 6,
+    quest_category = 'historical'
 WHERE quest_key = 'burnham-secrets-walk';
 
 INSERT INTO quest_stops (quest_id, site_id, stop_order)

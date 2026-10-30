@@ -31,7 +31,7 @@ try {
 
     $statement = $pdo->query(
         'SELECT q.id AS quest_id, q.quest_key, q.title, q.description, q.icon,
-                q.quest_type, q.target_count, q.xp_reward,
+                q.quest_type, q.quest_category AS category, q.target_count, q.xp_reward,
                 q.reward_badge_key, b.badge_name AS reward_badge_name
            FROM quests q
            LEFT JOIN badges b ON b.badge_key = q.reward_badge_key
@@ -60,7 +60,6 @@ try {
         $quest['quest_id'] = $questId;
         $quest['target_count'] = (int) $quest['target_count'];
         $quest['xp_reward'] = (int) $quest['xp_reward'];
-        $quest['category'] = $quest['quest_type'];
         $quest['stops'] = $stopsByQuest[$questId] ?? [];
     }
     unset($quest);
