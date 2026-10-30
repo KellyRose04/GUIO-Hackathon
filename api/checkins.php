@@ -199,7 +199,7 @@ function openDatabase(): PDO
 {
     // Set the local database connection parameters and UTF-8 character set.
     $host = 'localhost';
-    $db = 'tourtrail_db';
+    $db = 'guio_db';
     $user = 'root';
     $pass = '';
     $charset = 'utf8mb4';

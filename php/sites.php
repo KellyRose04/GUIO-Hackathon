@@ -5,7 +5,7 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 $host = 'localhost';
-$db   = 'tourtrail_db';
+$db   = 'guio_db';
 $user = 'root';
 $pass = '';
 $charset = 'utf8mb4';

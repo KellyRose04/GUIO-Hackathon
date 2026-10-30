@@ -12,7 +12,7 @@ header('Cache-Control: no-store');
 
 // ---- Edit these to match your MySQL setup (XAMPP defaults shown) ----
 const DB_HOST = 'localhost';
-const DB_NAME = 'tourtrail_db';
+const DB_NAME = 'guio_db';
 const DB_USER = 'root';
 const DB_PASS = '';
 // ---------------------------------------------------------------------
