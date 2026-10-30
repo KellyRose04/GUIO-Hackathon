@@ -19,13 +19,13 @@ function fail(int $code, string $message): void
 }
 
 try {
-    $username = tourtrail_requested_username();
+    $username = guio_requested_username();
 } catch (InvalidArgumentException $error) {
     fail(400, $error->getMessage());
 }
 
 try {
-    $pdo = tourtrail_database();
+    $pdo = guio_database();
 
     // Timestamps are stored in UTC; read them back as Philippine time so
     // weekdays and dates match what the user sees on their phone.

@@ -5,18 +5,18 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 try {
-    $pdo = tourtrail_database();
+    $pdo = guio_database();
 
-    // Map requests can be anonymous; identified devices get isolated quest progress.
-    $deviceId = tourtrail_requested_device_id();
+    // Anonymous IDs keep quest progress associated with this browser without registration.
+    $anonymousId = guio_requested_anonymous_id();
     $hasUsername = isset($_GET['user']) || isset($_POST['user']);
-    if ($deviceId !== null) {
-        $userId = tourtrail_find_or_create_device_user_id($pdo, $deviceId);
+    if ($anonymousId !== null) {
+        $userId = guio_find_or_create_anonymous_user_id($pdo, $anonymousId);
     } else {
-        $username = $hasUsername ? tourtrail_requested_username() : '';
-        $userId = $username !== '' ? tourtrail_find_user_id($pdo, $username) : null;
+        $username = $hasUsername ? guio_requested_username() : '';
+        $userId = $username !== '' ? guio_find_user_id($pdo, $username) : null;
     }
-    if ($hasUsername && $deviceId === null && $userId === null) {
+    if ($hasUsername && $anonymousId === null && $userId === null) {
         http_response_code(404);
         echo json_encode(['status' => 'error', 'error' => 'User not found']);
         exit;

@@ -50,12 +50,11 @@ try {
     $pdo = null;
 
     // Identify the viewer making the request
-    $username = tourtrail_requested_username();
-
-    $pdo = tourtrail_database();
+    $username = guio_requested_username();
+    $pdo = guio_database();
 
     // Resolve the viewer's user ID; stop if the user does not exist
-    $viewerId = tourtrail_find_user_id($pdo, $username);
+    $viewerId = guio_find_user_id($pdo, $username);
     if ($viewerId === null) {
         respond(404, ['error' => 'User not found.']);
     } // end of viewer lookup check

@@ -6,7 +6,7 @@ require_once __DIR__ . '/config.php';
 header('Content-Type: application/json; charset=utf-8');
 
 try {
-    $pdo = tourtrail_database();
+    $pdo = guio_database();
 
     $statement = $pdo->query(
         "SELECT u.id,

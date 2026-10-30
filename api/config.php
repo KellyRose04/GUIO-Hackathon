@@ -6,7 +6,7 @@ declare(strict_types=1);
  * This project has no server-side login session yet, so require a username
  * instead of silently falling back to a hard-coded account.
  */
-function tourtrail_requested_username(): string
+function guio_requested_username(): string
 {
     $username = trim((string) ($_GET['user'] ?? $_POST['user'] ?? ''));
 
@@ -17,23 +17,33 @@ function tourtrail_requested_username(): string
     return $username;
 }
 
-/** Read the browser-generated anonymous device ID sent with same-origin API requests. */
-function tourtrail_requested_device_id(): ?string
+/** Read the browser-generated anonymous ID sent with same-origin API requests. */
+function guio_requested_anonymous_id(): ?string
 {
-    $deviceId = trim((string) ($_SERVER['HTTP_X_GUIO_DEVICE_ID'] ?? ''));
-    if ($deviceId === '') {
+    $anonymousId = trim((string) (
+        $_SERVER['HTTP_X_GUIO_ANONYMOUS_ID']
+        ?? $_SERVER['HTTP_X_GUIO_DEVICE_ID']
+        ?? ''
+    ));
+    if ($anonymousId === '') {
         return null;
     }
 
-    if (!preg_match('/^[a-f0-9]{32}$/i', $deviceId)) {
-        throw new InvalidArgumentException('Invalid anonymous device ID');
+    if (preg_match('/^[a-f0-9]{32}$/i', $anonymousId)) {
+        $anonymousId = substr($anonymousId, 0, 8) . '-' .
+            substr($anonymousId, 8, 4) . '-' .
+            substr($anonymousId, 12, 4) . '-' .
+            substr($anonymousId, 16, 4) . '-' .
+            substr($anonymousId, 20, 12);
+    } elseif (!preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i', $anonymousId)) {
+        throw new InvalidArgumentException('Invalid anonymous ID');
     }
 
-    return strtolower($deviceId);
+    return strtolower($anonymousId);
 }
 
 /** Create the shared MySQL connection from server-side environment variables. */
-function tourtrail_database(): PDO
+function guio_database(): PDO
 {
     $host = getenv('GUIO_DB_HOST') ?: '127.0.0.1';
     $name = getenv('GUIO_DB_NAME') ?: 'guio_db';
@@ -66,20 +76,42 @@ function tourtrail_database(): PDO
     );
 }
 
-/** Create or retrieve the MySQL user record associated with one anonymous device. */
-function tourtrail_find_or_create_device_user_id(PDO $pdo, string $deviceId): int
+/** Create or retrieve the MySQL user record associated with one anonymous ID. */
+function guio_find_or_create_anonymous_user_id(PDO $pdo, string $anonymousId): int
 {
-    if (!preg_match('/^[a-f0-9]{32}$/', $deviceId)) {
-        throw new InvalidArgumentException('Invalid anonymous device ID');
+    if (!preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i', $anonymousId)) {
+        throw new InvalidArgumentException('Invalid anonymous ID');
     }
 
-    $username = 'anon_' . $deviceId;
+    $anonymousId = strtolower($anonymousId);
+    $legacyHex = str_replace('-', '', $anonymousId);
+    $username = 'anon_' . $legacyHex;
+    $existing = $pdo->prepare('SELECT id FROM users WHERE anonymous_id = :anonymous_id');
+    $existing->execute([':anonymous_id' => $anonymousId]);
+    $userId = $existing->fetchColumn();
+    if ($userId !== false) {
+        return (int) $userId;
+    }
+
+    $legacyUser = $pdo->prepare('SELECT id FROM users WHERE username = :username');
+    $legacyUser->execute([':username' => $username]);
+    $userId = $legacyUser->fetchColumn();
+    if ($userId !== false) {
+        $upgrade = $pdo->prepare(
+            'UPDATE users SET anonymous_id = :anonymous_id
+              WHERE id = :user_id AND anonymous_id IS NULL'
+        );
+        $upgrade->execute([':anonymous_id' => $anonymousId, ':user_id' => (int) $userId]);
+
+        return (int) $userId;
+    }
+
     $statement = $pdo->prepare(
-        'INSERT INTO users (username)
-         VALUES (:username)
+        'INSERT INTO users (username, anonymous_id)
+         VALUES (:username, :anonymous_id)
          ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)'
     );
-    $statement->execute([':username' => $username]);
+    $statement->execute([':username' => $username, ':anonymous_id' => $anonymousId]);
     $userId = (int) $pdo->lastInsertId();
     if ($userId < 1) {
         throw new PDOException('Could not resolve the anonymous device record.');
@@ -89,7 +121,7 @@ function tourtrail_find_or_create_device_user_id(PDO $pdo, string $deviceId): in
 }
 
 /** Look up an account's database ID without exposing other user fields. */
-function tourtrail_find_user_id(PDO $pdo, string $username): ?int
+function guio_find_user_id(PDO $pdo, string $username): ?int
 {
     $statement = $pdo->prepare('SELECT id FROM users WHERE username = :username');
     $statement->execute([':username' => $username]);

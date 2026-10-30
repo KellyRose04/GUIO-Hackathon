@@ -5,10 +5,9 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 try {
-    $pdo = tourtrail_database();
-
-    $username = tourtrail_requested_username();
-    $userId = tourtrail_find_user_id($pdo, $username);
+    $pdo = guio_database();
+    $username = guio_requested_username();
+    $userId = guio_find_user_id($pdo, $username);
     if ($userId === null) {
         http_response_code(404);
         echo json_encode(['status' => 'error', 'error' => 'User not found']);

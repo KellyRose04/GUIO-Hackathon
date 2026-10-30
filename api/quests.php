@@ -105,7 +105,7 @@ function activeQuestPayload(PDO $pdo, int $userQuestId, int $userId): ?array
 }
 
 try {
-    $pdo = tourtrail_database();
+    $pdo = guio_database();
 
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     if (!in_array($method, ['GET', 'POST'], true)) {
@@ -114,18 +114,18 @@ try {
     }
 
     $userId = null;
-    $deviceId = tourtrail_requested_device_id();
+    $anonymousId = guio_requested_anonymous_id();
     $hasUsername = isset($_GET['user']) || isset($_POST['user']);
-    if ($deviceId !== null) {
-        $userId = tourtrail_find_or_create_device_user_id($pdo, $deviceId);
+    if ($anonymousId !== null) {
+        $userId = guio_find_or_create_anonymous_user_id($pdo, $anonymousId);
     } elseif ($hasUsername) {
-        $username = tourtrail_requested_username();
-        $userId = tourtrail_find_user_id($pdo, $username);
+        $username = guio_requested_username();
+        $userId = guio_find_user_id($pdo, $username);
     }
 
     if ($method === 'POST') {
         if ($userId === null) {
-            respond(400, ['status' => 'error', 'error' => 'An anonymous device ID is required to update quest progress.']);
+            respond(400, ['status' => 'error', 'error' => 'An anonymous ID is required to update quest progress.']);
         }
         $body = json_decode(file_get_contents('php://input'), true);
         $action = is_array($body) && is_string($body['action'] ?? null)

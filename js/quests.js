@@ -26,7 +26,7 @@
   let isVerifyingDestination = false;
 
   const account = window.GUIOAccount;
-  const hasDeviceIdentity = Boolean(account?.deviceId);
+  const hasDeviceIdentity = Boolean(account?.anonymousId);
 
   function identityHeaders(extraHeaders = {}) {
     if (!account) throw new Error("This device's anonymous ID could not be initialized. Reload the page.");

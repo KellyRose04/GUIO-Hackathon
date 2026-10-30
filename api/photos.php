@@ -19,11 +19,11 @@ if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'PATCH'], true)) {
 }
 
 try {
-    $username = tourtrail_requested_username();
-    $pdo = tourtrail_database();
+    $username = guio_requested_username();
+    $pdo = guio_database();
     $pdo->exec("SET time_zone = '+08:00'");
 
-    $userId = tourtrail_find_user_id($pdo, $username);
+    $userId = guio_find_user_id($pdo, $username);
     if ($userId === null) {
         photosRespond(404, ['error' => 'User not found.']);
     }
