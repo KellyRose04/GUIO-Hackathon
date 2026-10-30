@@ -1,70 +1,19 @@
 (() => {
-  const sampleQuests = [
-    {
-      key: "burnham-secrets-walk",
-      title: "Burnham Secrets Walk",
-      description: "Explore lesser-known heritage spots around Burnham Park, discover Baguio’s living culture through weavers, local markets, and historic corners of the beaten path.",
-      category: "Heritage",
-      distance: "1.2 km",
-      target: 5,
-      xp: 500,
-      badge: "Heritage Buff",
-      icon: "⚑",
-      stops: [
-        { title: "Baguio Craft Market" },
-        { title: "Burnham Park Gallery" },
-        { title: "Ibali Weavers Studio" },
-        { title: "Good Taste Cafe" },
-        { title: "Baguio Museum" },
-      ],
-    },
-    {
-      key: "baguio-artisan-circuit",
-      title: "Baguio Artisan Circuit",
-      description: "Meet local makers and find the craft traditions woven through the city’s studios and markets.",
-      category: "Art",
-      distance: "0.8 km",
-      target: 4,
-      xp: 400,
-      badge: "Local Craft",
-      icon: "✳",
-      stops: [
-        { title: "Baguio Craft Market" },
-        { title: "Ibali Weavers Studio" },
-        { title: "Cordillera Gallery" },
-        { title: "Artists’ Village" },
-      ],
-    },
-    {
-      key: "morning-market-flavours",
-      title: "Morning Market Flavours",
-      description: "Follow the early market bustle and sample the everyday flavours loved by Baguio locals.",
-      category: "Food",
-      distance: "0.5 km",
-      target: 3,
-      xp: 300,
-      badge: "Food Trail",
-      icon: "⌂",
-      stops: [
-        { title: "Baguio Public Market" },
-        { title: "Good Taste Cafe" },
-        { title: "Hilltop Produce Stalls" },
-      ],
-    },
-  ];
-
   const questGrid = document.getElementById("quest-grid");
   const currentContent = document.getElementById("current-quest-content");
   const currentStatus = document.getElementById("current-status");
   const countLabel = document.getElementById("quest-count");
+  const filterContainer = document.getElementById("quest-filters");
   const questDialog = document.getElementById("quest-dialog");
   const missionDialog = document.getElementById("mission-dialog");
-  if (!questGrid || !currentContent || !questDialog || !missionDialog) return;
+  if (!questGrid || !currentContent || !filterContainer || !questDialog || !missionDialog) return;
 
   let selectedFilter = "all";
   let selectedQuest = null;
   let activeQuest = null;
-  let displayedQuests = [...sampleQuests];
+  let questCatalog = [];
+  let displayedQuests = [];
+  let questCatalogStatus = "loading";
 
   function getUsername() {
     const params = new URLSearchParams(window.location.search);
@@ -102,12 +51,43 @@
     return node;
   }
 
+  function categoryLabel(value) {
+    const category = String(value || "").trim();
+    if (!category) return "Quest";
+    return category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
+  }
+
+  function normaliseQuest(raw) {
+    if (!raw || typeof raw !== "object") return null;
+    const stops = Array.isArray(raw.stops)
+      ? raw.stops.map((stop, index) => ({
+          ...stop,
+          title: stop.title || `Mission ${index + 1}`,
+          state: stop.stop_state || stop.state,
+        }))
+      : [];
+
+    return {
+      key: raw.quest_key || `quest-${raw.quest_id || "unknown"}`,
+      questId: raw.quest_id || null,
+      title: raw.title || "Untitled quest",
+      description: raw.description || "Explore the city and complete this quest.",
+      category: categoryLabel(raw.category || raw.quest_type),
+      questType: raw.quest_type || "sites",
+      target: Math.max(0, Number(raw.target_count) || stops.length),
+      xp: Math.max(0, Number(raw.xp_reward) || 0),
+      badge: raw.reward_badge_name || "Quest reward",
+      icon: raw.icon || "⚑",
+      stops,
+    };
+  }
+
   function normaliseActiveQuest(raw) {
     if (!raw || typeof raw !== "object") return null;
     const rawKey = String(raw.quest_key || "").trim().toLowerCase();
     const rawTitle = String(raw.title || "").trim().toLowerCase();
     const rawSlug = rawKey.replace(/[-_]+/g, " ");
-    const fallback = sampleQuests.find((quest) => {
+    const fallback = questCatalog.find((quest) => {
       const title = quest.title.toLowerCase();
       return quest.key.toLowerCase() === rawKey || title === rawTitle || title === rawSlug;
     });
@@ -117,7 +97,7 @@
       ? raw.stops.map((stop, index) => ({
           ...stop,
           title: stop.title || `Mission ${index + 1}`,
-          state: stop.stop_state || "pending",
+          state: stop.stop_state || stop.state,
         }))
       : fallback?.stops || [];
 
@@ -128,7 +108,8 @@
       userQuestId: raw.user_quest_id || null,
       title: raw.title || fallback?.title || "Your active quest",
       description: raw.description || fallback?.description || "Continue exploring to complete this quest.",
-      category: raw.quest_type === "streak" ? "Active" : (fallback?.category || "Heritage"),
+      category: fallback?.category || categoryLabel(raw.quest_type),
+      questType: raw.quest_type || fallback?.questType || "sites",
       target,
       progress,
       xp: Math.max(0, Number(raw.xp_reward) || Number(fallback?.xp) || 0),
@@ -138,6 +119,30 @@
       isActive: true,
       nextSiteId: stops.find((stop) => stop.state === "next")?.site_id || raw.next_site_id || null,
     };
+  }
+
+  function renderFilters() {
+    const categories = [...new Set(questCatalog.map((quest) => quest.category).filter(Boolean))];
+    const filters = [
+      { value: "all", label: "All" },
+      { value: "active", label: "Active" },
+      ...categories.map((category) => ({ value: category.toLowerCase(), label: category })),
+    ];
+    if (!filters.some((filter) => filter.value === selectedFilter)) selectedFilter = "all";
+
+    filterContainer.replaceChildren();
+    filters.forEach((filter) => {
+      const button = element("button", `filter-chip${selectedFilter === filter.value ? " is-active" : ""}`, filter.label);
+      button.type = "button";
+      button.dataset.filter = filter.value;
+      button.setAttribute("aria-pressed", String(selectedFilter === filter.value));
+      button.addEventListener("click", () => {
+        selectedFilter = filter.value;
+        renderFilters();
+        renderCards();
+      });
+      filterContainer.append(button);
+    });
   }
 
   function getQuestStops(quest) {
@@ -169,8 +174,8 @@
       const content = element("div", "current-quest-info");
       content.append(element("h3", "", "No active quests"));
       const copy = username
-        ? "Choose a featured trail below to explore its route."
-        : "Select an account to load your progress. You can preview the featured trails below.";
+        ? "Choose a quest below to explore its route."
+        : "Select an account to load your progress. You can still browse available quests below.";
       content.append(element("p", "", copy));
       empty.append(icon, content);
       currentContent.append(empty);
@@ -207,7 +212,14 @@
     countLabel.textContent = `${filtered.length} ${filtered.length === 1 ? "route" : "routes"}`;
     questGrid.replaceChildren();
     if (!filtered.length) {
-      questGrid.append(element("p", "empty-results", "No quests in this category yet. Try another filter."));
+      const message = questCatalogStatus === "loading"
+        ? "Loading quests from the server..."
+        : questCatalogStatus === "error"
+          ? "Quests could not be loaded right now. Please refresh to try again."
+          : filter === "all"
+            ? "No quests are available right now."
+            : "No quests in this category yet. Try another filter.";
+      questGrid.append(element("p", "empty-results", message));
       return;
     }
 
@@ -320,19 +332,47 @@
 
   function renderFromProfile(profile) {
     activeQuest = normaliseActiveQuest(profile?.active_quest);
-    displayedQuests = [...sampleQuests];
+    displayedQuests = [...questCatalog];
     if (activeQuest) {
       const existingIndex = displayedQuests.findIndex((quest) => quest.key === activeQuest.key || quest.title === activeQuest.title);
       if (existingIndex >= 0) displayedQuests[existingIndex] = { ...displayedQuests[existingIndex], ...activeQuest };
       else displayedQuests.unshift(activeQuest);
     }
+    renderFilters();
     renderCurrentQuest();
+    renderCards();
+  }
+
+  async function loadQuestCatalog() {
+    try {
+      const url = new URL("../api/quests.php", window.location.href);
+      const response = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok || !Array.isArray(payload.quests)) {
+        throw new Error(payload.error || "Quest catalog is unavailable.");
+      }
+      questCatalog = payload.quests.map(normaliseQuest).filter(Boolean);
+      questCatalogStatus = "loaded";
+    } catch (error) {
+      console.warn("Could not load quest catalog:", error);
+      questCatalog = [];
+      questCatalogStatus = "error";
+    }
+
+    displayedQuests = [...questCatalog];
+    if (activeQuest) {
+      const existingIndex = displayedQuests.findIndex((quest) => quest.key === activeQuest.key || quest.title === activeQuest.title);
+      if (existingIndex >= 0) displayedQuests[existingIndex] = { ...displayedQuests[existingIndex], ...activeQuest };
+      else displayedQuests.unshift(activeQuest);
+    }
+    renderFilters();
     renderCards();
   }
 
   async function loadQuestProgress() {
     if (!username) {
-      renderFromProfile(null);
+      renderCurrentQuest();
+      renderCards();
       return;
     }
     try {
@@ -345,21 +385,9 @@
     } catch (error) {
       console.warn("Could not load quest progress:", error);
       renderFromProfile(null);
-      currentContent.querySelector(".current-empty p").textContent = "Quest progress is unavailable right now. You can still preview the featured trails.";
+      currentContent.querySelector(".current-empty p").textContent = "Quest progress is unavailable right now. You can still browse available quests.";
     }
   }
-
-  document.querySelectorAll(".filter-chip").forEach((button) => {
-    button.addEventListener("click", () => {
-      selectedFilter = button.dataset.filter || "all";
-      document.querySelectorAll(".filter-chip").forEach((chip) => {
-        const selected = chip === button;
-        chip.classList.toggle("is-active", selected);
-        chip.setAttribute("aria-pressed", String(selected));
-      });
-      renderCards();
-    });
-  });
 
   document.querySelector("[data-close-quest]").addEventListener("click", () => questDialog.close());
   document.querySelector("[data-close-mission]").addEventListener("click", () => missionDialog.close());
@@ -369,5 +397,7 @@
   });
   document.getElementById("open-mission").addEventListener("click", openMission);
   addUserToLinks();
+  renderFilters();
+  loadQuestCatalog();
   loadQuestProgress();
 })();

@@ -7,7 +7,7 @@
   <title>GUIO — Quests</title>
   <link rel="icon" type="image/png" href="../assets/guio_logo.png">
   <link rel="stylesheet" href="../css/quests.css?v=blue-cream-2">
-  <script src="../js/quests.js?v=quest-page-1" defer></script>
+  <script src="../js/quests.js?v=quest-page-2" defer></script>
 </head>
 <body>
   <header id="top-nav">
@@ -57,15 +57,10 @@
         <div>
           <h2 id="browse-heading">Available quests</h2>
         </div>
-        <span class="result-count" id="quest-count">3 routes</span>
+        <span class="result-count" id="quest-count">Loading</span>
       </div>
 
-      <div class="filters" role="group" aria-label="Filter quests by category">
-        <button class="filter-chip is-active" type="button" data-filter="all" aria-pressed="true">All</button>
-        <button class="filter-chip" type="button" data-filter="active" aria-pressed="false">Active</button>
-        <button class="filter-chip" type="button" data-filter="heritage" aria-pressed="false">Heritage</button>
-        <button class="filter-chip" type="button" data-filter="food" aria-pressed="false">Food</button>
-        <button class="filter-chip" type="button" data-filter="art" aria-pressed="false">Art</button>
+      <div class="filters" id="quest-filters" role="group" aria-label="Filter quests by category">
       </div>
 
       <div class="quest-grid" id="quest-grid" aria-live="polite">
