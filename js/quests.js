@@ -384,8 +384,10 @@
         ? ` You earned the ${payload.badge_awarded.name} badge!`
         : "";
       qrStatus.textContent = payload.quest_status === "done"
-        ? `Quest complete! You finished every destination.${badgeMessage}`
-        : `Destination verified. Your next mission is now current.${badgeMessage}`;
+        ? (payload.awarded_badge
+            ? `Quest complete! You earned the ${payload.awarded_badge.name} badge.`
+            : "Quest complete! You finished every destination.")
+        : "Destination verified. Your next mission is now current.";
       await loadQuestCatalog();
       if (payload.quest_status === "done") {
         missionDialog.close();
@@ -471,6 +473,11 @@
         }
 
         activeQuest = normaliseActiveQuest(payload.active_quest);
+        try {
+          localStorage.setItem("guio-active-quest-updated", String(Date.now()));
+        } catch (storageError) {
+          console.warn("Could not notify the map about the active quest.", storageError);
+        }
         await loadQuestCatalog();
         selectedQuest = activeQuest || normaliseQuest(payload.active_quest);
         questDialog.close();

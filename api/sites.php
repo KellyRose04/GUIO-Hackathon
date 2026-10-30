@@ -28,26 +28,20 @@ try {
     $search   = isset($_GET['search']) ? trim($_GET['search']) : '';
     $sort     = isset($_GET['sort']) ? $_GET['sort'] : 'nearest';
 
-    $statusSql = "CASE WHEN is_hidden_gem = 1 THEN 'hidden_gem' ELSE 'new' END";
-
-    $sql = "SELECT id, title, category, is_hidden_gem,
-            $statusSql AS status,
-            latitude, longitude, image_url, description, operating_hours, entrance_fee,
-            ( 6371 * acos( cos( radians(:user_lat1) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(:user_lng) ) + sin( radians(:user_lat2) ) * sin( radians( latitude ) ) ) ) AS distance_km
-            FROM sites WHERE 1=1";
+    $sql = "SELECT id, title, category,
+        'new' AS status,
+        latitude, longitude, image_url, description, operating_hours, entrance_fee,
+        ( 6371 * acos( cos( radians(:user_lat1) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(:user_lng) ) + sin( radians(:user_lat2) ) * sin( radians( latitude ) ) ) ) AS distance_km
+        FROM sites WHERE 1=1";
 
     $params = [
         ':user_lat1' => $user_lat,
         ':user_lng'  => $user_lng,
         ':user_lat2' => $user_lat
     ];
-    if ($category !== 'all') {
-        if ($category === 'gems') {
-            $sql .= " AND is_hidden_gem = 1";
-        } else {
-            $sql .= " AND category = :category";
-            $params[':category'] = $category;
-        }
+    if ($category !== 'all' && $category !== 'gems') {
+        $sql .= " AND category = :category";
+        $params[':category'] = $category;
     }
 
     if (!empty($search)) {
@@ -77,6 +71,40 @@ try {
         $questStmt->execute([':account_user_id' => $userId]);
         $activeQuests = $questStmt->fetchAll();
     }
+
+    foreach ($activeQuests as &$quest) {
+    $stopsStmt = $pdo->prepare(
+        'SELECT qs.site_id, qs.stop_order, s.title,
+                CASE
+                    WHEN uqs.id IS NOT NULL THEN \'done\'
+                    WHEN NOT EXISTS (
+                        SELECT 1
+                          FROM quest_stops AS earlier
+                          LEFT JOIN user_quest_stops AS earlier_done
+                            ON earlier_done.user_quest_id = :uq1
+                           AND earlier_done.quest_stop_id = earlier.id
+                         WHERE earlier.quest_id = qs.quest_id
+                           AND earlier.stop_order < qs.stop_order
+                           AND earlier_done.id IS NULL
+                    ) THEN \'next\'
+                    ELSE \'locked\'
+                END AS stop_state
+           FROM quest_stops AS qs
+           JOIN sites AS s ON s.id = qs.site_id
+           LEFT JOIN user_quest_stops AS uqs
+             ON uqs.user_quest_id = :uq2
+            AND uqs.quest_stop_id = qs.id
+          WHERE qs.quest_id = :quest_id
+          ORDER BY qs.stop_order'
+    );
+    $stopsStmt->execute([
+        ':uq1' => (int) $quest['user_quest_id'],
+        ':uq2' => (int) $quest['user_quest_id'],
+        ':quest_id' => (int) $quest['quest_id'],
+    ]);
+    $quest['stops'] = $stopsStmt->fetchAll();
+}
+unset($quest);
 
     echo json_encode([
         'status' => 'success', 

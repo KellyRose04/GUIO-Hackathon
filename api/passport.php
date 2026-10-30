@@ -18,51 +18,28 @@ function fail(int $code, string $message): void
     exit;
 }
 
-$anonymousId = null;
-$username = '';
-try {
-    $anonymousId = guio_requested_anonymous_id();
-    if ($anonymousId === null) {
-        $username = guio_requested_username();
-    }
-} catch (InvalidArgumentException $error) {
-    fail(400, 'A valid account or anonymous ID is required.');
-}
-
-try {
-    $pdo = guio_database();
-
-    // Timestamps are stored in UTC; read them back as Philippine time so
-    // weekdays and dates match what the user sees on their phone.
-    $pdo->exec("SET time_zone = '+08:00'");
-
-    // 1. The user (never select email or password_hash)
-    if ($anonymousId !== null) {
-        $userId = guio_find_or_create_anonymous_user_id($pdo, $anonymousId);
-        $stmt = $pdo->prepare(
-            'SELECT id, username, COALESCE(NULLIF(display_name, \'\'), username) AS display_name,
-                    streak_count, longest_streak
-               FROM users
-              WHERE id = :user_id'
-        );
-        $stmt->execute([':user_id' => $userId]);
-    } else {
-        $stmt = $pdo->prepare(
-            'SELECT id, username, COALESCE(NULLIF(display_name, \'\'), username) AS display_name,
-                    streak_count, longest_streak
-               FROM users
-              WHERE username = :u'
-        );
-        $stmt->execute([':u' => $username]);
-    }
+$pdo = guio_database();
+$anonymousId = guio_requested_anonymous_id();
+if ($anonymousId !== null) {
+    $uid = guio_find_or_create_anonymous_user_id($pdo, $anonymousId);
+    $stmt = $pdo->prepare('SELECT id, username FROM users WHERE id = :id');
+    $stmt->execute([':id' => $uid]);
     $user = $stmt->fetch();
-    if (!$user) {
-        fail(404, 'User not found');
-    }
-    $uid = (int) $user['id'];
-    if ($anonymousId === null) {
-        guio_award_welcome_badge($pdo, $uid);
-    }
+} else {
+    $username = guio_requested_username();
+    $stmt = $pdo->prepare(
+        'SELECT id, username FROM users WHERE username = :u'
+    );
+    $stmt->execute([':u' => $username]);
+    $user = $stmt->fetch();
+}
+if (!$user) {
+    fail(404, 'User not found');
+}
+$uid = (int) $user['id'];
+$user['display_name'] = $user['username'];
+$user['streak_count'] = 0;
+$user['longest_streak'] = 0;
 
     // Passport site counts include only verified check-ins linked to a registered site.
     $stmt = $pdo->prepare(
