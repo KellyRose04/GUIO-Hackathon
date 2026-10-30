@@ -7,12 +7,16 @@ header('Access-Control-Allow-Origin: *');
 try {
     $pdo = tourtrail_database();
 
-    // The public map can load without an account. When a username is supplied,
-    // keep visit status and quest data scoped to that selected account.
+    // Map requests can be anonymous; identified devices get isolated quest progress.
+    $deviceId = tourtrail_requested_device_id();
     $hasUsername = isset($_GET['user']) || isset($_POST['user']);
-    $username = $hasUsername ? tourtrail_requested_username() : '';
-    $userId = $username !== '' ? tourtrail_find_user_id($pdo, $username) : null;
-    if ($username !== '' && $userId === null) {
+    if ($deviceId !== null) {
+        $userId = tourtrail_find_or_create_device_user_id($pdo, $deviceId);
+    } else {
+        $username = $hasUsername ? tourtrail_requested_username() : '';
+        $userId = $username !== '' ? tourtrail_find_user_id($pdo, $username) : null;
+    }
+    if ($hasUsername && $deviceId === null && $userId === null) {
         http_response_code(404);
         echo json_encode(['status' => 'error', 'error' => 'User not found']);
         exit;
@@ -90,7 +94,7 @@ try {
     ]);
 } catch (InvalidArgumentException $e) {
     http_response_code(400);
-    echo json_encode(['status' => 'error', 'error' => 'The selected account is invalid.']);
+    echo json_encode(['status' => 'error', 'error' => 'The anonymous device ID is invalid.']);
 } catch (\Throwable $e) {
     error_log('Sites request failed: ' . $e->getMessage());
     http_response_code(500);

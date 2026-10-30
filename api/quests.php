@@ -114,18 +114,18 @@ try {
     }
 
     $userId = null;
+    $deviceId = tourtrail_requested_device_id();
     $hasUsername = isset($_GET['user']) || isset($_POST['user']);
-    if ($hasUsername) {
+    if ($deviceId !== null) {
+        $userId = tourtrail_find_or_create_device_user_id($pdo, $deviceId);
+    } elseif ($hasUsername) {
         $username = tourtrail_requested_username();
         $userId = tourtrail_find_user_id($pdo, $username);
-        if ($userId === null && $method === 'POST') {
-            respond(404, ['status' => 'error', 'error' => 'User not found.']);
-        }
     }
 
     if ($method === 'POST') {
         if ($userId === null) {
-            respond(400, ['status' => 'error', 'error' => 'A selected account is required to start a quest.']);
+            respond(400, ['status' => 'error', 'error' => 'An anonymous device ID is required to update quest progress.']);
         }
         $body = json_decode(file_get_contents('php://input'), true);
         $action = is_array($body) && is_string($body['action'] ?? null)
@@ -372,7 +372,7 @@ try {
         'active_quest' => $currentQuest,
     ]);
 } catch (InvalidArgumentException $error) {
-    respond(400, ['status' => 'error', 'error' => 'The selected account is invalid.']);
+    respond(400, ['status' => 'error', 'error' => 'The anonymous device ID is invalid.']);
 } catch (PDOException $error) {
     if (isset($pdo) && $pdo instanceof PDO && $pdo->inTransaction()) {
         $pdo->rollBack();

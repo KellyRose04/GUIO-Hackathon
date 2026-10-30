@@ -17,6 +17,21 @@ function tourtrail_requested_username(): string
     return $username;
 }
 
+/** Read the browser-generated anonymous device ID sent with same-origin API requests. */
+function tourtrail_requested_device_id(): ?string
+{
+    $deviceId = trim((string) ($_SERVER['HTTP_X_GUIO_DEVICE_ID'] ?? ''));
+    if ($deviceId === '') {
+        return null;
+    }
+
+    if (!preg_match('/^[a-f0-9]{32}$/i', $deviceId)) {
+        throw new InvalidArgumentException('Invalid anonymous device ID');
+    }
+
+    return strtolower($deviceId);
+}
+
 /** Create the shared MySQL connection from server-side environment variables. */
 function tourtrail_database(): PDO
 {
@@ -53,6 +68,28 @@ function tourtrail_database(): PDO
             PDO::ATTR_EMULATE_PREPARES => false,
         ]
     );
+}
+
+/** Create or retrieve the MySQL user record associated with one anonymous device. */
+function tourtrail_find_or_create_device_user_id(PDO $pdo, string $deviceId): int
+{
+    if (!preg_match('/^[a-f0-9]{32}$/', $deviceId)) {
+        throw new InvalidArgumentException('Invalid anonymous device ID');
+    }
+
+    $username = 'anon_' . $deviceId;
+    $statement = $pdo->prepare(
+        'INSERT INTO users (username)
+         VALUES (:username)
+         ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)'
+    );
+    $statement->execute([':username' => $username]);
+    $userId = (int) $pdo->lastInsertId();
+    if ($userId < 1) {
+        throw new PDOException('Could not resolve the anonymous device record.');
+    }
+
+    return $userId;
 }
 
 /** Look up an account's database ID without exposing other user fields. */

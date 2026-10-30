@@ -25,33 +25,12 @@
   let scanFrame = null;
   let isVerifyingDestination = false;
 
-  function getUsername() {
-    const params = new URLSearchParams(window.location.search);
-    const urlUser = params.get("user");
-    try {
-      if (urlUser !== null) {
-        const value = urlUser.trim();
-        if (value) window.sessionStorage.setItem("tourtrail-active-username", value);
-        else window.sessionStorage.removeItem("tourtrail-active-username");
-        return value;
-      }
-      return (window.sessionStorage.getItem("tourtrail-active-username") || "").trim();
-    } catch {
-      return (urlUser || "").trim();
-    }
-  }
+  const account = window.GUIOAccount;
+  const hasDeviceIdentity = Boolean(account?.deviceId);
 
-  const username = getUsername();
-
-  function addUserToLinks() {
-    if (!username) return;
-    document.querySelectorAll('a[href$=".html"]').forEach((link) => {
-      const url = new URL(link.href, window.location.href);
-      if (url.origin === window.location.origin) {
-        url.searchParams.set("user", username);
-        link.href = url.href;
-      }
-    });
+  function identityHeaders(extraHeaders = {}) {
+    if (!account) throw new Error("This device's anonymous ID could not be initialized. Reload the page.");
+    return account.apiHeaders(extraHeaders);
   }
 
   function element(tag, className, text) {
@@ -216,9 +195,9 @@
       icon.setAttribute("aria-hidden", "true");
       const content = element("div", "current-quest-info");
       content.append(element("h3", "", "No active quests"));
-      const copy = username
+      const copy = hasDeviceIdentity
         ? "Choose a quest below to explore its route."
-        : "Select an account to load your progress. You can still browse available quests below.";
+        : "This device's anonymous ID is unavailable. Enable browser storage and reload.";
       content.append(element("p", "", copy));
       empty.append(icon, content);
       currentContent.append(empty);
@@ -341,10 +320,10 @@
       ? "Go to current destination"
       : quest.isDone
         ? "Quest complete"
-        : username
+        : hasDeviceIdentity
           ? "Start quest"
-          : "Select an account to start";
-    openMissionButton.disabled = quest.isDone || (!username && !quest.isActive);
+          : "Device ID unavailable";
+    openMissionButton.disabled = quest.isDone || (!hasDeviceIdentity && !quest.isActive);
     questDialog.showModal();
   }
 
@@ -376,7 +355,7 @@
   }
 
   async function verifyDestinationQr(rawValue) {
-    if (!username || !activeQuest || isVerifyingDestination) return;
+    if (!hasDeviceIdentity || !activeQuest || isVerifyingDestination) return;
     const qrToken = qrTokenFromValue(rawValue);
     if (!qrToken) {
       qrStatus.textContent = "Scan or enter a destination QR code.";
@@ -389,10 +368,9 @@
     qrStatus.textContent = "Verifying destination code…";
     try {
       const url = new URL("../api/quests.php", window.location.href);
-      url.searchParams.set("user", username);
       const response = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: identityHeaders({ "Content-Type": "application/json", Accept: "application/json" }),
         body: JSON.stringify({ action: "verify_destination", qr_token: qrToken }),
       });
       const payload = await response.json();
@@ -474,15 +452,14 @@
   async function openMission() {
     if (!selectedQuest) return;
     if (!selectedQuest.isActive && !selectedQuest.isDone) {
-      if (!username) return;
+      if (!hasDeviceIdentity) return;
       const startButton = document.getElementById("open-mission");
       startButton.disabled = true;
       try {
         const url = new URL("../api/quests.php", window.location.href);
-        url.searchParams.set("user", username);
         const response = await fetch(url, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          headers: identityHeaders({ "Content-Type": "application/json", Accept: "application/json" }),
           body: JSON.stringify({ quest_key: selectedQuest.key }),
         });
         const payload = await response.json();
@@ -539,8 +516,10 @@
   async function loadQuestCatalog() {
     try {
       const url = new URL("../api/quests.php", window.location.href);
-      if (username) url.searchParams.set("user", username);
-      const response = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
+      const response = await fetch(url, {
+        headers: identityHeaders({ Accept: "application/json" }),
+        cache: "no-store",
+      });
       if (!response.headers.get("content-type")?.includes("application/json")) {
         throw new Error("The MySQL quest API did not return JSON. Check that the PHP endpoint is running.");
       }
@@ -591,7 +570,6 @@
     }
   });
   missionDialog.addEventListener("close", stopQrCamera);
-  addUserToLinks();
   renderFilters();
   loadQuestCatalog();
 })();

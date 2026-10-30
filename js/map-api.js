@@ -22,11 +22,12 @@
         }
 
         const relativeUrl = `${SITES_ENDPOINT}?${params.toString()}`;
-        const requestUrl = window.TourTrailAccount
-            ? window.TourTrailAccount.apiUrl(relativeUrl)
-            : relativeUrl;
+        if (!window.GUIOAccount) {
+            throw new Error("This device's anonymous ID could not be initialized. Reload the page.");
+        }
+        const requestUrl = window.GUIOAccount.apiUrl(relativeUrl);
         const response = await fetch(requestUrl, {
-            headers: { Accept: "application/json" },
+            headers: window.GUIOAccount.apiHeaders({ Accept: "application/json" }),
             cache: "no-store",
         });
 
