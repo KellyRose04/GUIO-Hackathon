@@ -7,9 +7,9 @@
     <!-- Page settings: character encoding, responsive viewport, and browser tab title -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUIO - Profile</title>
+    <title>GUIO - Passport</title>
 
-    <!-- Browser tab icon and Profile page stylesheet -->
+    <!-- Browser tab icon and Passport page stylesheet -->
     <link rel="icon" type="image/png" href="../assets/guio_logo.png">
     <link rel="stylesheet" href="css/profile.css?v=badge-notifications-6">
 
@@ -55,6 +55,16 @@
             </div>
         </div>
     </header>
+
+    <div id="connection-bar">
+    <!-- Announces connectivity changes to screen readers -->
+    <p id="connection-status" role="status" aria-live="polite"></p>
+
+    <!-- Shown only when records are queued for later sync -->
+    <p id="pending-status" role="status" aria-live="polite" hidden>
+      <span id="pending-count">0</span> record(s) waiting to be sent
+    </p>
+  </div> <!-- end of connection bar -->
 
     <!-- DASHBOARD CONTENT -->
     <main class="dashboard-content" id="view-passport" aria-labelledby="passport-title">
@@ -191,6 +201,36 @@
             
         </div>
 
+        <!-- RIGHT COLUMN: My Gallery integrated into Passport -->
+        <section class="right-col passport-gallery" id="view-gallery" aria-labelledby="gallery-title">
+            <header id="gallery-header">
+                <h2 id="gallery-title" class="visually-hidden">My Gallery</h2>
+
+                <div id="gallery-tabs" role="tablist" aria-label="Gallery tabs">
+                    <a href="feed.html" role="tab" id="tab-btn-feed" data-tab="feed" aria-selected="false" tabindex="-1">Feed</a>
+                    <a href="passport.html" role="tab" id="tab-btn-mine" data-tab="mine" aria-selected="true">
+                        <span class="gallery-tab-icon" aria-hidden="true">▧</span> My Gallery
+                    </a>
+                </div>
+
+                <p id="gallery-count" aria-live="polite"></p>
+            </header>
+
+            <div id="tab-mine" role="tabpanel" aria-labelledby="tab-btn-mine">
+
+        <!-- Loading, empty, and error states for the photo grid -->
+        <p id="mine-loading" role="status">Loading your photos...</p>
+        <p id="mine-empty" hidden>You have no photos yet. <a href="camera.html">Check in at a site</a> to add your first one.</p>
+        <p id="mine-error" role="alert" hidden>Could not load your photos. <button type="button" id="mine-retry">Try again</button></p>
+
+        <!-- Photo thumbnails are rendered here from the tpl-photo template -->
+        <ul id="photo-grid"></ul>
+
+        <!-- Appends the next page of photos -->
+        <button type="button" id="mine-more" hidden>Load more</button>
+      </div> <!-- end of my gallery tab panel -->
+        </section>
+
     </main>
 
     <!-- MOBILE BOTTOM NAVIGATION (Hidden on Desktop) -->
@@ -202,6 +242,152 @@
     </nav>
 
 </div>
+
+  <!-- Short messages such as "Caption saved" -->
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <!-- ===== TEMPLATES: JS clones these with template.content.cloneNode(true) ===== -->
+
+  <!-- Template: a square photo tile for the My Gallery grid -->
+  <template id="tpl-photo">
+    <li class="gallery-post-item" data-photo-id="">
+      <article class="post gallery-post">
+        <!-- Clicking the tile opens the photo details dialog -->
+        <button type="button" class="photo-open" aria-label="View post details">
+          <span class="photo-thumb"><img class="photo-img" src="" alt="" loading="lazy"></span>
+          <span class="photo-location">
+            <img src="assets/pin-location.png" alt="" aria-hidden="true">
+            <span class="photo-location-name"></span>
+          </span>
+          <span class="caption"></span>
+        </button>
+      </article> <!-- end of gallery post -->
+    </li>
+  </template> <!-- end of tpl-photo -->
+
+  <!-- Template: a single feed post (not used on this page, shared with feed.html) -->
+  <template id="tpl-post">
+    <li>
+      <!-- data attributes are filled by feed.js and read by event handlers -->
+      <article class="post" data-post-id="" data-site-id="">
+        <!-- Author info and an owner label or follow action -->
+        <header>
+          <img class="avatar" src="assets/user.png" alt="">
+          <h3 class="post-author"></h3>
+          <p class="post-meta"></p>
+          <span class="own-post-label" hidden>Your post</span>
+          <button type="button" class="follow-btn" aria-pressed="false">Follow</button>
+        </header>
+
+        <!-- Check-in photo, site name, and caption -->
+        <img class="photo-img" src="" alt="" loading="lazy">
+        <p class="site-tag"></p>
+        <p class="caption"></p>
+
+        <!-- Post actions: like, comment, and view site details -->
+        <footer>
+          <button type="button" class="like-btn" aria-pressed="false">Like (<span class="like-count" aria-live="polite">0</span>)</button>
+          <button type="button" class="comment-btn">Comment (<span class="comment-count">0</span>)</button>
+          <button type="button" class="view-site-btn" data-open="dlg-site">View site</button>
+        </footer>
+      </article> <!-- end of post -->
+    </li>
+  </template> <!-- end of tpl-post -->
+
+  <!-- Template: a row in the "Trending hidden gems" list (not used on this page) -->
+  <template id="tpl-trending">
+    <li data-site-id="">
+      <h4 class="site-name"></h4>
+      <p class="site-meta"></p>
+      <span class="reward"></span>
+    </li>
+  </template> <!-- end of tpl-trending -->
+
+  <!-- Template: a row in the "Top explorers" list (not used on this page) -->
+  <template id="tpl-explorer">
+    <li data-user-id="">
+      <img class="avatar" src="assets/user.png" alt="">
+      <h4 class="explorer-name"></h4>
+      <p class="explorer-level"></p>
+      <span class="explorer-xp"></span>
+    </li>
+  </template> <!-- end of tpl-explorer -->
+
+  <!-- ===== POP-UPS: native <dialog>. Open with showModal(), close with close() ===== -->
+
+  <!-- Gallery post details, with caption editing -->
+  <dialog id="dlg-photo" aria-labelledby="photo-site-name">
+    <button type="button" data-close aria-label="Close">Close</button>
+    <div id="photo-content">
+      <!-- Stores the ID of the photo currently open -->
+      <input type="hidden" id="photo-id" value="">
+
+      <img id="photo-large" src="" alt="">
+      <h2 id="photo-site-name"></h2>
+      <p id="photo-gem" hidden>Hidden gem</p>
+
+      <!-- Post author -->
+      <div id="photo-author">
+        <img id="photo-author-avatar" src="assets/user.png" alt="">
+        <p>Posted by <strong id="photo-author-name"></strong></p>
+      </div> <!-- end of post author -->
+
+      <!-- Read-only caption view with an Edit button -->
+      <div id="photo-view">
+        <p id="photo-caption"></p>
+        <button type="button" data-action="edit-caption">Edit</button>
+      </div> <!-- end of caption view -->
+
+      <!-- Caption edit form (hidden until Edit is clicked) -->
+      <form id="photo-edit-form" hidden>
+        <label for="photo-caption-input">Caption</label>
+        <textarea id="photo-caption-input" name="caption" maxlength="200"></textarea>
+        <p id="photo-edit-error" role="alert" hidden></p>
+        <button type="submit">Save caption</button>
+        <button type="button" data-action="cancel-edit">Cancel</button>
+      </form> <!-- end of caption edit form -->
+
+      <!-- Photo metadata: date, coordinates, and XP -->
+      <ul id="photo-meta">
+        <li>Posted: <time id="photo-date"></time></li>
+        <li>Latitude: <span id="photo-lat"></span></li>
+        <li>Longitude: <span id="photo-lng"></span></li>
+        <li>XP earned: <span id="photo-xp"></span></li>
+      </ul> <!-- end of photo metadata -->
+
+      <button type="button" data-action="delete">Delete</button>
+
+      <div id="photo-delete-confirm" role="alertdialog" aria-labelledby="delete-title" hidden>
+        <h3 id="delete-title">Delete this photo?</h3>
+        <p>This cannot be undone.</p>
+        <p id="photo-delete-error" role="alert" hidden></p>
+        <button type="button" data-action="confirm-delete">Yes, delete</button>
+        <button type="button" data-action="cancel-delete">Keep it</button>
+      </div>
+    </div> <!-- end of photo content -->
+
+  </dialog> <!-- end of photo dialog -->
+
+  <!-- Destination details (opened from "View site" on a feed post).
+       Same pop-up as on index.html and passport.html. -->
+  <dialog id="dlg-site" aria-labelledby="site-name">
+    <button type="button" data-close aria-label="Close">Close</button>
+    <!-- Stores the ID of the site currently open -->
+    <input type="hidden" id="site-id" value="">
+
+    <p><span id="site-gem" hidden>Hidden gem</span> <span id="site-category"></span></p>
+    <img id="site-photo" src="" alt="">
+    <h2 id="site-name"></h2>
+    <p id="site-info"></p>
+    <p id="site-description"></p>
+    <p id="site-quest" hidden></p>
+    <p>Check-in reward: <span id="site-reward"></span></p>
+
+    <!-- Actions: go to the camera page or save the site -->
+    <a id="site-checkin" href="camera.html">Check in here</a>
+    <button type="button" data-action="save-site">Save</button>
+  </dialog> <!-- end of site dialog -->
+
 
 <!-- ===== POP-UPS: native <dialog>, hidden until JS calls showModal(). ===== -->
 <!-- Stats dialog: displays detailed lists for selected statistic cards -->
@@ -295,5 +481,8 @@
 
 <!-- Profile data script: fetches account data, updates cards, and controls dialogs -->
 <script src="js/modules/passport.js?v=18" defer></script>
+<!-- Keep Gallery's original shared module before its page controller. -->
+<script src="js/modules/gallery/shared.js?v=9" defer></script>
+<script src="js/modules/gallery/gallery.js?v=5" defer></script>
 </body>
 </html>
