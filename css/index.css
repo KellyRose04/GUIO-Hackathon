@@ -161,25 +161,6 @@ button { cursor: pointer; }
 
 .avatar .icon { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
-.stat-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 10px;
-    border: 1px solid var(--ink);
-    border-radius: 99px;
-    background: var(--gold-tint);
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1.45;
-    color: var(--ink);
-    white-space: nowrap;
-}
-
-.stat-pill.star {
-    background: var(--teal-tint);
-}
-
 .avatar img,
 .avatar .icon {
     display: block;
@@ -188,11 +169,6 @@ button { cursor: pointer; }
     flex: 0 0 22px;
     margin: 0;
     object-fit: contain;
-}
-
-#player-status > .stat-pill:has(#streak-count:empty),
-#player-status > .stat-pill:has(#xp-count:empty) {
-    display: none;
 }
 
 #player-avatar {
@@ -474,47 +450,6 @@ button { cursor: pointer; }
   flex-shrink: 0;
 }
 
-/* Progress Bar Row */
-.quest-banner-progress-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-}
-
-.quest-banner-progress-bar {
-  flex: 1;
-  min-width: 0;
-  height: 8px;
-  border: 1.5px solid var(--ink);
-  border-radius: 99px;
-  background: var(--gold-tint);
-  overflow: hidden;
-  appearance: none;
-}
-
-.quest-banner-progress-bar::-webkit-progress-bar {
-  background: var(--gold-tint);
-  border-radius: 99px;
-}
-
-.quest-banner-progress-bar::-webkit-progress-value {
-  background: var(--teal);
-  border-radius: 99px;
-}
-
-.quest-banner-progress-bar::-moz-progress-bar {
-  background: var(--teal);
-  border-radius: 99px;
-}
-
-.quest-banner-count {
-  font-size: 11px;
-  font-weight: 700;
-  color: #536D88;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
 /* ==========================================================================
    4. WIREFRAME CALLOUT POPUPS & CUSTOM MAP PINS
    ========================================================================== */

@@ -8,7 +8,6 @@
     <meta name="theme-color" content="#FBF9F2">
     <title>GUIO - Map</title>
     <link rel="icon" type="image/png" href="assets/guio_logo.png">
-    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="css/index.css?v=map-camera-shortcut-3">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="api/leaflet/leaflet-css/leaflet.css">
@@ -122,16 +121,6 @@
                 </svg>
             </a>
         </section>
-
-        <script>
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker registered successfully:', reg.scope))
-                    .catch(err => console.log('Service Worker registration failed:', err));
-                });
-            }
-        </script>
 
     </main>
 
