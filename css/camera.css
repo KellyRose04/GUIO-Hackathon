@@ -124,7 +124,6 @@ button {
     overflow: hidden; /* Keep the logo image inside its circle. */
     border: 2px solid var(--ink); /* Set the element border. */
     border-radius: 50%; /* Round the element corners. */
-    padding: 4px; /* Create a white ring around the mark. */
     background: var(--white); /* Set the element background. */
 }
 

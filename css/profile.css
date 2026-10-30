@@ -134,7 +134,8 @@ body {
     width: 32px;
     height: 32px;
     flex: 0 0 32px;
-    background-color: var(--yellow-main);
+    padding: 4px;
+    background-color: var(--white);
     border: 2px solid var(--border-dark);
     border-radius: 50%;
     display: flex;
@@ -1384,7 +1385,8 @@ html, body { font-size: 14px; line-height: 1.45; }
     width: 32px;
     height: 32px;
     flex: 0 0 32px;
-    background: var(--gold);
+    padding: 4px;
+    background: var(--white);
     border-color: var(--ink);
 }
 
