@@ -70,7 +70,7 @@
       if (!window.GUIOAccount) {
         throw new Error("Your anonymous account could not be initialized. Reload the page.");
       }
-      const response = await fetch("../api/passport.php", {
+      const response = await fetch("../api/badges.php", {
         headers: window.GUIOAccount.apiHeaders({ Accept: "application/json" }),
         cache: "no-store",
       });

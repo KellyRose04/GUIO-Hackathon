@@ -18,6 +18,7 @@ function fail(int $code, string $message): void
     exit;
 }
 
+try {
 $pdo = guio_database();
 $anonymousId = guio_requested_anonymous_id();
 if ($anonymousId !== null) {
@@ -308,4 +309,6 @@ $user['longest_streak'] = 0;
     // Log database details on the server; return a generic message to the browser.
     error_log('passport.php: ' . $e->getMessage());
     fail(500, 'Database error');
+} catch (InvalidArgumentException $e) {
+    fail(400, $e->getMessage());
 }
