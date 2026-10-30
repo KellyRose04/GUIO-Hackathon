@@ -1,22 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Initial coordinates for Baguio City [Latitude, Longitude] and map setup
+    // 1. Initial coordinates for Baguio City [Latitude, Longitude]
     const baguioCoords = [16.4023, 120.5960];
-    const map = L.map("map", { zoomControl: false }).setView(baguioCoords, 14);
+    const mapApi = window.TourTrailMapApi;
+    const map = mapApi.createMap("map", { center: baguioCoords, zoom: 14 });
 
     let userCoords = null;
     let userLocationMarker = null;
     let userAccuracyCircle = null;
 
-    // Reposition Zoom Control to top-right to match the wireframe UI
-    L.control.zoom({ position: 'topright' }).addTo(map);
-
-    // 2. Load OpenStreetMap tiles
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    // 3. Sidebar expansion/collapse & Search Input Handlers
+    // 2. Sidebar expansion/collapse & Search Input Handlers
     const sidebar = document.querySelector('.sidebar');
     const searchInput = document.getElementById('site-search');
     const filterBtn = document.getElementById('filter-btn');
@@ -60,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 4. Custom Marker Icon Generator (Using raw transparent PNG icons)
+    // 3. Custom Marker Icon Generator (Using raw transparent PNG icons)
     function createCustomIcon(status) {
         let iconPath = 'assets/marker.png';
 
@@ -92,37 +84,17 @@ document.addEventListener("DOMContentLoaded", () => {
     let markersMap = {}; 
     const markersGroup = L.layerGroup().addTo(map);
 
-    // 5. Fetch Sites from PHP API Endpoint
+    // 4. Fetch map sites through the extracted map API client.
     function fetchSites(category = 'all', search = '', sort = 'nearest') {
-        let sitesUrl = `api/sites.php?category=${encodeURIComponent(category)}&search=${encodeURIComponent(search)}&sort=${encodeURIComponent(sort)}`;
-        
-        if (userCoords) {
-            sitesUrl += `&lat=${userCoords[0]}&lng=${userCoords[1]}`;
-        }
-        
-        const targetUrl = window.TourTrailAccount ? window.TourTrailAccount.apiUrl(sitesUrl) : sitesUrl;
-
-        fetch(targetUrl)
+        mapApi.fetchSites({ category, search, sort, coordinates: userCoords })
             .then(res => {
-                if (!res.ok) {
-                    const error = new Error(`Sites request failed (${res.status}).`);
-                    error.status = res.status;
-                    throw error;
+                if (window.TourTrailAccount) window.TourTrailAccount.markServerOnline();
+                try {
+                    localStorage.setItem('tourtrail-sites-cache', JSON.stringify(res.data));
+                } catch (error) {
+                    console.error("Could not save the latest site snapshot:", error);
                 }
-                return res.json();
-            })
-            .then(res => {
-                if (res.status === 'success') {
-                    if (window.TourTrailAccount) window.TourTrailAccount.markServerOnline();
-                    try {
-                        localStorage.setItem('tourtrail-sites-cache', JSON.stringify(res.data));
-                    } catch (error) {
-                        console.error("Could not save the latest site snapshot:", error);
-                    }
-                    processAndRenderSites(res.data, search, res.active_quests);
-                } else {
-                    console.error("API error:", res.error);
-                }
+                processAndRenderSites(res.data, search, res.active_quests);
             })
             .catch(err => {
                 console.warn("Server unavailable. Loading saved site data...", err);
@@ -132,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     (Number.isInteger(err.status) && err.status >= 500);
                 if (serverUnavailable && window.TourTrailAccount) {
                     window.TourTrailAccount.markServerOffline();
-                    if (window.TourTrailAccount.showOfflinePage()) return;
+                    if (window.TourTrailAccount.username && window.TourTrailAccount.showOfflinePage()) return;
                 }
 
                 let cachedSites = [];
@@ -605,7 +577,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!userLocationMarker) {
             userLocationMarker = L.circleMarker([lat, lng], {
                 radius: 8,
-                fillColor: "#2A85FF",
+                fillColor: "#174B83",
                 color: "#FFFFFF",
                 weight: 2,
                 fillOpacity: 0.9
@@ -613,8 +585,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             userAccuracyCircle = L.circle([lat, lng], {
                 radius: accuracy,
-                color: "#2A85FF",
-                fillColor: "#2A85FF",
+                color: "#174B83",
+                fillColor: "#174B83",
                 fillOpacity: 0.15,
                 stroke: false
             }).addTo(map);

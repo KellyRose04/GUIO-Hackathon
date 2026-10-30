@@ -20,9 +20,12 @@ $options = [
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 
-    $username = tourtrail_requested_username();
-    $userId = tourtrail_find_user_id($pdo, $username);
-    if ($userId === null) {
+    // The public map can load without an account. When a username is supplied,
+    // keep visit status and quest data scoped to that selected account.
+    $hasUsername = isset($_GET['user']) || isset($_POST['user']);
+    $username = $hasUsername ? tourtrail_requested_username() : '';
+    $userId = $username !== '' ? tourtrail_find_user_id($pdo, $username) : null;
+    if ($username !== '' && $userId === null) {
         http_response_code(404);
         echo json_encode(['status' => 'error', 'error' => 'User not found']);
         exit;
@@ -34,26 +37,32 @@ try {
     $search   = isset($_GET['search']) ? trim($_GET['search']) : '';
     $sort     = isset($_GET['sort']) ? $_GET['sort'] : 'nearest';
 
-    $sql = "SELECT id, title, category, is_hidden_gem,
-            (SELECT stamp_name FROM stamps WHERE site_id = sites.id ORDER BY id LIMIT 1) AS stamp_name,
-            CASE WHEN EXISTS (
+    $statusSql = $userId === null
+        ? "CASE WHEN is_hidden_gem = 1 THEN 'hidden_gem' ELSE 'new' END"
+        : "CASE WHEN EXISTS (
                 SELECT 1 FROM checkins c
                  WHERE c.site_id = sites.id AND c.user_id = :account_user_id
                    AND c.is_verified = 1
             ) THEN 'visited'
                  WHEN is_hidden_gem = 1 THEN 'hidden_gem'
                  ELSE 'new'
-            END AS status,
+            END";
+
+    $sql = "SELECT id, title, category, is_hidden_gem,
+            (SELECT stamp_name FROM stamps WHERE site_id = sites.id ORDER BY id LIMIT 1) AS stamp_name,
+            $statusSql AS status,
             xp_reward, latitude, longitude, image_url, description, operating_hours, entrance_fee,
             ( 6371 * acos( cos( radians(:user_lat1) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(:user_lng) ) + sin( radians(:user_lat2) ) * sin( radians( latitude ) ) ) ) AS distance_km
             FROM sites WHERE 1=1";
 
     $params = [
-        ':account_user_id' => $userId,
         ':user_lat1' => $user_lat,
         ':user_lng'  => $user_lng,
         ':user_lat2' => $user_lat
     ];
+    if ($userId !== null) {
+        $params[':account_user_id'] = $userId;
+    }
 
     if ($category !== 'all') {
         if ($category === 'gems') {
@@ -88,10 +97,13 @@ try {
         }
     }
 
-    // Fetch all active quests for this user from the view
-    $questStmt = $pdo->prepare("SELECT * FROM v_user_active_quest WHERE user_id = :account_user_id");
-    $questStmt->execute([':account_user_id' => $userId]);
-    $activeQuests = $questStmt->fetchAll();
+    // Anonymous map visitors see public sites but no account-specific quests.
+    $activeQuests = [];
+    if ($userId !== null) {
+        $questStmt = $pdo->prepare("SELECT * FROM v_user_active_quest WHERE user_id = :account_user_id");
+        $questStmt->execute([':account_user_id' => $userId]);
+        $activeQuests = $questStmt->fetchAll();
+    }
 
     echo json_encode([
         'status' => 'success', 

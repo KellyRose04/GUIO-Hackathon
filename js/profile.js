@@ -90,7 +90,7 @@
         status.id = "connection-status";
         status.setAttribute("role", "status");
         status.setAttribute("aria-live", "polite");
-        status.style.cssText = "margin:0;padding:5px 12px;border:1px solid #2BB39A;border-radius:99px;background:#D9F4EE;font-size:12px;font-weight:700;";
+        status.style.cssText = "margin:0;padding:5px 12px;border:1px solid #174B83;border-radius:99px;background:#EAF3FF;font-size:12px;font-weight:700;";
         bar.appendChild(status);
       }
       if (!pendingStatus) {
@@ -98,7 +98,7 @@
         pendingStatus.id = "pending-status";
         pendingStatus.setAttribute("role", "status");
         pendingStatus.setAttribute("aria-live", "polite");
-        pendingStatus.style.cssText = "margin:0;padding:5px 12px;border:1px solid #1F2430;border-radius:99px;background:#FFF1CC;font-size:12px;font-weight:700;";
+        pendingStatus.style.cssText = "margin:0;padding:5px 12px;border:1px solid #174B83;border-radius:99px;background:#EAF3FF;font-size:12px;font-weight:700;";
         pendingStatus.innerHTML = '<span id="pending-count">0</span> record(s) waiting to be sent';
         bar.appendChild(pendingStatus);
       }
@@ -119,9 +119,9 @@
     status.textContent = isOffline ? "Offline — using saved data" : "Online";
     status.dataset.state = isOffline ? "offline" : "online";
     status.hidden = !isOffline && count === 0;
-    status.style.background = isOffline ? "#FFEBEB" : "#D9F4EE";
-    status.style.borderColor = isOffline ? "#E5484D" : "#2BB39A";
-    status.style.color = isOffline ? "#E5484D" : "#1F2430";
+    status.style.background = isOffline ? "#FFEBEB" : "#EAF3FF";
+    status.style.borderColor = isOffline ? "#E5484D" : "#174B83";
+    status.style.color = isOffline ? "#E5484D" : "#174B83";
   }
 
   function savePendingCheckIns(records) {
