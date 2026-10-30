@@ -412,23 +412,92 @@ ON DUPLICATE KEY UPDATE
 
 
 -- ==========================================
--- 12. BAGUIO HIDDEN GEMS QUEST
+-- 12. SEPARATE BAGUIO QUESTS
 -- ==========================================
+-- The former single "Baguio Hidden Gems Trail" is split into nine
+-- independent, one-destination quests. Existing table definitions and
+-- database views remain unchanged.
 
-INSERT INTO quests
-    (quest_key, title, description, icon,
-     quest_type, quest_category, target_count)
+CREATE TEMPORARY TABLE IF NOT EXISTS tmp_baguio_quest_map (
+    quest_key VARCHAR(100) NOT NULL PRIMARY KEY,
+    quest_title VARCHAR(180) NOT NULL,
+    quest_description TEXT NOT NULL,
+    quest_icon VARCHAR(1000) NOT NULL,
+    site_title VARCHAR(180) NOT NULL
+) ENGINE=InnoDB;
+
+TRUNCATE TABLE tmp_baguio_quest_map;
+
+INSERT INTO tmp_baguio_quest_map
+    (quest_key, quest_title, quest_description, quest_icon, site_title)
 VALUES
-(
-    'baguio-hidden-gems-trail',
-    'Baguio Hidden Gems Trail',
-    'Discover quieter cultural, historical, nature, and local places around Baguio City beyond the usual tourist landmarks.',
-    '✦',
+    ('baguio-natures-escape',
+     'Nature''s Escape',
+     'Explore the peaceful natural surroundings and environmental features of Maryknoll Ecological Sanctuary.',
+     '🌿',
+     'Maryknoll Ecological Sanctuary'),
+
+    ('baguio-echoes-of-history',
+     'Echoes of History',
+     'Discover the heritage, historic ruins, landscaped paths, and city views at Heritage Hill.',
+     '🏛️',
+     'Heritage Hill and Nature Park Garden (Old Diplomat Hotel)'),
+
+    ('baguio-journey-of-reflection',
+     'A Journey of Reflection',
+     'Explore the bamboo groves, gardens, heritage features, and peaceful viewpoints of Mirador Park.',
+     '⛩️',
+     'Mirador Heritage and Eco-Spirituality Park'),
+
+    ('baguio-cordilleran-heritage',
+     'Cordilleran Heritage',
+     'Experience Cordilleran culture, traditional architecture, local art, and heritage at Tam-awan Village.',
+     '🎨',
+     'Tam-awan Village'),
+
+    ('baguio-art-in-the-city',
+     'Art in the City',
+     'Discover the creative architecture, mosaics, local art, and food spaces of Ili-Likha Artists'' Wateringhole.',
+     '🖼️',
+     'Ili-Likha Artists'' Wateringhole'),
+
+    ('baguio-threads-of-tradition',
+     'Threads of Tradition',
+     'Discover Cordilleran weaving traditions and locally made textiles at Easter Weaving Room.',
+     '🧵',
+     'Easter Weaving Room'),
+
+    ('baguio-pages-of-baguio',
+     'Pages of Baguio',
+     'Visit an independent bookstore and discover Philippine literature and locally published books.',
+     '📚',
+     'Mt. Cloud Bookshop'),
+
+    ('baguio-glimpse-of-the-past',
+     'A Glimpse of the Past',
+     'Explore the preserved Bell House and learn about the history and architecture of Camp John Hay.',
+     '🏡',
+     'Bell House, Camp John Hay'),
+
+    ('baguio-discover-newtown',
+     'Discover Newtown',
+     'Discover Newtown Convention Center and check out its architecture and public events.',
+     '📍',
+     'Newtown Convention Center');
+
+-- Create or update the nine individual quests.
+-- Each quest has exactly one required destination.
+INSERT INTO quests
+    (quest_key, title, description, icon, quest_type, quest_category, target_count)
+SELECT
+    quest_key,
+    quest_title,
+    quest_description,
+    quest_icon,
     'sites',
     'local_discovery',
-    9
-)
-
+    1
+FROM tmp_baguio_quest_map
 ON DUPLICATE KEY UPDATE
     title = VALUES(title),
     description = VALUES(description),
@@ -437,109 +506,110 @@ ON DUPLICATE KEY UPDATE
     quest_category = VALUES(quest_category),
     target_count = VALUES(target_count);
 
-
--- ==========================================
--- 13. QUEST DESTINATION STOPS
--- ==========================================
-
--- Synchronize the stops when this SQL is executed again.
--- This does not delete the user's overall quest records.
-
-DELETE qs
-FROM quest_stops AS qs
-JOIN quests AS q
-    ON q.id = qs.quest_id
-WHERE q.quest_key = 'baguio-hidden-gems-trail';
-
-
--- Stop 1
-
+-- Ensure each individual quest is connected to its one destination.
+-- Use an upsert instead of deleting stops so rerunning this script does not
+-- erase existing user_quest_stops completion records.
 INSERT INTO quest_stops (quest_id, site_id, stop_order)
 SELECT q.id, s.id, 1
-FROM quests AS q
-JOIN sites AS s
-    ON s.title = 'Maryknoll Ecological Sanctuary'
-WHERE q.quest_key = 'baguio-hidden-gems-trail';
+FROM tmp_baguio_quest_map AS m
+JOIN quests AS q ON q.quest_key = m.quest_key
+JOIN sites AS s ON s.title = m.site_title
+ON DUPLICATE KEY UPDATE
+    stop_order = VALUES(stop_order);
 
+-- ==========================================
+-- 13. MIGRATE EXISTING QUEST PROGRESS
+-- ==========================================
+-- Preserve completed destinations from the former combined quest.
+-- If the old quest was active, its next uncompleted destination becomes
+-- the user's active individual quest. Later destinations remain available.
 
--- Stop 2
+INSERT INTO user_quests
+    (user_id, quest_id, status, progress_count, started_at, completed_at)
+SELECT
+    old_uq.user_id,
+    new_q.id,
+    CASE
+        WHEN old_uq.status = 'completed' OR old_uqs.id IS NOT NULL
+            THEN 'completed'
+        ELSE 'active'
+    END,
+    CASE
+        WHEN old_uq.status = 'completed' OR old_uqs.id IS NOT NULL
+            THEN 1
+        ELSE 0
+    END,
+    old_uq.started_at,
+    CASE
+        WHEN old_uq.status = 'completed' OR old_uqs.id IS NOT NULL
+            THEN COALESCE(old_uqs.completed_at, old_uq.completed_at, NOW())
+        ELSE NULL
+    END
+FROM user_quests AS old_uq
+JOIN quests AS old_q
+    ON old_q.id = old_uq.quest_id
+JOIN quest_stops AS old_qs
+    ON old_qs.quest_id = old_q.id
+JOIN sites AS old_site
+    ON old_site.id = old_qs.site_id
+JOIN tmp_baguio_quest_map AS m
+    ON m.site_title = old_site.title
+JOIN quests AS new_q
+    ON new_q.quest_key = m.quest_key
+LEFT JOIN user_quest_stops AS old_uqs
+    ON old_uqs.user_quest_id = old_uq.id
+    AND old_uqs.quest_stop_id = old_qs.id
+WHERE old_q.quest_key = 'baguio-hidden-gems-trail'
+  AND (
+      old_uq.status = 'completed'
+      OR old_uqs.id IS NOT NULL
+      OR (
+          old_uq.status = 'active'
+          AND NOT EXISTS (
+              SELECT 1
+              FROM quest_stops AS earlier
+              LEFT JOIN user_quest_stops AS earlier_done
+                  ON earlier_done.user_quest_id = old_uq.id
+                  AND earlier_done.quest_stop_id = earlier.id
+              WHERE earlier.quest_id = old_q.id
+                AND earlier.stop_order < old_qs.stop_order
+                AND earlier_done.id IS NULL
+          )
+      )
+  )
+ON DUPLICATE KEY UPDATE
+    status = IF(VALUES(status) = 'completed', 'completed', user_quests.status),
+    progress_count = GREATEST(user_quests.progress_count, VALUES(progress_count)),
+    completed_at = COALESCE(user_quests.completed_at, VALUES(completed_at));
 
-INSERT INTO quest_stops (quest_id, site_id, stop_order)
-SELECT q.id, s.id, 2
-FROM quests AS q
-JOIN sites AS s
-    ON s.title = 'Heritage Hill and Nature Park Garden (Old Diplomat Hotel)'
-WHERE q.quest_key = 'baguio-hidden-gems-trail';
+-- Recreate completed destination records against the new one-stop quests.
+-- This keeps the user_quest_stops relationship consistent after migration.
+INSERT IGNORE INTO user_quest_stops (user_quest_id, quest_stop_id, completed_at)
+SELECT
+    uq.id,
+    qs.id,
+    COALESCE(uq.completed_at, NOW())
+FROM user_quests AS uq
+JOIN quests AS q ON q.id = uq.quest_id
+JOIN quest_stops AS qs ON qs.quest_id = q.id
+WHERE q.quest_key IN (
+    'baguio-natures-escape',
+    'baguio-echoes-of-history',
+    'baguio-journey-of-reflection',
+    'baguio-cordilleran-heritage',
+    'baguio-art-in-the-city',
+    'baguio-threads-of-tradition',
+    'baguio-pages-of-baguio',
+    'baguio-glimpse-of-the-past',
+    'baguio-discover-newtown'
+)
+AND uq.status = 'completed';
 
+-- Remove the former combined quest only after its progress has been migrated.
+-- Cascading deletion removes only the old quest's own progress and stop records.
+DELETE FROM quests
+WHERE quest_key = 'baguio-hidden-gems-trail';
 
--- Stop 3
-
-INSERT INTO quest_stops (quest_id, site_id, stop_order)
-SELECT q.id, s.id, 3
-FROM quests AS q
-JOIN sites AS s
-    ON s.title = 'Mirador Heritage and Eco-Spirituality Park'
-WHERE q.quest_key = 'baguio-hidden-gems-trail';
-
-
--- Stop 4
-
-INSERT INTO quest_stops (quest_id, site_id, stop_order)
-SELECT q.id, s.id, 4
-FROM quests AS q
-JOIN sites AS s
-    ON s.title = 'Tam-awan Village'
-WHERE q.quest_key = 'baguio-hidden-gems-trail';
-
-
--- Stop 5
-
-INSERT INTO quest_stops (quest_id, site_id, stop_order)
-SELECT q.id, s.id, 5
-FROM quests AS q
-JOIN sites AS s
-    ON s.title = 'Ili-Likha Artists'' Wateringhole'
-WHERE q.quest_key = 'baguio-hidden-gems-trail';
-
-
--- Stop 6
-
-INSERT INTO quest_stops (quest_id, site_id, stop_order)
-SELECT q.id, s.id, 6
-FROM quests AS q
-JOIN sites AS s
-    ON s.title = 'Easter Weaving Room'
-WHERE q.quest_key = 'baguio-hidden-gems-trail';
-
-
--- Stop 7
-
-INSERT INTO quest_stops (quest_id, site_id, stop_order)
-SELECT q.id, s.id, 7
-FROM quests AS q
-JOIN sites AS s
-    ON s.title = 'Mt. Cloud Bookshop'
-WHERE q.quest_key = 'baguio-hidden-gems-trail';
-
-
--- Stop 8
-
-INSERT INTO quest_stops (quest_id, site_id, stop_order)
-SELECT q.id, s.id, 8
-FROM quests AS q
-JOIN sites AS s
-    ON s.title = 'Bell House, Camp John Hay'
-WHERE q.quest_key = 'baguio-hidden-gems-trail';
-
-
--- Stop 9
-
-INSERT INTO quest_stops (quest_id, site_id, stop_order)
-SELECT q.id, s.id, 9
-FROM quests AS q
-JOIN sites AS s
-    ON s.title = 'Newtown Convention Center'
-WHERE q.quest_key = 'baguio-hidden-gems-trail';
-
+DROP TEMPORARY TABLE IF EXISTS tmp_baguio_quest_map;
 
 COMMIT;
