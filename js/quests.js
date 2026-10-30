@@ -220,7 +220,12 @@
     button.type = "button";
     button.addEventListener("click", () => openQuest(activeQuest));
     actions.append(button);
-    row.append(icon, info, actions);
+    row.append(
+      icon,
+      info,
+      actions,
+      element("p", "quest-incomplete-message", "You still have not finished your current quest")
+    );
     currentContent.append(row);
   }
 
@@ -316,6 +321,9 @@
     }
 
     const openMissionButton = document.getElementById("open-mission");
+    const incompleteMessage = document.getElementById("dialog-incomplete-message");
+    const isDefaultNewtownQuest = quest.key === "baguio-discover-newtown";
+    incompleteMessage.hidden = quest.isDone || (!quest.isActive && !isDefaultNewtownQuest);
     openMissionButton.textContent = quest.isActive
       ? "Go to current destination"
       : quest.isDone
@@ -469,7 +477,9 @@
         });
         const payload = await response.json();
         if (!response.ok || !payload.active_quest) {
-          throw new Error(payload.error || "This quest could not be started.");
+          const error = new Error(payload.error || "This quest could not be started.");
+          error.code = payload.code || "";
+          throw error;
         }
 
         activeQuest = normaliseActiveQuest(payload.active_quest);
@@ -485,7 +495,12 @@
       } catch (error) {
         console.error("Could not start quest:", error);
         startButton.disabled = false;
-        startButton.textContent = error.message || "Quest could not be started";
+        if (error.code === "database_unavailable" && selectedQuest.key === "baguio-discover-newtown") {
+          startButton.textContent = "Start quest";
+          document.getElementById("dialog-incomplete-message").hidden = false;
+        } else {
+          startButton.textContent = error.message || "Quest could not be started";
+        }
         return;
       }
     }

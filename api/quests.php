@@ -407,9 +407,10 @@ try {
                     us.quest_status, us.progress_count, us.user_quest_id
                FROM quests AS q
                JOIN v_user_quest_status AS us
-                 ON us.quest_id = q.id AND us.user_id = :user_id
-              ORDER BY q.id'
+                  ON us.quest_id = q.id AND us.user_id = :user_id
+               ORDER BY q.id'
         );
+        guio_ensure_default_active_quest($pdo, $userId);
         $statement->execute([':user_id' => $userId]);
     }
 
