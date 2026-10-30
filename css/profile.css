@@ -145,7 +145,6 @@ body {
     width: 32px;
     height: 32px;
     flex: 0 0 32px;
-    padding: 4px;
     background-color: var(--white);
     border: 2px solid var(--border-dark);
     border-radius: 50%;
@@ -1475,7 +1474,6 @@ html, body {
     width: 32px;
     height: 32px;
     flex: 0 0 32px;
-    padding: 4px;
     background: var(--white);
     border-color: var(--ink);
 }
