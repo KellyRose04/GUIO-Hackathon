@@ -1181,15 +1181,9 @@
         }
       }
 
-      const stampKey = `tourtrail-stamp:${verifiedSite.id}`;
       // Get the authoritative stamp, quest, and badge results from the API.
       const reward = await updateCheckInXpInDatabase(pendingPhoto.checkinId);
       const stampStatus = reward.stamp_status;
-      if (stampStatus === "awarded") {
-        // These keys are local UI markers only; the database response remains authoritative.
-        window.localStorage.setItem(stampKey, "earned");
-      }
-      window.localStorage.setItem("tourtrail-first-steps", "earned");
 
       // Refresh the quest and badge data after the reward has been committed.
       let passport = null;
@@ -1208,26 +1202,6 @@
       } catch (error) {
         console.error("Could not load passport quest progress:", error);
         renderCompletionQuest(null, null, true);
-      }
-      // Notify the visitor only when the API reports a newly earned reward.
-      if (
-        reward.badges_awarded.length ||
-        reward.stamp_status === "awarded" ||
-        reward.quests_completed.length ||
-        reward.streak_updated
-      ) {
-        if (window.TourTrailNotifications?.showEarnedRewards) {
-        window.TourTrailNotifications.showEarnedRewards({
-          badges: reward.badges_awarded,
-          stamp: reward.stamp_status === "awarded"
-            ? reward.stamp_name || verifiedSite.stamp
-            : null,
-          quests: reward.quests_completed,
-          streak: reward.streak_updated ? Number(reward.streak_count) : null,
-        }, passport?.badges || []).catch((error) => {
-          console.error("Could not show earned reward notifications:", error);
-        });
-        }
       }
       completeCheckIn(stampStatus);
     } catch (error) {
