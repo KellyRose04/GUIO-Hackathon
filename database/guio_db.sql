@@ -12,7 +12,6 @@ CREATE TABLE IF NOT EXISTS sites (
     title VARCHAR(180) NOT NULL,
     category VARCHAR(50) NOT NULL,
     is_hidden_gem TINYINT(1) NOT NULL DEFAULT 0,
-    xp_reward INT UNSIGNED NOT NULL DEFAULT 0,
     latitude DECIMAL(10,7) NOT NULL,
     longitude DECIMAL(10,7) NOT NULL,
     image_url VARCHAR(1000) NOT NULL DEFAULT '',
@@ -33,7 +32,6 @@ CREATE TABLE IF NOT EXISTS quests (
     icon VARCHAR(1000) NOT NULL DEFAULT '',
     quest_type ENUM('sites', 'streak') NOT NULL DEFAULT 'sites',
     target_count INT UNSIGNED NOT NULL,
-    xp_reward INT UNSIGNED NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE KEY uq_quests_key (quest_key)
@@ -171,7 +169,6 @@ SELECT uq.user_id,
        q.icon,
        q.quest_type,
        q.target_count,
-       q.xp_reward,
        (
            SELECT qs.site_id
            FROM quest_stops AS qs
@@ -188,72 +185,71 @@ WHERE uq.status = 'active';
 START TRANSACTION;
 
 INSERT INTO sites
-    (title, category, is_hidden_gem, xp_reward, latitude, longitude, image_url,
+    (title, category, is_hidden_gem, latitude, longitude, image_url,
      description, operating_hours, entrance_fee)
-SELECT 'Burnham Park', 'nature', 0, 50, 16.4108, 120.5960, 'assets/pin.png',
+SELECT 'Burnham Park', 'nature', 0, 16.4108, 120.5960, 'assets/pin.png',
        'A central public park known for its lake, gardens, and outdoor recreation.',
        'Public park; hours may vary', 'Free entry; some activities charge'
 FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM sites WHERE title = 'Burnham Park');
 
 INSERT INTO sites
-    (title, category, is_hidden_gem, xp_reward, latitude, longitude, image_url,
+    (title, category, is_hidden_gem, latitude, longitude, image_url,
      description, operating_hours, entrance_fee)
-SELECT 'Session Road', 'heritage', 0, 50, 16.4122, 120.5973, 'assets/pin.png',
+SELECT 'Session Road', 'heritage', 0, 16.4122, 120.5973, 'assets/pin.png',
        'Baguio’s central commercial avenue, lined with shops, cafes, and historic city buildings.',
        'Public road; business hours vary', 'Free'
 FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM sites WHERE title = 'Session Road');
 
 INSERT INTO sites
-    (title, category, is_hidden_gem, xp_reward, latitude, longitude, image_url,
+    (title, category, is_hidden_gem, latitude, longitude, image_url,
      description, operating_hours, entrance_fee)
-SELECT 'Baguio Public Market', 'food', 0, 50, 16.4145, 120.5934, 'assets/pin.png',
+SELECT 'Baguio Public Market', 'food', 0, 16.4145, 120.5934, 'assets/pin.png',
        'A busy city market for local produce, food, flowers, and crafts.',
        'Market hours vary by stall', 'Free entry'
 FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM sites WHERE title = 'Baguio Public Market');
 
 INSERT INTO sites
-    (title, category, is_hidden_gem, xp_reward, latitude, longitude, image_url,
+    (title, category, is_hidden_gem, latitude, longitude, image_url,
      description, operating_hours, entrance_fee)
-SELECT 'Baguio Cathedral', 'heritage', 0, 50, 16.4149, 120.5931, 'assets/pin.png',
+SELECT 'Baguio Cathedral', 'heritage', 0, 16.4149, 120.5931, 'assets/pin.png',
        'The pink twin-spired cathedral overlooking the city center.',
        'Hours may vary; please observe service times', 'Free'
 FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM sites WHERE title = 'Baguio Cathedral');
 
 INSERT INTO sites
-    (title, category, is_hidden_gem, xp_reward, latitude, longitude, image_url,
+    (title, category, is_hidden_gem, latitude, longitude, image_url,
      description, operating_hours, entrance_fee)
-SELECT 'Baguio Museum', 'heritage', 0, 50, 16.4107, 120.5978, 'assets/pin.png',
+SELECT 'Baguio Museum', 'heritage', 0, 16.4107, 120.5978, 'assets/pin.png',
        'A museum showcasing the history, culture, and arts of the Cordillera region.',
        'Check current museum hours before visiting', 'Check current admission information'
 FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM sites WHERE title = 'Baguio Museum');
 
 INSERT INTO sites
-    (title, category, is_hidden_gem, xp_reward, latitude, longitude, image_url,
+    (title, category, is_hidden_gem, latitude, longitude, image_url,
      description, operating_hours, entrance_fee)
-SELECT 'Newtown Convention Center', 'heritage', 0, 50, 16.4161, 120.6121, 'assets/pin.png',
+SELECT 'Newtown Convention Center', 'heritage', 0, 16.4161, 120.6121, 'assets/pin.png',
        'A convention and events venue at Newtown Plaza in Baguio City.',
        'Hours vary by event', 'Check current event information'
 FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM sites WHERE title = 'Newtown Convention Center');
 
 INSERT INTO quests
-    (quest_key, title, description, icon, quest_type, target_count, xp_reward, reward_badge_key)
+    (quest_key, title, description, icon, quest_type, target_count)
 SELECT 'burnham-secrets-walk', 'Burnham Secrets Walk',
        'Explore Baguio’s city-center landmarks, public spaces, and local culture on foot.',
-       '⚑', 'sites', 6, 500, NULL
+       '⚑', 'sites', 6
 FROM DUAL
 WHERE NOT EXISTS (
     SELECT 1 FROM quests WHERE quest_key = 'burnham-secrets-walk'
 );
 
 UPDATE quests
-SET target_count = 6,
-    quest_category = 'historical'
+SET target_count = 6
 WHERE quest_key = 'burnham-secrets-walk';
 
 INSERT INTO quest_stops (quest_id, site_id, stop_order)

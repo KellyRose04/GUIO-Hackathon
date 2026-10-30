@@ -44,7 +44,7 @@ try {
                  WHEN is_hidden_gem = 1 THEN 'hidden_gem'
                  ELSE 'new'
             END AS status,
-            xp_reward, latitude, longitude, image_url, description, operating_hours, entrance_fee,
+            latitude, longitude, image_url, description, operating_hours, entrance_fee,
             ( 6371 * acos( cos( radians(:user_lat1) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(:user_lng) ) + sin( radians(:user_lat2) ) * sin( radians( latitude ) ) ) ) AS distance_km
             FROM sites WHERE 1=1";
 
@@ -69,11 +69,7 @@ try {
         $params[':search'] = '%' . $search . '%';
     }
 
-    if ($sort === 'xp') {
-        $sql .= " ORDER BY xp_reward DESC, distance_km ASC";
-    } else {
-        $sql .= " ORDER BY distance_km ASC";
-    }
+    $sql .= " ORDER BY distance_km ASC";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);

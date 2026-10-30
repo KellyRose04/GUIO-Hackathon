@@ -236,7 +236,6 @@ document.addEventListener("DOMContentLoaded", () => {
             <progress value="${quest.progress_count}" max="${quest.target_count}"></progress>
             <div class="meta">
                 <span>${quest.progress_count} / ${quest.target_count} ${unit}</span>
-                <span>+${quest.xp_reward} XP</span>
             </div>
         `;
 
@@ -344,7 +343,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         <h3 class="popup-title-clean">${site.title}</h3>
                         <p class="popup-meta-clean">${metaText}</p>
                         <div class="popup-actions-clean">
-                            <span class="xp-pill-clean">+${site.xp_reward} XP</span>
                             <div class="btn-wrapper">
                                 <button class="details-btn-clean" data-site-id="${site.id}">Details</button>
                             </div>
@@ -400,9 +398,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('drawer-title').textContent = site.title;
         document.getElementById('drawer-sub').textContent = `${site.formatted_distance} · Open ${site.operating_hours} · ${site.entrance_fee}`;
         document.getElementById('drawer-desc').textContent = site.description;
-        document.getElementById('drawer-reward-text').textContent =
-            `+${site.xp_reward} XP · Stamp: ${site.stamp_name || 'Unavailable'}`;
-
         // Check-in button link
         const checkinBtn = document.getElementById('drawer-checkin-btn');
         if (checkinBtn) {

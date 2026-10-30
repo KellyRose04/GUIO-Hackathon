@@ -20,6 +20,7 @@
   let questCatalog = [];
   let displayedQuests = [];
   let questCatalogStatus = "loading";
+  let questCatalogError = "";
   let cameraStream = null;
   let scanFrame = null;
   let isVerifyingDestination = false;
@@ -98,7 +99,6 @@
       category: categoryLabel(raw.category || raw.quest_category || raw.quest_type),
       questType: raw.quest_type || "sites",
       target: Math.max(0, Number(raw.target_count) || stops.length),
-      xp: Math.max(0, Number(raw.xp_reward) || 0),
       icon: raw.icon || "⚑",
       stops,
       progress: Math.max(0, Number(raw.progress_count) || 0),
@@ -138,7 +138,6 @@
       questType: raw.quest_type || fallback?.questType || "sites",
       target,
       progress,
-      xp: Math.max(0, Number(raw.xp_reward) || Number(fallback?.xp) || 0),
       icon: raw.icon || fallback?.icon || "⚑",
       stops,
       status: "current",
@@ -260,7 +259,7 @@
       const message = questCatalogStatus === "loading"
         ? "Loading quests from the server..."
         : questCatalogStatus === "error"
-          ? "Quests could not be loaded right now. Please refresh to try again."
+          ? questCatalogError
           : filter === "all"
             ? "No quests are available right now."
             : "No quests in this category yet. Try another filter.";
@@ -303,8 +302,6 @@
     const tags = document.getElementById("dialog-tags");
     const progressCount = document.getElementById("dialog-progress-count");
     const progressFill = document.getElementById("dialog-progress-fill");
-    const rewardTitle = document.getElementById("dialog-reward-title");
-    const rewardCopy = document.getElementById("dialog-reward-copy");
     const missionList = document.getElementById("dialog-missions");
 
     title.textContent = quest.title;
@@ -321,8 +318,6 @@
     document.getElementById("dialog-progress-label").textContent = quest.isActive ? "Quest progress" : "Route length";
     const percent = quest.isActive && quest.target ? Math.min(100, (quest.progress / quest.target) * 100) : 0;
     progressFill.style.width = `${percent}%`;
-    rewardTitle.textContent = quest.isActive ? `+${quest.xp} XP` : `Up to +${quest.xp} XP`;
-    rewardCopy.textContent = quest.isActive ? "Quest reward" : "Complete the destinations to finish this quest.";
     document.getElementById("dialog-mission-total").textContent = `${stops.length || quest.target || 0} total`;
 
     missionList.replaceChildren();
@@ -393,7 +388,7 @@
     scanButton.disabled = true;
     qrStatus.textContent = "Verifying destination code…";
     try {
-      const url = new URL("../api/quests.php", window.location.href);
+      const url = new URL("../api/quests", window.location.href);
       url.searchParams.set("user", username);
       const response = await fetch(url, {
         method: "POST",
@@ -483,7 +478,7 @@
       const startButton = document.getElementById("open-mission");
       startButton.disabled = true;
       try {
-        const url = new URL("../api/quests.php", window.location.href);
+        const url = new URL("../api/quests", window.location.href);
         url.searchParams.set("user", username);
         const response = await fetch(url, {
           method: "POST",
@@ -543,9 +538,12 @@
 
   async function loadQuestCatalog() {
     try {
-      const url = new URL("../api/quests.php", window.location.href);
+      const url = new URL("../api/quests", window.location.href);
       if (username) url.searchParams.set("user", username);
       const response = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
+      if (!response.headers.get("content-type")?.includes("application/json")) {
+        throw new Error("The Cloudflare quest API did not return JSON. Check the Pages Function deployment and D1 binding.");
+      }
       const payload = await response.json();
       if (!response.ok || !Array.isArray(payload.quests)) {
         throw new Error(payload.error || "Quest catalog is unavailable.");
@@ -553,11 +551,13 @@
       questCatalog = payload.quests.map(normaliseQuest).filter(Boolean);
       activeQuest = normaliseActiveQuest(payload.active_quest);
       questCatalogStatus = "loaded";
+      questCatalogError = "";
     } catch (error) {
       console.warn("Could not load quest catalog:", error);
       questCatalog = [];
       activeQuest = null;
       questCatalogStatus = "error";
+      questCatalogError = error instanceof Error ? error.message : "The quest database could not be reached.";
     }
 
     displayedQuests = [...questCatalog];

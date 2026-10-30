@@ -613,18 +613,8 @@ button { cursor: pointer; }
 .popup-actions-clean {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
-}
-
-.xp-pill-clean {
-  padding: 6px 14px;
-  border: 2px solid var(--teal);
-  border-radius: 99px;
-  background: var(--teal-tint);
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--ink);
 }
 
 .btn-wrapper {

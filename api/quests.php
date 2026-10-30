@@ -94,7 +94,7 @@ function activeQuestPayload(PDO $pdo, int $userQuestId, int $userId): ?array
     $statement = $pdo->prepare(
         'SELECT uq.id AS user_quest_id, uq.progress_count, uq.status,
                 q.id AS quest_id, q.quest_key, q.title, q.description, q.icon,
-                q.quest_type, q.target_count, q.xp_reward
+                q.quest_type, q.target_count
            FROM user_quests AS uq
            JOIN quests AS q ON q.id = uq.quest_id
           WHERE uq.id = :user_quest_id AND uq.user_id = :user_id'
@@ -121,37 +121,10 @@ try {
         ]
     );
 
-<<<<<<< HEAD
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     if (!in_array($method, ['GET', 'POST'], true)) {
         header('Allow: GET, POST');
         respond(405, ['status' => 'error', 'error' => 'Use GET to list quests or POST to start a quest.']);
-=======
-    $statement = $pdo->query(
-        'SELECT q.id AS quest_id, q.quest_key, q.title, q.description, q.icon,
-                q.quest_type, q.quest_category AS category, q.target_count, q.xp_reward,
-                q.reward_badge_key, b.badge_name AS reward_badge_name
-           FROM quests q
-           LEFT JOIN badges b ON b.badge_key = q.reward_badge_key
-          ORDER BY q.id'
-    );
-    $quests = $statement->fetchAll();
-
-    $stopStatement = $pdo->query(
-        'SELECT qs.quest_id, qs.site_id, qs.stop_order, s.title
-           FROM quest_stops qs
-           JOIN sites s ON s.id = qs.site_id
-          ORDER BY qs.quest_id, qs.stop_order'
-    );
-    $stopsByQuest = [];
-    foreach ($stopStatement->fetchAll() as $stop) {
-        $questId = (int) $stop['quest_id'];
-        $stopsByQuest[$questId][] = [
-            'site_id' => (int) $stop['site_id'],
-            'stop_order' => (int) $stop['stop_order'],
-            'title' => $stop['title'],
-        ];
->>>>>>> 9405a2962ebc1370383c0205153526d7d589a0d1
     }
 
     $userId = null;
@@ -159,7 +132,7 @@ try {
     if ($hasUsername) {
         $username = tourtrail_requested_username();
         $userId = tourtrail_find_user_id($pdo, $username);
-        if ($userId === null) {
+        if ($userId === null && $method === 'POST') {
             respond(404, ['status' => 'error', 'error' => 'User not found.']);
         }
     }
@@ -362,7 +335,7 @@ try {
     if ($userId === null) {
         $statement = $pdo->query(
             'SELECT q.id AS quest_id, q.quest_key, q.title, q.description, q.icon,
-                    q.quest_type, q.target_count, q.xp_reward,
+                    q.quest_type, q.target_count,
                     \'available\' AS quest_status, 0 AS progress_count
                FROM quests AS q
               ORDER BY q.id'
@@ -370,7 +343,7 @@ try {
     } else {
         $statement = $pdo->prepare(
             'SELECT q.id AS quest_id, q.quest_key, q.title, q.description, q.icon,
-                    q.quest_type, q.target_count, q.xp_reward,
+                    q.quest_type, q.target_count,
                     us.quest_status, us.progress_count, us.user_quest_id
                FROM quests AS q
                JOIN v_user_quest_status AS us
@@ -386,8 +359,6 @@ try {
         $questId = (int) $quest['quest_id'];
         $quest['quest_id'] = $questId;
         $quest['target_count'] = (int) $quest['target_count'];
-        $quest['xp_reward'] = (int) $quest['xp_reward'];
-<<<<<<< HEAD
         $quest['progress_count'] = (int) $quest['progress_count'];
         $quest['category'] = $quest['quest_type'];
         $quest['stops'] = questStops($pdo, $questId, $userId);
@@ -402,14 +373,10 @@ try {
                 'quest_type' => $quest['quest_type'],
                 'target_count' => $quest['target_count'],
                 'progress_count' => $quest['progress_count'],
-                'xp_reward' => $quest['xp_reward'],
                 'status' => 'active',
                 'stops' => $quest['stops'],
             ];
         }
-=======
-        $quest['stops'] = $stopsByQuest[$questId] ?? [];
->>>>>>> 9405a2962ebc1370383c0205153526d7d589a0d1
     }
     unset($quest);
 
