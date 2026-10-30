@@ -4,3 +4,4 @@ database/
 *.php
 *.sql
 .env
+# Trigger new Cloudflare deployment
