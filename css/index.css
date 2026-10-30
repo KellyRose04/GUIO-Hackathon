@@ -144,39 +144,22 @@ button { cursor: pointer; }
   font-weight: 700;
 }
 
-#player-status {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-    min-width: 0;
+#player-status { display: flex; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
+.avatar {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--placeholder);
+  color: var(--ink);
 }
 
-#player-status .avatar {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    line-height: 0;
-    overflow: hidden;
-}
-
-#player-status .avatar img,
-#player-status .avatar svg,
-#player-status .avatar .icon,
-#player-status .avatar i {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: block;
-    width: 22px;
-    height: 22px;
-    margin: 0;
-    padding: 0;
-    flex: none;
-}
+.avatar .icon { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
 .stat-pill {
     display: inline-flex;
@@ -195,22 +178,6 @@ button { cursor: pointer; }
 
 .stat-pill.star {
     background: var(--teal-tint);
-}
-
-.avatar {
-    width: 40px;
-    height: 40px;
-    flex: 0 0 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    margin: 0;
-    overflow: hidden;
-    border: 2px solid var(--ink);
-    border-radius: 50%;
-    background: var(--placeholder);
-    line-height: 0;
 }
 
 .avatar img,
@@ -234,11 +201,9 @@ button { cursor: pointer; }
     flex: 0 0 40px;
     margin: 0;
     padding: 0;
-    border: 2px solid var(--ink);
-    border-radius: 50%;
-    background: var(--placeholder);
-    object-fit: cover;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ==========================================================================
@@ -1100,10 +1065,6 @@ button { cursor: pointer; }
     justify-content: flex-end;
     gap: 10px;
     min-width: 0;
-  }
-
-  #player-avatar {
-      display: block;
   }
 
   .avatar {
