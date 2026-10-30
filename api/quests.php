@@ -121,10 +121,37 @@ try {
         ]
     );
 
+<<<<<<< HEAD
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     if (!in_array($method, ['GET', 'POST'], true)) {
         header('Allow: GET, POST');
         respond(405, ['status' => 'error', 'error' => 'Use GET to list quests or POST to start a quest.']);
+=======
+    $statement = $pdo->query(
+        'SELECT q.id AS quest_id, q.quest_key, q.title, q.description, q.icon,
+                q.quest_type, q.quest_category AS category, q.target_count, q.xp_reward,
+                q.reward_badge_key, b.badge_name AS reward_badge_name
+           FROM quests q
+           LEFT JOIN badges b ON b.badge_key = q.reward_badge_key
+          ORDER BY q.id'
+    );
+    $quests = $statement->fetchAll();
+
+    $stopStatement = $pdo->query(
+        'SELECT qs.quest_id, qs.site_id, qs.stop_order, s.title
+           FROM quest_stops qs
+           JOIN sites s ON s.id = qs.site_id
+          ORDER BY qs.quest_id, qs.stop_order'
+    );
+    $stopsByQuest = [];
+    foreach ($stopStatement->fetchAll() as $stop) {
+        $questId = (int) $stop['quest_id'];
+        $stopsByQuest[$questId][] = [
+            'site_id' => (int) $stop['site_id'],
+            'stop_order' => (int) $stop['stop_order'],
+            'title' => $stop['title'],
+        ];
+>>>>>>> 9405a2962ebc1370383c0205153526d7d589a0d1
     }
 
     $userId = null;
@@ -360,6 +387,7 @@ try {
         $quest['quest_id'] = $questId;
         $quest['target_count'] = (int) $quest['target_count'];
         $quest['xp_reward'] = (int) $quest['xp_reward'];
+<<<<<<< HEAD
         $quest['progress_count'] = (int) $quest['progress_count'];
         $quest['category'] = $quest['quest_type'];
         $quest['stops'] = questStops($pdo, $questId, $userId);
@@ -379,6 +407,9 @@ try {
                 'stops' => $quest['stops'],
             ];
         }
+=======
+        $quest['stops'] = $stopsByQuest[$questId] ?? [];
+>>>>>>> 9405a2962ebc1370383c0205153526d7d589a0d1
     }
     unset($quest);
 

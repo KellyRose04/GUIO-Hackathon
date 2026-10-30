@@ -266,6 +266,39 @@ button { cursor: pointer; }
   background: var(--placeholder);
 }
 
+.map-camera-shortcut {
+  position: absolute;
+  right: 16px;
+  bottom: calc(var(--bottom-nav-h) + 40px + env(safe-area-inset-bottom, 0px));
+  z-index: 1000;
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: rgba(255, 254, 250, 0.38);
+  color: var(--ink);
+  text-decoration: none;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.map-camera-shortcut svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.map-camera-shortcut:hover,
+.map-camera-shortcut:focus-visible {
+  background: rgba(255, 254, 250, 0.72);
+}
+
 /* ==========================================================================
    3. FLOATING SIDEBAR
    ========================================================================== */
@@ -1079,6 +1112,11 @@ button { cursor: pointer; }
   .home-container {
     height: calc(100vh - var(--nav-h));
     margin-top: var(--nav-h);
+  }
+
+  .map-camera-shortcut {
+    right: 24px;
+    bottom: 24px;
   }
 
   .sidebar {

@@ -4,6 +4,7 @@
   const currentStatus = document.getElementById("current-status");
   const countLabel = document.getElementById("quest-count");
   const filterContainer = document.getElementById("quest-filters");
+  const categoryDescription = document.getElementById("category-description");
   const questDialog = document.getElementById("quest-dialog");
   const missionDialog = document.getElementById("mission-dialog");
   const scanButton = document.getElementById("scan-destination-qr");
@@ -11,7 +12,7 @@
   const qrInput = document.getElementById("destination-qr-token");
   const verifyButton = document.getElementById("verify-destination-qr");
   const qrStatus = document.getElementById("destination-qr-status");
-  if (!questGrid || !currentContent || !filterContainer || !questDialog || !missionDialog) return;
+  if (!questGrid || !currentContent || !filterContainer || !categoryDescription || !questDialog || !missionDialog) return;
 
   let selectedFilter = "all";
   let selectedQuest = null;
@@ -60,9 +61,22 @@
   }
 
   function categoryLabel(value) {
-    const category = String(value || "").trim();
-    if (!category) return "Quest";
-    return category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
+    const category = String(value || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+    const labels = {
+      cultural: "Cultural Quests",
+      cultural_quests: "Cultural Quests",
+      historical: "Historical Quests",
+      historical_quests: "Historical Quests",
+      nature: "Nature Quests",
+      nature_quests: "Nature Quests",
+      local_discovery: "Local Discovery Quests",
+      local_discovery_quests: "Local Discovery Quests",
+    };
+    return labels[category] || (category ? categoryLabelFallback(category) : "Quest");
+  }
+
+  function categoryLabelFallback(category) {
+    return category.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
   }
 
   function normaliseQuest(raw) {
@@ -81,7 +95,7 @@
       questId: raw.quest_id || null,
       title: raw.title || "Untitled quest",
       description: raw.description || "Explore the city and complete this quest.",
-      category: categoryLabel(raw.category || raw.quest_type),
+      category: categoryLabel(raw.category || raw.quest_category || raw.quest_type),
       questType: raw.quest_type || "sites",
       target: Math.max(0, Number(raw.target_count) || stops.length),
       xp: Math.max(0, Number(raw.xp_reward) || 0),
@@ -120,7 +134,7 @@
       userQuestId: raw.user_quest_id || null,
       title: raw.title || fallback?.title || "Your active quest",
       description: raw.description || fallback?.description || "Continue exploring to complete this quest.",
-      category: fallback?.category || categoryLabel(raw.quest_type),
+      category: fallback?.category || categoryLabel(raw.quest_category || raw.category || raw.quest_type),
       questType: raw.quest_type || fallback?.questType || "sites",
       target,
       progress,
@@ -134,11 +148,24 @@
   }
 
   function renderFilters() {
-    const categories = [...new Set(questCatalog.map((quest) => quest.category).filter(Boolean))];
+    const standardCategories = [
+      { label: "Cultural Quests", description: "Discover local traditions, indigenous heritage, arts, and crafts." },
+      { label: "Historical Quests", description: "Explore historically significant landmarks and learn their stories." },
+      { label: "Nature Quests", description: "Discover parks, gardens, and environmentally significant destinations." },
+      { label: "Local Discovery Quests", description: "Visit local businesses, artisan establishments, and community attractions." },
+    ];
+    const additionalCategories = [...new Set(questCatalog.map((quest) => quest.category).filter(Boolean))]
+      .filter((category) => !standardCategories.some((known) => known.label.toLowerCase() === category.toLowerCase()))
+      .map((label) => ({ label, description: `Browse quests in the ${label.toLowerCase()} category.` }));
+    const categories = [...standardCategories, ...additionalCategories];
     const filters = [
       { value: "all", label: "All" },
       { value: "active", label: "Active" },
-      ...categories.map((category) => ({ value: category.toLowerCase(), label: category })),
+      ...categories.map((category) => ({
+        value: category.label.toLowerCase(),
+        label: category.label,
+        description: category.description,
+      })),
     ];
     if (!filters.some((filter) => filter.value === selectedFilter)) selectedFilter = "all";
 
@@ -148,6 +175,7 @@
       button.type = "button";
       button.dataset.filter = filter.value;
       button.setAttribute("aria-pressed", String(selectedFilter === filter.value));
+      if (filter.description) button.setAttribute("aria-label", `${filter.label}: ${filter.description}`);
       button.addEventListener("click", () => {
         selectedFilter = filter.value;
         renderFilters();
@@ -155,6 +183,10 @@
       });
       filterContainer.append(button);
     });
+
+    const selectedCategory = categories.find((category) => category.label.toLowerCase() === selectedFilter);
+    categoryDescription.textContent = selectedCategory?.description || "";
+    categoryDescription.hidden = !selectedCategory;
   }
 
   function getQuestStops(quest) {
@@ -201,6 +233,7 @@
     icon.setAttribute("aria-hidden", "true");
     const info = element("div", "current-quest-info");
     info.append(element("h3", "", activeQuest.title));
+    info.append(element("span", "quest-tag", activeQuest.category || "Quest"));
     const next = getQuestStops(activeQuest).find((stop) => stop.state === "next");
     info.append(element("p", "", next ? `Next stop · ${next.title}` : activeQuest.description));
     const actions = element("div", "current-quest-actions");

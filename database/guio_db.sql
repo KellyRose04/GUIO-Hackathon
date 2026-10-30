@@ -1,6 +1,3 @@
-CREATE DATABASE IF NOT EXISTS guio_db
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
 USE guio_db;
 
 CREATE TABLE IF NOT EXISTS users (
@@ -245,17 +242,18 @@ FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM sites WHERE title = 'Newtown Convention Center');
 
 INSERT INTO quests
-    (quest_key, title, description, icon, quest_type, target_count, xp_reward)
+    (quest_key, title, description, icon, quest_type, target_count, xp_reward, reward_badge_key)
 SELECT 'burnham-secrets-walk', 'Burnham Secrets Walk',
        'Explore Baguio’s city-center landmarks, public spaces, and local culture on foot.',
-       '⚑', 'sites', 6, 500
+       '⚑', 'sites', 6, 500, NULL
 FROM DUAL
 WHERE NOT EXISTS (
     SELECT 1 FROM quests WHERE quest_key = 'burnham-secrets-walk'
 );
 
 UPDATE quests
-SET target_count = 6
+SET target_count = 6,
+    quest_category = 'historical'
 WHERE quest_key = 'burnham-secrets-walk';
 
 INSERT INTO quest_stops (quest_id, site_id, stop_order)

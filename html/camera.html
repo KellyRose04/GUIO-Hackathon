@@ -6,15 +6,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GUIO</title>
+  <title>GUIO — Camera</title>
   <meta name="theme-color" content="#FBF9F2">
   <link rel="icon" type="image/png" href="../assets/guio_logo.png"> <!-- Logo for browser tab -->
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="css/camera.css?v=blue-cream-2"> <!-- Stylesheet -->
-  <script src="js/account.js?v=12" defer></script> <!-- Javascript for user accounts -->
-  <script src="js/pwa-register.js" defer></script>
-  <script src="js/notifications.js?v=7" defer></script>
-  <script src="js/modules/camera.js?v=14" defer></script> <!-- Javascript for camera functionalities -->
+  <link rel="stylesheet" href="../css/camera.css?v=camera-qr-2">
+  <script src="../js/profile.js?v=14" defer></script>
+  <script src="../js/camera.js?v=camera-qr-1" defer></script>
 </head>
 
 <body>
@@ -35,9 +32,10 @@
       </ul>
     </nav>
     <div class="header-stats" id="player-status">
-      <div class="avatar" id="player-avatar">
-        <img src="assets/user.png" class="icon" alt="user">
+      <div class="avatar" id="player-avatar" role="img" aria-label="Profile">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.4-3.4 2.8-5.3 6.5-5.3s6.1 1.9 6.5 5.3"/></svg>
       </div>
+      <span id="xp-count" hidden></span>
     </div>
   </header>
 
@@ -46,9 +44,21 @@
     <section class="camera-panel">
       <video class="camera-feed" id="camera-feed" autoplay playsinline muted></video>
       <img class="captured-photo" id="captured-photo" alt="Captured check-in photo" hidden>
-      <div class="gps-badge" id="gps-badge">
-        <img class="gps-icon" src="assets/pin-location.png" alt="GPS icon">
+      <div class="gps-badge" id="gps-badge" hidden>
+        <img class="gps-icon" src="../assets/pin.png" alt="">
         <span id="gps-badge-text">Locating you…</span>
+      </div>
+
+      <a class="camera-exit" href="../index.html" aria-label="Exit camera and return to map">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="m14.5 5-7 7 7 7M8 12h12" />
+        </svg>
+        <span>Exit</span>
+      </a>
+
+      <div class="camera-modes" role="group" aria-label="Camera mode">
+        <button class="camera-mode is-active" id="photo-mode" type="button" aria-pressed="true">Photo</button>
+        <button class="camera-mode" id="qr-mode" type="button" aria-pressed="false">Scan QR</button>
       </div>
 
       <!-- Border design for camera -->
@@ -61,16 +71,15 @@
         <button class="camera-retry" id="camera-retry" type="button" hidden>Allow camera access</button>
         <button class="verify-retry" id="verify-retry" type="button" hidden>Retry verification</button>
       </div>
+      <div class="qr-result" id="qr-result" hidden aria-live="polite">
+        <p id="qr-result-text"></p>
+        <button id="qr-rescan" type="button" hidden>Scan again</button>
+      </div>
       
       <!-- Dock for camera shutter, flash, and gallery -->
       <div class="camera-dock">
-        <span class="dock-button">
-          <a href="gallery.html">
-            <img class="gallery-icon" src="assets/gallery.png" alt="Gallery icon">
-          </a>
-        </span>
         <div class="shutter-wrap">
-          <button class="shutter" id="capture-button" type="button"></button>
+          <button class="shutter" id="capture-button" type="button" aria-label="Take photo"></button>
         </div>
       </div>
     </section>
@@ -79,7 +88,7 @@
     <aside class="sidebar">
       <section class="site-card">
         <span class="site-thumb">
-          <img class="site-icon" src="assets/building.png" alt="Building icon">
+          <img class="site-icon" src="../assets/pin.png" alt="">
         </span>
         <!-- Nearest site card -->
         <div class="site-info">
@@ -107,7 +116,7 @@
       </section>
       <!-- XP and rewards card -->
       <section class="reward-card">
-        <img class="reward-icon" src="assets/reward.png" alt="Medal">
+        <img class="reward-icon" src="../assets/Group.png" alt="">
         <div>
           <strong id="reward-title">+120 XP · Stamp: Salt Keeper</strong>
           <p id="reward-description">Complete your check-in to earn this site’s stamp.</p>
@@ -122,7 +131,7 @@
       </section>
       <!-- Offline card (shown when user is offline; hidden when user is online) -->
       <div class="offline-card" id="offline-card" hidden>
-        <img class="offline-icon" src="assets/offline.png" alt="Offline icon">
+        <img class="offline-icon" src="../assets/Group.png" alt="">
         <span>Photos are saved on this device and uploaded for verification when the server returns.</span>
       </div>  
     </aside>
@@ -132,7 +141,7 @@
   <dialog class="checkin-dialog" id="checkin-dialog">
     <div class="checkin-dialog-content">
       <button class="dialog-close" id="close-checkin-dialog" type="button">×</button>
-      <img class="reward-icon" src="assets/check.png" alt="Check icon">
+      <img class="reward-icon" src="../assets/Group.png" alt="">
       <h2 id="checkin-dialog-title">Check-in complete!</h2>
       <!-- Details about the site where the user checked in -->
       <p class="completion-site">
@@ -145,7 +154,7 @@
       <!-- Show earned XP -->
       <div class="completion-rewards">
         <span>
-          <img src="assets/star.png" alt="Star icon">
+          <img src="../assets/Group.png" alt="">
           <span id="completion-xp-label">XP earned</span>
           <span id="completion-xp"></span>
         </span>
@@ -165,7 +174,7 @@
       </section>
       <!-- Display current quest -->
       <div class="completion-quest" id="completion-quest">
-        <img src="assets/flag.png" alt="Flag icon">
+        <img src="../assets/Group.png" alt="">
         <span>Hidden Gems Trail: — / — sites</span>
       </div>
       <!-- Distance from exact site (shown when site is verified; hidden when site is unverified) -->
@@ -175,7 +184,7 @@
       </div>
       <!-- Offline card (shown when user is offline; hidden when user is online) -->
       <div class="completion-offline" id="completion-offline" hidden>
-        <img src="assets/offline.png" alt="Offline icon">
+        <img src="../assets/Group.png" alt="">
         <span>Offline? Check-ins are saved on this device and sync automatically.</span>
       </div>
       <!-- Two buttons at the bottom of the pop up -->

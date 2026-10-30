@@ -7,7 +7,7 @@
     <title>GUIO - Passport</title>
 
     <link rel="icon" type="image/png" href="../assets/guio_logo.png">
-    <link rel="stylesheet" href="../css/profile.css?v=blue-cream-2">
+    <link rel="stylesheet" href="../css/profile.css?v=passport-wireframe-1">
     <link rel="manifest" href="../manifest.json">
 
     <script src="../js/account.js?v=12" defer></script>
@@ -100,160 +100,7 @@
                     </div>
                 </article>
 
-                <!-- Statistics -->
-                <section class="stats-section" id="stats">
-                    <h3 class="section-title">My Stats</h3>
-
-                    <div class="stats-grid">
-                        <button
-                            type="button"
-                            class="neo-card stat-card"
-                            data-open="dlg-stat"
-                            data-stat="sites"
-                            aria-label="Show visited sites"
-                        >
-                            <div class="stat-icon yellow">
-                                <img
-                                    src="../assets/pin.png"
-                                    class="icon"
-                                    alt=""
-                                    width="24"
-                                    height="24"
-                                >
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-number">0</div>
-                                <div class="stat-label">Sites visited</div>
-                            </div>
-                        </button>
-
-                        <button
-                            type="button"
-                            class="neo-card stat-card"
-                            data-open="dlg-stat"
-                            data-stat="gems"
-                            aria-label="Show visited hidden gems"
-                        >
-                            <div class="stat-icon yellow">
-                                <img
-                                    src="../assets/gem.png"
-                                    class="icon"
-                                    alt=""
-                                    width="24"
-                                    height="24"
-                                >
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-number">0</div>
-                                <div class="stat-label">Hidden gems</div>
-                            </div>
-                        </button>
-
-                        <button
-                            type="button"
-                            class="neo-card stat-card"
-                            data-open="dlg-stat"
-                            data-stat="quests"
-                            aria-label="Show completed quests"
-                        >
-                            <div class="stat-icon yellow">
-                                <img
-                                    src="../assets/flag.png"
-                                    class="icon"
-                                    alt=""
-                                    width="24"
-                                    height="24"
-                                >
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-number">0</div>
-                                <div class="stat-label">Quests done</div>
-                            </div>
-                        </button>
-
-                        <button
-                            type="button"
-                            class="neo-card stat-card"
-                            data-open="dlg-stat"
-                            data-stat="streak"
-                            aria-label="Show check-in streak history"
-                        >
-                            <div class="stat-icon yellow">
-                                <img
-                                    src="../assets/flame.png"
-                                    class="icon"
-                                    alt=""
-                                    width="24"
-                                    height="24"
-                                >
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-number">0</div>
-                                <div class="stat-label">Day streak</div>
-                            </div>
-                        </button>
-                    </div>
-                </section>
-
-                <!-- Active quest -->
-                <article
-                    class="neo-card active-quest"
-                    id="active-quest"
-                    data-open="dlg-quest"
-                >
-                    <div class="badge-bubble" data-field="quest-bubble">
-                        0
-                    </div>
-
-                    <div class="quest-top">
-                        <div class="quest-icon">
-                            <img
-                                src="../assets/flag.png"
-                                class="icon"
-                                alt=""
-                                width="24"
-                                height="24"
-                            >
-                        </div>
-
-                        <div class="quest-info">
-                            <h3
-                                class="quest-title"
-                                data-field="quest-card-title"
-                            >Active quest</h3>
-
-                            <div
-                                class="quest-subtitle"
-                                data-field="quest-card-subtitle"
-                            >Loading quest...</div>
-                        </div>
-
-                        <div class="quest-chevron">
-                            <img
-                                src="../assets/chev.png"
-                                class="icon"
-                                alt=""
-                                width="24"
-                                height="24"
-                            >
-                        </div>
-                    </div>
-
-                    <div class="quest-progress-row">
-                        <div class="quest-progress-bar">
-                            <div
-                                class="quest-progress-fill"
-                                data-field="quest-card-fill"
-                            ></div>
-                        </div>
-
-                        <div
-                            class="quest-progress-text"
-                            data-field="quest-card-progress"
-                        >0 / 0</div>
-                    </div>
-                </article>
-
+                <!-- Badge collection: directly beneath the profile, as in the wireframe -->
                 <!-- Badges -->
                 <section class="neo-card badges-card" id="badges">
                     <h3 class="section-title badges-header">
@@ -264,33 +111,18 @@
                     <div class="badges-grid"></div>
                 </section>
 
-                <!-- Notification settings -->
-                <section
-                    class="neo-card badge-notification-card"
-                    aria-label="Badge notifications"
-                >
-                    <p id="badge-notification-description">
-                        Allow browser notifications to be updated when
-                        you earn rewards.
-                    </p>
-
-                    <button
-                        id="enable-badge-notifications"
-                        class="badge-notification-toggle"
-                        type="button"
-                        role="switch"
-                        aria-checked="false"
-                        aria-label="Badge notifications"
-                        aria-describedby="badge-notification-description badge-notification-status"
-                    >
-                        <span class="badge-notification-toggle-thumb"></span>
-                    </button>
-
-                    <p
-                        id="badge-notification-status"
-                        role="status"
-                        aria-live="polite"
-                    ></p>
+                <!-- Stamp preview: a real empty state until a badge/stamp is selected -->
+                <section class="neo-card passport-stamp-preview" aria-labelledby="stamp-preview-heading">
+                    <div class="passport-stamp-preview-head">
+                        <span class="dlg-tag">Stamp</span>
+                        <span class="stamp-preview-symbol" aria-hidden="true">✧</span>
+                    </div>
+                    <div class="passport-stamp-emblem" aria-hidden="true">
+                        <img src="../assets/pin.png" alt="" width="36" height="36">
+                    </div>
+                    <h3 id="stamp-preview-heading">Your stamp collection</h3>
+                    <p class="stamp-preview-help">Select an unlocked badge or stamp to see its details.</p>
+                    <a class="stamp-preview-map" href="../index.html">Explore sites on map</a>
                 </section>
             </div>
 
@@ -764,3 +596,4 @@
     <script src="../js/modules/gallery/gallery.js?v=5" defer></script>
 </body>
 </html>
+
