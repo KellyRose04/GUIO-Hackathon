@@ -10,13 +10,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 2. Custom Marker Icon Generator (Using raw transparent PNG icons)
     function createCustomIcon(status) {
-        let iconPath = 'assets/marker.png';
+        let iconPath = 'assets/pin.png';
 
         if (status === 'visited') {
             iconPath = 'assets/marker-check.png';
-        } else if (status === 'hidden_gem') {
-            iconPath = 'assets/star-icon.png';
-        }
+        } 
 
         const html = `<div style="
             width: 32px; 
