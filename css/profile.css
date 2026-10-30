@@ -1,0 +1,1769 @@
+/* Defines reusable site colors, typography, and navigation dimensions. */
+:root {
+    --bg-body: #E5E7EB;
+    --bg-main: #FDFDFB;
+    --border-dark: #2F3135;
+    --border-width: 2px;
+
+    --yellow-main: #F6B83B;
+    --yellow-pale: #FBE6B1;
+    --teal-main: #38B291;
+    --teal-pale: #D6EFE9;
+    --red-badge: #EF5350;
+
+    --text-dark: #2F3135;
+    --text-gray: #6B7280;
+    --text-light-gray: #9CA3AF;
+
+    --gray-locked-bg: #F3F4F6;
+    --gray-locked-border: #D1D5DB;
+
+    --ink: #1F2430;
+    --white: #FFFFFF;
+    --gold: #F5B82E;
+    --gold-tint: #FFF1CC;
+    --teal: #2BB39A;
+    --teal-tint: #D9F4EE;
+    --placeholder: #E6E1D5;
+    --muted: #6B7280;
+    --coral: #E5484D;
+    --danger-tint: #FDE7E8;
+    --nav-h: 72px;
+    --bottom-nav-h: 68px;
+    --font: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Styles *. */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font);
+}
+
+/* Styles html. */
+html {
+    width: 100%;
+    height: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+/* Styles [hidden]. */
+[hidden] { display: none !important; }
+
+/* Styles body. */
+body {
+    background-color: var(--bg-body);
+    color: var(--ink);
+    height: 100vh;
+    height: 100dvh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Defines interactive and focus states for :focus-visible. */
+:focus-visible { outline: 3px solid var(--coral); outline-offset: 2px; }
+
+/* Styles .app-window. */
+.app-window {
+    background-color: var(--bg-main);
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Styles .mobile-text, .mobile-only-flex. */
+.mobile-text, .mobile-only-flex {
+    display: none;
+}
+
+/* Styles .neo-card. */
+.neo-card {
+    border: var(--border-width) solid var(--border-dark);
+    border-radius: 20px;
+    background-color: #fff;
+    width: 100%;
+    box-shadow: 0 4px 0 0 var(--border-dark);
+}
+
+/* Controls icon or avatar appearance for .icon. */
+.icon {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Controls badge and stamp presentation for .badge-bubble. */
+.badge-bubble {
+    position: absolute;
+    background-color: var(--red-badge);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--bg-main);
+    top: -6px;
+    right: -6px;
+    z-index: 10;
+}
+
+/* Positions and styles the top header containing branding, navigation, and player status. */
+#top-nav {
+    position: sticky; /* Set the element positioning method. */
+    top: 0; /* Set the top position offset. */
+    z-index: 20; /* Set the stacking order. */
+    display: flex; /* Set how the element is laid out. */
+    align-items: center; /* Align children along the cross axis. */
+    justify-content: space-between; /* Align children along the main axis. */
+    gap: 12px; /* Set spacing between children. */
+    min-height: 56px; /* Set the minimum element height. */
+    padding: 0 16px; /* Set the inner spacing. */
+    background: var(--white); /* Set the element background. */
+    border-bottom: 2px solid var(--ink); /* Set the bottom border. */
+}
+
+/* Styles .brand. */
+.brand { font-size: 18px; font-weight: 800; }
+/* Styles .brand a. */
+.brand a { display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; }
+
+/* Styles .brand .logo-circle. */
+.brand .logo-circle {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    background-color: var(--yellow-main);
+    border: 2px solid var(--border-dark);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+/* Controls icon or avatar appearance for .brand .logo-icon. */
+.brand .logo-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    display: block;
+}
+
+/* Styles the main navigation links and their active state. */
+#main-nav {
+    position: fixed; /* Set the element positioning method. */
+    inset: auto 0 0 0; /* Set offsets on all four sides. */
+    z-index: 30; /* Set the stacking order. */
+    padding-bottom: env(safe-area-inset-bottom); /* Set the bottom inner spacing. */
+    background: var(--white); /* Set the element background. */
+    border-top: 2px solid var(--ink); /* Set the top border. */
+}
+/* Styles the main navigation links and their active state. */
+#main-nav ul { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 8px; list-style: none; }
+/* Styles the main navigation links and their active state. */
+#main-nav a {
+    display: block;
+    padding: 10px 4px;
+    border: 2px solid transparent;
+    border-radius: 99px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+}
+/* Styles the main navigation links and their active state. */
+#main-nav a[aria-current="page"] {
+    background: var(--gold-tint);
+    border-color: var(--ink);
+    color: var(--ink);
+    font-weight: 700;
+}
+
+/* Displays player streak, XP, and account indicators. */
+#player-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font: 400 14px/1.45 var(--font);
+    color: var(--ink);
+}
+/* Styles .stat-pill. */
+.stat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border: 1px solid var(--border-dark);
+    border-radius: 99px;
+    background: var(--gold-tint);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.45;
+    letter-spacing: normal;
+    white-space: nowrap;
+    color: var(--ink);
+}
+
+/* Controls icon or avatar appearance for .stat-pill .icon. */
+.stat-pill .icon {
+    width: 14px;
+    height: 14px;
+}
+
+/* Styles .stat-pill.star. */
+.stat-pill.star {
+    background: var(--teal-tint);
+}
+/* Controls icon or avatar appearance for .avatar. */
+.avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--placeholder);
+    color: var(--ink);
+}
+/* Controls icon or avatar appearance for .avatar .icon. */
+.avatar .icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Displays player streak, XP, and account indicators. */
+#player-status > span {
+    padding: 3px 10px;
+    border: 1.5px solid var(--gold);
+    border-radius: 99px;
+    background: var(--gold-tint);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.45;
+    letter-spacing: normal;
+    white-space: nowrap;
+    color: var(--ink);
+}
+/* Displays player streak, XP, and account indicators. */
+#player-status > span:nth-child(2) { background: var(--teal-tint); border-color: var(--teal); }
+#player-status > span strong,
+/* Displays player streak, XP, and account indicators. */
+#player-status > span b {
+    font-weight: inherit;
+}
+/* Controls icon or avatar appearance for #player-avatar. */
+#player-avatar {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--placeholder);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    font-size: 0;
+}
+
+/* Controls chart display and labels for #connection-bar. */
+#connection-bar { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 12px; flex-shrink: 0; }
+/* Controls chart display and labels for #connection-bar p. */
+#connection-bar p {
+    margin-top: 8px;
+    padding: 5px 12px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 600;
+}
+/* Styles #connection-status. */
+#connection-status { background: var(--teal-tint); border: 1.5px solid var(--teal); }
+/* Styles #connection-status[data-state="offline"]. */
+#connection-status[data-state="offline"] {
+    background: var(--danger-tint);
+    border-color: var(--coral);
+    color: var(--coral);
+}
+/* Styles #connection-status:empty. */
+#connection-status:empty { display: none; }
+/* Styles #pending-status. */
+#pending-status { background: var(--gold-tint); border: 1.5px solid var(--ink); }
+
+/* Applies responsive layout and sizing adjustments for (min-width: 768px). */
+@media (min-width: 768px) {
+
+    #top-nav {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        min-height: var(--nav-h);
+        padding: 0 32px;
+    }
+    .brand { font-size: 22px; }
+    #main-nav { position: static; padding: 0; background: none; border: 0; }
+    #main-nav ul { display: flex; gap: 8px; padding: 0; }
+    #main-nav a { padding: 9px 16px; font-size: 14px; }
+    #player-status { justify-self: end; gap: 10px; }
+    #player-avatar { display: flex; }
+    #connection-bar { padding: 0 32px; }
+
+    .brand .logo-circle {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+}
+
+.brand .logo-icon {
+    width: 26px;
+    height: 26px;
+}
+}
+
+/* Applies responsive layout and sizing adjustments for (min-width: 1100px). */
+@media (min-width: 1100px) {
+    #top-nav { padding: 0 32px; }
+    #connection-bar { padding: 0 48px; }
+}
+
+/* Arranges the Passport dashboard columns and scrolling area. */
+.dashboard-content {
+    display: grid;
+    grid-template-columns: 340px minmax(0, 1fr);
+    gap: 24px;
+    padding: 24px;
+    background-color: var(--bg-main);
+    flex-grow: 1;
+    min-height: 0;
+    width: 100%;
+    overflow-y: auto;
+    align-items: stretch;
+}
+
+/* Stacks profile, statistics, quests, badges, and notification cards. */
+.left-col, .right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
+}
+
+/* Stacks the visits chart and passport stamps. */
+.right-col { grid-column: 2; }
+
+/* Styles .section-title. */
+.section-title {
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--text-dark);
+    margin-bottom: 12px;
+}
+
+/* Displays the player profile information and avatar. */
+.profile-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background-color: var(--bg-main);
+}
+
+/* Controls icon or avatar appearance for .profile-avatar. */
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #E2E2E2;
+    border: var(--border-width) solid var(--border-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #999;
+}
+
+/* Controls icon or avatar appearance for .profile-avatar .icon. */
+.profile-avatar .icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+/* Styles .profile-info. */
+.profile-info {
+    flex-grow: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Styles .profile-name. */
+.profile-name {
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--text-dark);
+    overflow-wrap: anywhere;
+}
+
+/* Controls badge and stamp presentation for .profile-badge. */
+.profile-badge {
+    background-color: var(--yellow-main);
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px solid var(--border-dark);
+    display: inline-block;
+    width: fit-content;
+    margin-bottom: 4px;
+}
+
+/* Styles .progress-text. */
+.progress-text {
+    font-size: 10px;
+    color: var(--text-gray);
+    font-weight: 600;
+}
+
+/* Controls chart display and labels for .progress-bar-container. */
+.progress-bar-container {
+    width: 100%;
+    height: 12px;
+    background-color: #E5E7EB;
+    border: var(--border-width) solid var(--border-dark);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Controls chart display and labels for .progress-bar-fill. */
+.progress-bar-fill {
+    height: 100%;
+    background-color: var(--teal-main);
+    width: 0;
+    border-right: var(--border-width) solid var(--border-dark);
+}
+
+/* Arranges the player statistics cards. */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* Styles .stat-card. */
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Defines interactive and focus states for .stat-card:hover. */
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 0 var(--border-dark);
+}
+
+/* Defines interactive and focus states for .stat-card:active. */
+.stat-card:active {
+    transform: translateY(1px);
+    box-shadow: 0 3px 0 0 var(--border-dark);
+}
+
+/* Controls icon or avatar appearance for .stat-icon. */
+.stat-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: var(--border-width) solid var(--border-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Controls icon or avatar appearance for .stat-icon.yellow. */
+.stat-icon.yellow { background-color: var(--yellow-pale); }
+
+/* Styles .stat-content. */
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Styles .stat-number. */
+.stat-number {
+    font-weight: 800;
+    font-size: 20px;
+    line-height: 1.1;
+}
+
+/* Styles .stat-label. */
+.stat-label {
+    font-size: 11px;
+    color: var(--text-gray);
+    font-weight: 500;
+}
+
+/* Displays the current quest and its progress. */
+.active-quest {
+    background-color: var(--yellow-pale);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.active-quest:hover,
+/* Displays the current quest and its progress. */
+.active-quest:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 0 var(--border-dark);
+}
+/* Displays the current quest and its progress. */
+.active-quest:active {
+    transform: translateY(1px);
+    box-shadow: 0 3px 0 0 var(--border-dark);
+}
+/* Styles .quest-top. */
+.quest-top { display: flex; align-items: center; gap: 12px; }
+/* Controls icon or avatar appearance for .quest-icon. */
+.quest-icon { width: 36px; height: 36px; border-radius: 50%; background-color: var(--yellow-main); border: var(--border-width) solid var(--border-dark); display: flex; align-items: center; justify-content: center; flex-shrink: 0;}
+/* Styles .quest-info. */
+.quest-info { flex-grow: 1; }
+/* Styles .quest-title. */
+.quest-title { font-weight: 800; font-size: 13px; color: var(--text-dark); }
+/* Styles .quest-subtitle. */
+.quest-subtitle { font-size: 11px; color: var(--text-gray); font-weight: 500; margin-top: 2px; }
+/* Styles .quest-chevron. */
+.quest-chevron { color: var(--text-dark); }
+/* Styles .quest-progress-row. */
+.quest-progress-row { display: flex; align-items: center; gap: 12px; }
+/* Controls chart display and labels for .quest-progress-bar. */
+.quest-progress-bar { flex-grow: 1; height: 8px; background-color: #fff; border: var(--border-width) solid var(--border-dark); border-radius: 4px; overflow: hidden; }
+/* Styles .quest-progress-fill. */
+.quest-progress-fill { height: 100%; background-color: var(--teal-main); width: 0; border-right: var(--border-width) solid var(--border-dark); }
+/* Styles .quest-progress-text. */
+.quest-progress-text { font-size: 12px; font-weight: 700; color: var(--text-gray); }
+
+/* Styles the weekly visits chart. */
+.chart-card {
+    padding: 24px;
+}
+/* Controls chart display and labels for .chart-header. */
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+/* Controls chart display and labels for .chart-header .section-title. */
+.chart-header .section-title { margin-bottom: 0; }
+
+/* Controls chart display and labels for .chart-total. */
+.chart-total {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--text-gray);
+    font-weight: 600;
+}
+/* Controls chart display and labels for .chart-container. */
+.chart-container {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    align-items: end;
+    height: 160px;
+    padding: 0 10px;
+    gap: 10px;
+}
+/* Controls chart display and labels for .chart-bar-wrap. */
+.chart-bar-wrap { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; min-width: 0; }
+/* Controls chart display and labels for .bar-value. */
+.bar-value { font-size: 12px; font-weight: 700; color: var(--text-gray); margin-bottom: 8px; }
+/* Controls chart display and labels for .bar. */
+.bar {
+    display: flex;
+    flex-direction: column-reverse;
+    overflow: hidden;
+    width: 100%;
+    max-width: 44px;
+    border: var(--border-width) solid var(--border-dark);
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    background-color: transparent;
+    height: 0;
+}
+
+/* Controls chart display and labels for .bar-segment. */
+.bar-segment { width: 100%; flex: 0 0 auto; }
+/* Controls chart display and labels for .chart-legend. */
+.chart-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 12px 10px 0; }
+/* Controls chart display and labels for .chart-legend-item. */
+.chart-legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-gray); max-width: 100%; min-width: 0; }
+/* Controls chart display and labels for .chart-legend-item span:last-child. */
+.chart-legend-item span:last-child { overflow-wrap: anywhere; }
+/* Controls chart display and labels for .chart-legend-swatch. */
+.chart-legend-swatch { width: 10px; height: 10px; border: 1px solid var(--border-dark); border-radius: 2px; flex-shrink: 0; }
+
+/* Controls badge and stamp presentation for .badge-item.locked .badge-circle img. */
+.badge-item.locked .badge-circle img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    opacity: 0.55;
+}
+
+/* Controls chart display and labels for .chart-labels. */
+.chart-labels {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    padding: 12px 10px 0;
+    border-top: 2px solid var(--border-dark);
+    margin-top: -2px;
+    gap: 10px;
+}
+/* Controls chart display and labels for .chart-label. */
+.chart-label { text-align: center; font-size: 12px; font-weight: 500; color: var(--text-gray); min-width: 0; }
+
+/* Styles the earned and locked badges section. */
+.badges-card, .stamps-card {
+    padding: 20px;
+    flex-grow: 1;
+}
+/* Controls badge and stamp presentation for .badges-header, .stamps-header. */
+.badges-header, .stamps-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; }
+/* Controls badge and stamp presentation for .badges-count, .stamps-count. */
+.badges-count, .stamps-count { font-size: 12px; color: var(--text-gray); font-weight: 600; }
+/* Controls badge and stamp presentation for .badges-grid. */
+.badges-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px 8px;
+    justify-items: center;
+}
+/* Controls badge and stamp presentation for .stamps-grid. */
+.stamps-grid {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 24px 12px;
+    justify-items: center;
+}
+
+/* Controls badge and stamp presentation for .badge-item, .stamp-item. */
+.badge-item, .stamp-item { display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; min-width: 0; width: 100%; }
+/* Controls badge and stamp presentation for .badge-circle. */
+.badge-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
+/* Controls badge and stamp presentation for .stamp-circle. */
+.stamp-circle { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
+
+.badge-item[data-open="dlg-stamp"],
+/* Controls badge and stamp presentation for .stamp-item[data-open="dlg-stamp"]. */
+.stamp-item[data-open="dlg-stamp"] {
+    transition: transform 0.15s ease;
+}
+.badge-item[data-open="dlg-stamp"] .badge-circle,
+/* Controls badge and stamp presentation for .stamp-item[data-open="dlg-stamp"] .stamp-circle. */
+.stamp-item[data-open="dlg-stamp"] .stamp-circle {
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+.badge-item[data-open="dlg-stamp"]:hover,
+/* Defines interactive and focus states for .stamp-item[data-open="dlg-stamp"]:hover. */
+.stamp-item[data-open="dlg-stamp"]:hover {
+    transform: translateY(-3px);
+}
+.badge-item[data-open="dlg-stamp"]:hover .badge-circle,
+/* Defines interactive and focus states for .stamp-item[data-open="dlg-stamp"]:hover .stamp-circle. */
+.stamp-item[data-open="dlg-stamp"]:hover .stamp-circle {
+    transform: scale(1.08) rotate(-4deg);
+    filter: drop-shadow(0 3px 2px rgba(47, 49, 53, 0.2));
+}
+.badge-item[data-open="dlg-stamp"]:active,
+/* Defines interactive and focus states for .stamp-item[data-open="dlg-stamp"]:active. */
+.stamp-item[data-open="dlg-stamp"]:active {
+    transform: translateY(1px);
+}
+.badge-item[data-open="dlg-stamp"]:active .badge-circle,
+/* Defines interactive and focus states for .stamp-item[data-open="dlg-stamp"]:active .stamp-circle. */
+.stamp-item[data-open="dlg-stamp"]:active .stamp-circle {
+    transform: scale(0.96);
+    filter: none;
+}
+
+/* Controls badge and stamp presentation for .badge-item.unlocked .badge-circle. */
+.badge-item.unlocked .badge-circle { background-color: var(--teal-pale); border: var(--border-width) solid var(--border-dark); }
+/* Controls badge and stamp presentation for .stamp-item.unlocked .stamp-circle. */
+.stamp-item.unlocked .stamp-circle { background-color: var(--yellow-main); border: var(--border-width) solid var(--border-dark); color: var(--text-dark); }
+
+/* Controls badge and stamp presentation for .badge-item.locked .badge-circle. */
+.badge-item.locked .badge-circle { background-color: var(--gray-locked-bg); border: var(--border-width) solid var(--gray-locked-border); color: var(--text-light-gray); }
+/* Controls badge and stamp presentation for .stamp-item.locked .stamp-circle. */
+.stamp-item.locked .stamp-circle { background-color: transparent; border: 2px dashed var(--gray-locked-border); color: var(--text-light-gray); }
+
+/* Controls badge and stamp presentation for .badge-label, .stamp-label. */
+.badge-label, .stamp-label { font-size: 10px; font-weight: 700; text-align: center; max-width: 100%; overflow-wrap: anywhere; }
+/* Controls badge and stamp presentation for .stamp-label. */
+.stamp-label { font-size: 11px; font-weight: 800; }
+
+/* Controls badge and stamp presentation for .badge-item.locked .badge-label, .stamp-item.locked .stamp-label. */
+.badge-item.locked .badge-label, .stamp-item.locked .stamp-label { color: var(--text-light-gray); font-weight: 600; }
+
+/* Styles modal popups for stats, stamps, badges, and quests. */
+dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    width: fit-content;
+    height: fit-content;
+    border: none;
+    padding: 0;
+    background: transparent;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100dvh - 32px);
+    overflow: visible;
+    color: var(--text-dark);
+}
+/* Styles modal popups for stats, stamps, badges, and quests. */
+dialog::backdrop {
+    background: rgba(47, 49, 53, 0.45);
+}
+/* Styles modal popups for stats, stamps, badges, and quests. */
+dialog[open] { animation: dlg-pop 0.18s ease-out; }
+/* Defines animation frames for dlg-pop. */
+@keyframes dlg-pop {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Styles the contents of the popup dialogs. */
+.dlg-card {
+    position: relative;
+    width: 360px;
+    max-width: 100%;
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    background-color: #fff;
+    border: var(--border-width) solid var(--border-dark);
+    border-radius: 16px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    padding: 16px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* Controls dialog components for .dlg-top. */
+.dlg-top {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* Controls dialog components for .dlg-tag. */
+.dlg-tag {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background-color: var(--yellow-pale);
+    border: 1px solid var(--border-dark);
+}
+
+/* Controls icon or avatar appearance for .dlg-stamp-icon.is-badge. */
+.dlg-stamp-icon.is-badge {
+    background-color: var(--teal-pale);
+}
+
+/* Controls icon or avatar appearance for .dlg-stamp-icon. */
+.dlg-stamp-icon {
+    position: relative;
+    width: 88px;
+    height: 88px;
+    margin: 28px 0 22px;
+    border-radius: 50%;
+    background-color: var(--yellow-main);
+    border: var(--border-width) solid var(--border-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* Controls icon or avatar appearance for .dlg-stamp-icon::after. */
+.dlg-stamp-icon::after {
+    content: "";
+    position: absolute;
+    inset: -10px;
+    border: var(--border-width) dashed var(--border-dark);
+    border-radius: 50%;
+}
+/* Controls icon or avatar appearance for .dlg-stamp-icon .icon. */
+.dlg-stamp-icon .icon { width: 40px; height: 40px; }
+
+/* Controls dialog components for .dlg-title. */
+.dlg-title {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+/* Styles .stats-detail-summary. */
+.stats-detail-summary {
+    width: 100%;
+    margin: 4px 0 12px;
+}
+
+/* Styles .stats-detail-list. */
+.stats-detail-list {
+    width: 100%;
+    max-height: min(42vh, 320px);
+    overflow-y: auto;
+    list-style: none;
+    text-align: left;
+    margin-bottom: 18px;
+}
+
+/* Styles .stats-detail-list li. */
+.stats-detail-list li {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--gray-locked-border);
+}
+
+/* Styles .stats-detail-list li:last-child. */
+.stats-detail-list li:last-child {
+    border-bottom: 0;
+}
+
+/* Styles .stats-detail-list strong. */
+.stats-detail-list strong {
+    font-size: 12px;
+}
+
+/* Styles .stats-detail-list span. */
+.stats-detail-list span {
+    color: var(--text-gray);
+    font-size: 11px;
+}
+
+/* Styles .stats-detail-list .stats-empty. */
+.stats-detail-list .stats-empty {
+    color: var(--text-gray);
+    text-align: center;
+}
+
+/* Controls dialog components for .dlg-rarity. */
+.dlg-rarity {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background-color: var(--yellow-main);
+    border: 1px solid var(--border-dark);
+    margin-bottom: 10px;
+}
+/* Controls icon or avatar appearance for .dlg-rarity .icon. */
+.dlg-rarity .icon { width: 11px; height: 11px; fill: currentColor; }
+
+/* Controls dialog components for .dlg-meta. */
+.dlg-meta {
+    font-size: 11px;
+    color: var(--text-gray);
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+/* Controls dialog components for .dlg-desc. */
+.dlg-desc {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-gray);
+    margin-bottom: 18px;
+}
+
+/* Controls dialog components for .dlg-progress. */
+.dlg-progress { width: 100%; margin-bottom: 18px; text-align: left; }
+/* Controls dialog components for .dlg-progress-row. */
+.dlg-progress-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+/* Controls dialog components for .dlg-progress-row span:last-child. */
+.dlg-progress-row span:last-child { color: var(--text-gray); font-weight: 600; }
+/* Controls chart display and labels for .dlg-bar. */
+.dlg-bar {
+    height: 8px;
+    background-color: #E5E7EB;
+    border: var(--border-width) solid var(--border-dark);
+    border-radius: 4px;
+    overflow: hidden;
+}
+/* Controls chart display and labels for .dlg-bar-fill. */
+.dlg-bar-fill {
+    width: 0;
+    height: 100%;
+    background-color: var(--teal-main);
+    border-right: var(--border-width) solid var(--border-dark);
+}
+
+/* Controls dialog components for .dlg-actions. */
+.dlg-actions {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+/* Controls dialog components for .dlg-btn. */
+.dlg-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    border: var(--border-width) solid var(--border-dark);
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text-dark);
+    background-color: #fff;
+    line-height: 1.2;
+}
+/* Controls icon or avatar appearance for .dlg-btn .icon. */
+.dlg-btn .icon { width: 14px; height: 14px; }
+/* Controls dialog components for .dlg-btn.primary. */
+.dlg-btn.primary { background-color: var(--yellow-main); }
+/* Defines interactive and focus states for .dlg-btn:hover. */
+.dlg-btn:hover { filter: brightness(0.96); }
+/* Defines interactive and focus states for .dlg-btn:focus-visible. */
+.dlg-btn:focus-visible {
+    outline: 3px solid var(--teal-main);
+    outline-offset: 2px;
+}
+
+/* Controls icon or avatar appearance for .dlg-quest-icon. */
+.dlg-quest-icon { margin-top: 20px; margin-bottom: 20px; }
+/* Controls dialog components for .dlg-reward. */
+.dlg-reward {
+    width: 100%;
+    font-size: 11px;
+    font-weight: 600;
+    background-color: var(--yellow-pale);
+    border: var(--border-width) solid var(--border-dark);
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-bottom: 16px;
+}
+/* Controls dialog components for .dlg-stops. */
+.dlg-stops {
+    width: 100%;
+    list-style: none;
+    margin-bottom: 18px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+/* Controls dialog components for .dlg-stops li. */
+.dlg-stops li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+/* Controls dialog components for .dlg-stop-dot. */
+.dlg-stop-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: var(--border-width) solid var(--border-dark);
+    background-color: var(--teal-pale);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+/* Controls icon or avatar appearance for .dlg-stop-dot .icon. */
+.dlg-stop-dot .icon { width: 12px; height: 12px; }
+/* Controls dialog components for .dlg-stops .next .dlg-stop-dot. */
+.dlg-stops .next .dlg-stop-dot { background-color: var(--yellow-main); }
+/* Controls dialog components for .dlg-stops .locked. */
+.dlg-stops .locked { color: var(--text-light-gray); }
+/* Controls dialog components for .dlg-stops .locked .dlg-stop-dot. */
+.dlg-stops .locked .dlg-stop-dot {
+    background-color: var(--gray-locked-bg);
+    border-color: var(--gray-locked-border);
+    color: var(--text-light-gray);
+}
+/* Controls dialog components for .dlg-stop-note. */
+.dlg-stop-note { margin-left: auto; font-size: 10px; color: var(--text-gray); font-weight: 600; }
+
+/* Applies responsive layout and sizing adjustments for (min-width: 951px) and (max-width: 1199px). */
+@media (min-width: 951px) and (max-width: 1199px) {
+    .stamps-grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+}
+
+/* Applies responsive layout and sizing adjustments for (max-width: 950px). */
+@media (max-width: 950px) {
+
+    .desktop-text,
+    .desktop-only {
+        display: none !important;
+    }
+
+    .mobile-text { display: inline-block; }
+    .mobile-only-flex { display: flex !important; }
+
+    .left-col, .right-col {
+        display: contents;
+    }
+
+    .dashboard-content {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px;
+        padding-bottom: calc(var(--bottom-nav-h) + 16px + env(safe-area-inset-bottom, 0px));
+        gap: 16px;
+        overflow-y: visible;
+        flex-grow: 1;
+    }
+
+    .profile-card { order: 1; }
+    .stats-section { order: 2; }
+    .active-quest { order: 3; }
+    .chart-card { order: 4; }
+
+    .stamps-card {
+        order: 5;
+        flex-grow: 0;
+    }
+
+    .badges-card {
+        order: 6;
+        flex-grow: 1;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+    .stat-card {
+        flex-direction: column;
+        padding: 12px 6px;
+        text-align: center;
+        gap: 6px;
+    }
+    .stat-icon { width: 24px; height: 24px; }
+    .stat-number { font-size: 16px; }
+    .stat-label { font-size: 9px; }
+
+    .chart-card { padding: 16px; }
+    .chart-header { margin-bottom: 16px; }
+    .chart-container { height: 120px; }
+    .bar {
+        max-width: 28px;
+        border-radius: 6px;
+        border-bottom: var(--border-width) solid var(--border-dark);
+    }
+
+    .stamps-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px 8px;
+    }
+    .stamp-circle { width: 50px; height: 50px; }
+
+    .badges-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px 4px; }
+    .badge-circle { width: 40px; height: 40px; }
+}
+
+/* Applies responsive layout and sizing adjustments for (min-width: 768px) and (max-width: 950px). */
+@media (min-width: 768px) and (max-width: 950px) {
+    #top-nav {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    #player-status { justify-self: auto; }
+
+    .stamps-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+
+    .stat-card {
+        flex-direction: row;
+        text-align: left;
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .stat-icon { width: 32px; height: 32px; }
+    .stat-number { font-size: 18px; }
+    .stat-label { font-size: 11px; }
+}
+
+/* Applies responsive layout and sizing adjustments for (max-width: 650px). */
+@media (max-width: 650px) {
+    #top-nav { gap: 8px; padding: 0 10px; }
+    .brand { font-size: 16px; }
+    .brand .logo-circle { width: 36px; height: 36px; }
+    .brand .logo-icon { width: 24px; height: 24px; }
+    #player-status { gap: 4px; }
+    .stat-pill { padding: 3px 7px; font-size: 10px; }
+
+    .profile-card { padding: 16px; gap: 12px; }
+
+    .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .stat-card { flex-direction: row; text-align: left; padding: 12px; gap: 10px; }
+    .stat-icon { width: 34px; height: 34px; }
+    .stat-number { font-size: 20px; }
+    .stat-label { font-size: 11px; }
+
+    .chart-container { gap: 6px; padding: 0 4px; }
+    .chart-labels { gap: 6px; padding: 12px 4px 0; }
+    .chart-legend { padding: 12px 4px 0; }
+
+    .badges-card, .stamps-card { padding: 16px; }
+    .badges-header, .stamps-header { gap: 8px; align-items: center; }
+    .badges-count, .stamps-count { white-space: nowrap; }
+}
+
+/* Applies responsive layout and sizing adjustments for (max-width: 360px). */
+@media (max-width: 360px) {
+    .profile-avatar { width: 72px; height: 72px; }
+    .profile-avatar .icon { width: 36px; height: 36px; }
+    .profile-name { font-size: 16px; }
+    .chart-container { gap: 4px; padding: 0 2px; }
+    .chart-labels { gap: 4px; padding: 12px 2px 0; }
+    .stamp-circle { width: 46px; height: 46px; }
+}
+
+/* Applies responsive layout and sizing adjustments for (max-width: 950px). */
+@media (max-width: 950px) {
+    dialog {
+        width: 100%;
+        max-width: 100%;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        transform: none;
+        margin: 0;
+    }
+    dialog[open] { animation: dlg-sheet 0.22s ease-out; }
+    @keyframes dlg-sheet {
+        from { transform: translateY(100%); }
+        to   { transform: none; }
+    }
+    .dlg-card {
+        width: 100%;
+        max-height: 90dvh;
+        border-radius: 20px 20px 0 0;
+        border-bottom: none;
+        padding: 14px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .dlg-card::before {
+        content: "";
+        width: 40px;
+        height: 4px;
+        border-radius: 2px;
+        background-color: var(--gray-locked-border);
+        margin-bottom: 12px;
+    }
+    .dlg-stamp-icon { margin: 24px 0 20px; }
+    .dlg-btn { padding: 12px; font-size: 13px; }
+}
+
+/* Applies responsive layout and sizing adjustments for (min-width: 651px) and (max-width: 950px). */
+@media (min-width: 651px) and (max-width: 950px) {
+    dialog {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        right: auto;
+        bottom: auto;
+        transform: translate(-50%, -50%);
+        width: fit-content;
+        height: fit-content;
+        max-width: calc(100vw - 32px);
+        margin: 0;
+    }
+
+    dialog[open] { animation: dlg-pop 0.18s ease-out; }
+
+    .dlg-card {
+        width: 420px;
+        max-height: calc(100dvh - 32px);
+        border-radius: 16px;
+        border-bottom: var(--border-width) solid var(--border-dark);
+        padding: 16px 24px 24px;
+    }
+
+    .dlg-card::before { display: none; }
+}
+
+/* Applies responsive layout and sizing adjustments for (max-width: 360px). */
+@media (max-width: 360px) {
+    .dlg-actions { flex-direction: column-reverse; }
+}
+
+/* Applies responsive layout and sizing adjustments for (prefers-reduced-motion: reduce). */
+@media (prefers-reduced-motion: reduce) {
+    dialog[open] { animation: none; }
+    .badge-item[data-open="dlg-stamp"],
+    .stamp-item[data-open="dlg-stamp"],
+    .badge-item[data-open="dlg-stamp"] .badge-circle,
+    .stamp-item[data-open="dlg-stamp"] .stamp-circle {
+        transition: none;
+    }
+    .badge-item[data-open="dlg-stamp"]:hover,
+    .stamp-item[data-open="dlg-stamp"]:hover,
+    .badge-item[data-open="dlg-stamp"]:hover .badge-circle,
+    .stamp-item[data-open="dlg-stamp"]:hover .stamp-circle {
+        transform: none;
+        filter: none;
+    }
+}
+
+/* Applies responsive layout and sizing adjustments for (min-width: 951px). */
+@media (min-width: 951px) {
+    .bottom-nav {
+        display: none !important;
+    }
+}
+
+/* Applies responsive layout and sizing adjustments for (max-width: 950px). */
+@media (max-width: 950px) {
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: var(--bottom-nav-h);
+        background-color: var(--white);
+        border-top: var(--border-width) solid var(--border-dark);
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        z-index: 50;
+        padding: 0 8px;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .bottom-nav .nav-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: var(--text-gray);
+        font-size: 12px;
+        font-weight: 500;
+        flex: 1;
+        height: 40px;
+        border-radius: 99px;
+        border: 2px solid transparent;
+        transition: all 0.15s ease;
+        margin: 0 4px;
+    }
+
+    .bottom-nav .nav-item.active {
+        background-color: var(--gold-tint);
+        border-color: var(--border-dark);
+        color: var(--ink);
+        font-weight: 700;
+    }
+}
+
+/* Styles #connection-status[data-state="cached"]. */
+#connection-status[data-state="cached"] {
+    background: var(--gold-tint);
+    border: 1.5px solid var(--gold);
+    color: var(--ink);
+}
+
+/* Applies responsive layout and sizing adjustments for (max-width: 650px). */
+@media (max-width: 650px) {
+    #top-nav #main-nav,
+    #top-nav #main-nav.desktop-only {
+        display: none !important;
+    }
+
+    .bottom-nav,
+    .bottom-nav.mobile-only-flex {
+        display: flex !important;
+    }
+
+    .dashboard-content {
+        padding-bottom: calc(var(--bottom-nav-h) + 16px + env(safe-area-inset-bottom, 0px));
+    }
+}
+
+/* Applies responsive layout and sizing adjustments for (min-width: 651px). */
+@media (min-width: 651px) {
+    #top-nav #main-nav,
+    #top-nav #main-nav.desktop-only {
+        display: block !important;
+        position: static;
+        inset: auto;
+        padding: 0;
+        border: 0;
+        background: transparent;
+    }
+
+    #top-nav #main-nav ul {
+        display: flex;
+        gap: 8px;
+        padding: 0;
+    }
+
+    #top-nav #main-nav a {
+        padding: 9px 12px;
+        font-size: 14px;
+    }
+
+    .bottom-nav,
+    .bottom-nav.mobile-only-flex {
+        display: none !important;
+    }
+
+    .dashboard-content {
+        padding-bottom: 16px;
+    }
+}
+
+/* Places the browser notification settings below badges and styles the card. */
+.badge-notification-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 8px;
+    padding: 20px;
+    flex: 0 0 auto;
+    min-width: 0;
+}
+
+/* Styles the notification permission explanation. */
+#badge-notification-description {
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+/* Displays browser notification availability and permission feedback. */
+#badge-notification-status {
+    grid-column: 1 / -1;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--text-gray);
+    overflow-wrap: anywhere;
+}
+
+/* Displays browser notification availability and permission feedback. */
+#badge-notification-status:empty {
+    display: none;
+}
+
+/* Styles the accessible on/off notification switch. */
+.badge-notification-toggle {
+    position: relative;
+    width: 46px;
+    height: 26px;
+    border: 2px solid var(--border-dark);
+    border-radius: 99px;
+    background: var(--gray-locked-border);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* Styles the movable switch indicator. */
+.badge-notification-toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--white);
+    transition: transform 0.2s ease;
+}
+
+/* Styles the accessible on/off notification switch. */
+.badge-notification-toggle[aria-checked="true"] {
+    background: var(--teal-main);
+}
+
+/* Styles the accessible on/off notification switch. */
+.badge-notification-toggle[aria-checked="true"] .badge-notification-toggle-thumb {
+    transform: translateX(20px);
+}
+
+/* Applies responsive layout and sizing adjustments for (max-width: 950px). */
+@media (max-width: 950px) {
+    .badges-card {
+        flex-grow: 0;
+    }
+
+    .badge-notification-card {
+        order: 7;
+    }
+}
+
+/* Applies responsive layout and sizing adjustments for (max-width: 650px). */
+@media (max-width: 650px) {
+    .badge-notification-card {
+        padding: 16px;
+    }
+}
+
+
+/* INDEX ALIGNMENT: Match the shared page typography and navigation dimensions. */
+html, body {
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+/* INDEX ALIGNMENT: The fixed top bar uses the same mobile height and side padding as Map. */
+#top-nav {
+    min-height: 56px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+/* INDEX ALIGNMENT: Match Map's 32px phone logo and 22px compass image. */
+.brand .logo-circle {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    background: var(--gold);
+    border-color: var(--ink);
+}
+.brand .logo-icon {
+    width: 22px;
+    height: 22px;
+}
+
+/* INDEX ALIGNMENT: Keep the header statistics and avatar sized like Map. */
+#player-status {
+    justify-content: flex-end;
+    gap: 10px;
+    min-width: 0;
+}
+#player-status .avatar,
+#player-avatar {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+}
+#player-status .avatar .icon,
+#player-status .avatar img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+}
+.stat-pill { border-color: var(--ink); }
+
+/* INDEX ALIGNMENT: At 768px, switch to the Map desktop/tablet header sizes. */
+@media (min-width: 768px) {
+    #top-nav {
+        min-height: var(--nav-h);
+        padding-left: 32px;
+        padding-right: 32px;
+    }
+    .brand { font-size: 22px; }
+    .brand .logo-circle {
+        width: 40px;
+        height: 40px;
+        flex-basis: 40px;
+    }
+    .brand .logo-icon {
+        width: 26px;
+        height: 26px;
+    }
+    #top-nav #main-nav a {
+        padding: 9px 16px;
+        font-size: 14px;
+    }
+}
+
+/* INDEX ALIGNMENT: Only phones show the bottom navigation; tablet and desktop use the top links. */
+@media (max-width: 767px) {
+    #top-nav #main-nav,
+    #top-nav #main-nav.desktop-only {
+        display: none !important;
+    }
+    .bottom-nav,
+    .bottom-nav.mobile-only-flex {
+        display: flex !important;
+    }
+    .bottom-nav {
+        min-height: var(--bottom-nav-h);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    .dashboard-content {
+        padding-bottom: calc(var(--bottom-nav-h) + 16px + env(safe-area-inset-bottom));
+    }
+}
+@media (min-width: 768px) {
+    #top-nav #main-nav,
+    #top-nav #main-nav.desktop-only {
+        display: block !important;
+        position: static;
+        inset: auto;
+        padding: 0;
+        border: 0;
+        background: transparent;
+    }
+    #top-nav #main-nav ul {
+        display: flex;
+        gap: 8px;
+        padding: 0;
+    }
+    .bottom-nav,
+    .bottom-nav.mobile-only-flex {
+        display: none !important;
+    }
+    .dashboard-content { padding-bottom: 24px; }
+}
+
+/* PASSPORT LAYOUT: Keep the badge notification card immediately after Badges. */
+.badge-notification-card { flex-grow: 0; }
+
+/* MOBILE NAVIGATION: Match Index's four equal columns, link sizing, and active pill. */
+@media (max-width: 767px) {
+    #top-nav {
+        gap: 12px;
+        padding: 0 16px;
+    }
+
+    .brand {
+        font-size: 18px;
+        line-height: 1.45;
+    }
+
+    #player-status {
+        gap: 10px;
+    }
+
+    .stat-pill {
+        padding: 3px 10px;
+        font-size: 12px;
+        line-height: 1.45;
+    }
+
+    .bottom-nav,
+    .bottom-nav.mobile-only-flex {
+        position: fixed;
+        inset: auto 0 0 0;
+        z-index: 30;
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 4px;
+        height: auto;
+        min-height: 0;
+        padding: 8px;
+        padding-bottom: calc(8px + env(safe-area-inset-bottom));
+        border-top: 2px solid var(--ink);
+        background: var(--white);
+    }
+
+    .bottom-nav .nav-item {
+        display: block;
+        flex: initial;
+        height: auto;
+        margin: 0;
+        padding: 10px 4px;
+        border: 2px solid transparent;
+        border-radius: 99px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1.45;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    .bottom-nav .nav-item.active,
+    .bottom-nav .nav-item[aria-current="page"] {
+        background: var(--gold-tint);
+        border-color: var(--ink);
+        color: var(--ink);
+        font-weight: 700;
+    }
+}
+
+/* Navbar branding: keep the compass logo identical to Index on phones. */
+@media (max-width: 767px) {
+    .brand .logo-circle {
+        width: 32px;
+        height: 32px;
+        flex: 0 0 32px;
+    }
+    .brand .logo-icon {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+/* Navbar profile: Index displays its 40px avatar on every screen size. */
+#player-status #player-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--placeholder);
+}
+#player-status #player-avatar img,
+#player-status #player-avatar svg,
+#player-status #player-avatar .icon,
+#player-status #player-avatar i {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+}
+
+/* Keeps the navbar profile avatar visible on all screen sizes */
+#top-nav .avatar,
+#top-nav #player-avatar {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    flex: 0 0 40px;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--placeholder);
+}
+
+/* Matches the avatar icon dimensions used in Index */
+#top-nav .avatar img,
+#top-nav .avatar svg,
+#top-nav .avatar .icon,
+#top-nav #player-avatar img,
+#top-nav #player-avatar svg,
+#top-nav #player-avatar .icon {
+    display: block;
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+}
+
+/* Desktop Passport scrolling begins immediately below the top navbar. */
+@media (min-width: 951px) {
+    .app-window { position: relative; }
+    .dashboard-content {
+        position: absolute;
+        top: var(--nav-h);
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: auto;
+        overflow-y: auto;
+    }
+}
+
+/* Keep the Passport scrollbar in the content area, like Check-in and Gallery. */
+@media (max-width: 950px) {
+    html {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    body {
+        height: 100dvh;
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: hidden;
+    }
+
+    .app-window {
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    #top-nav {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+    }
+
+    .dashboard-content {
+        position: fixed;
+        top: var(--nav-h);
+        right: 0;
+        bottom: 0;
+        left: 0;
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        scrollbar-width: auto;
+        scrollbar-color: auto;
+        flex-grow: 0;
+        padding-bottom: 16px;
+    }
+}
+
+/* Leave room for the shorter phone header and fixed bottom navigation. */
+@media (max-width: 767px) {
+    .dashboard-content {
+        top: 56px;
+    }
+}
+
+@media (max-width: 650px) {
+    .dashboard-content {
+        bottom: var(--bottom-nav-h);
+    }
+}

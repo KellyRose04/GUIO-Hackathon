@@ -1,0 +1,1189 @@
+/* ==========================================================================
+   TourTrail: index.css (Full-Screen Map & Floating Collapsible Drawer)
+   ========================================================================== */
+
+:root {
+  --ink: #1F2430;
+  --cream: #FFFDF8;
+  --white: #FFFFFF;
+  --gold: #F5B82E;
+  --gold-tint: #FFF1CC;
+  --teal: #2BB39A;
+  --teal-tint: #D9F4EE;
+  --placeholder: #E6E1D5;
+  --line: #D9D4C7;
+  --muted: #6B7280;
+  --coral: #E5484D;
+  --radius: 14px;
+  --shadow: 0 4px 12px rgba(31, 36, 48, 0.15);
+  --nav-h: 72px;
+  --bottom-nav-h: 68px;
+  --font: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; /* Prevents whole-page scrolling so map is full screen */
+  background: var(--cream);
+  color: var(--ink);
+  font: 400 14px/1.45 var(--font);
+}
+
+h1, h2, h3, h4, p, ul, ol, figure, fieldset { margin: 0; padding: 0; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+
+:focus-visible { outline: 3px solid var(--coral); outline-offset: 2px; }
+
+/* ==========================================================================
+   1. TOP NAVIGATION
+   ========================================================================== */
+#top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 0 16px;
+  background: var(--white);
+  border-bottom: 2px solid var(--ink);
+}
+
+#connection-bar {
+  position: fixed;
+  top: 60px;
+  right: 12px;
+  z-index: 19;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+#connection-bar p {
+  margin: 0;
+}
+
+.brand {
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.brand a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--ink);
+}
+
+.brand .logo {
+    width: 32px;
+    height: 32px;
+    position: relative;
+    flex: 0 0 32px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--gold);
+}
+
+.brand .logo-icon {
+    width: 22px;
+    height: 22px;
+    max-width: 100%;
+    max-height: 100%;
+    z-index: 1;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+#main-nav {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 30;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--white);
+  border-top: 2px solid var(--ink);
+}
+#main-nav ul { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 8px; list-style: none; }
+#main-nav a {
+  display: block;
+  padding: 10px 4px;
+  border: 2px solid transparent;
+  border-radius: 99px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+}
+#main-nav a[aria-current="page"] {
+  background: var(--gold-tint);
+  border-color: var(--ink);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+#player-status {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    min-width: 0;
+}
+
+#player-status .avatar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 0;
+    overflow: hidden;
+}
+
+#player-status .avatar img,
+#player-status .avatar svg,
+#player-status .avatar .icon,
+#player-status .avatar i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: block;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    padding: 0;
+    flex: none;
+}
+
+.stat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border: 1px solid var(--ink);
+    border-radius: 99px;
+    background: var(--gold-tint);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--ink);
+    white-space: nowrap;
+}
+
+.stat-pill.star {
+    background: var(--teal-tint);
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--placeholder);
+    line-height: 0;
+}
+
+.avatar img,
+.avatar .icon {
+    display: block;
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    margin: 0;
+    object-fit: contain;
+}
+
+#player-status > .stat-pill:has(#streak-count:empty),
+#player-status > .stat-pill:has(#xp-count:empty) {
+    display: none;
+}
+
+#player-avatar {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    margin: 0;
+    padding: 0;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--placeholder);
+    object-fit: cover;
+    display: block;
+}
+
+/* ==========================================================================
+   2. MAIN CONTAINER & FULL-SCREEN MAP
+   ========================================================================== */
+.home-container {
+  position: relative;
+  width: 100vw;
+  height: calc(100vh - 56px);
+  margin-top: 56px;
+  overflow: hidden;
+}
+
+.map-view {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+  background: var(--placeholder);
+}
+
+/* ==========================================================================
+   3. FLOATING SIDEBAR
+   ========================================================================== */
+.sidebar {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  width: calc(100% - 32px);
+  max-width: 380px;
+  max-height: calc(100% - 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background: var(--cream);
+  border: 2px solid var(--ink);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar Styling */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 12px 0;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 99px;
+}
+
+/* --- Search Box --- */
+.search-box {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.search-box input[type="text"] {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--white);
+  font-weight: 500;
+}
+#filter-btn {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--gold);
+  font-weight: 700;
+  box-shadow: 0 3px 0 var(--ink); /* Gives it a raised, tactile button look */
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+}
+
+/* Hover state */
+#filter-btn:hover {
+  background: #f7c043;
+}
+
+/* Click/Active press effect */
+#filter-btn:active {
+  transform: translateY(3px); /* Pushes the button down */
+  box-shadow: 0 0 0 var(--ink); /* Flattens the shadow to mimic a physical click */
+  background: #e6a820;
+}
+
+/* --- Category Chips (Fix 2: Fully Visible Filter Options) --- */
+.categories {
+  display: flex !important;
+  gap: 6px;
+  padding: 4px 2px 8px 2px;
+  overflow-x: auto;
+  scrollbar-width: none; /* Hide horizontal scrollbar for clean UI */
+  flex-shrink: 0;
+  min-height: 44px; /* Ensures chips aren't squished vertically */
+}
+.categories::-webkit-scrollbar {
+  display: none;
+}
+.chip {
+  flex: none;
+  padding: 6px 14px;
+  border: 1.5px solid var(--ink);
+  border-radius: 99px;
+  background: var(--white);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+.chip.active { 
+  background: var(--ink); 
+  color: var(--white); 
+}
+
+/* --- Quest Card --- */
+.quest-card {
+  display: flex !important;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  background: var(--white);
+  flex-shrink: 0;
+  opacity: 1 !important;
+}
+.quest-title { font-size: 14px; font-weight: 800; }
+.quest-desc { color: var(--muted); font-size: 12px; }
+.quest-card progress {
+  width: 100%;
+  height: 8px;
+  border: 1px solid var(--ink);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.quest-card progress::-webkit-progress-value { background: var(--teal); }
+
+/* --- Nearby Sites Header & Selector --- */
+.list-header {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  opacity: 1 !important;
+}
+.sites-title { font-size: 16px; font-weight: 800; }
+#sort-select {
+  padding: 4px 8px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  background: var(--white);
+  font-size: 12px;
+}
+
+/* --- Sites List Container --- */
+.sites-list {
+  display: flex !important;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 1 !important;
+}
+
+/* Quest Card */
+.quest-card-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--gold-tint);
+  border: 2px solid var(--ink);
+  border-radius: 16px;
+  box-shadow: 0 4px 0 var(--ink);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+  box-sizing: border-box;
+  width: 100%;
+  overflow: hidden; /* Prevents card content from bleeding past borders */
+}
+
+.quest-card-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--ink);
+}
+
+.quest-card-banner:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--ink);
+}
+
+.quest-banner-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.quest-flag-icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.quest-banner-title-group {
+  flex: 1;
+  min-width: 0; /* Enables flex item text truncation */
+}
+
+.quest-banner-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.quest-banner-sub {
+  font-size: 11px;
+  color: #64748B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.quest-banner-chevron {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+/* Progress Bar Row */
+.quest-banner-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.quest-banner-progress-bar {
+  flex: 1;
+  min-width: 0;
+  height: 8px;
+  border: 1.5px solid var(--ink);
+  border-radius: 99px;
+  background: #EAE6DC;
+  overflow: hidden;
+  appearance: none;
+}
+
+.quest-banner-progress-bar::-webkit-progress-bar {
+  background: #EAE6DC;
+  border-radius: 99px;
+}
+
+.quest-banner-progress-bar::-webkit-progress-value {
+  background: var(--teal);
+  border-radius: 99px;
+}
+
+.quest-banner-progress-bar::-moz-progress-bar {
+  background: var(--teal);
+  border-radius: 99px;
+}
+
+.quest-banner-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748B;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+/* ==========================================================================
+   4. WIREFRAME CALLOUT POPUPS & CUSTOM MAP PINS
+   ========================================================================== */
+
+/* Leaflet Custom Pins */
+.custom-map-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pin-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+.pin-icon-new .pin-badge { background: var(--white); }
+.pin-icon-visited .pin-badge { background: var(--teal); color: var(--white); }
+.pin-icon-gem .pin-badge { background: var(--gold); }
+
+/* Popup Box Styling */
+.leaflet-popup-content-wrapper {
+  border: 2px solid var(--ink);
+  border-radius: 18px;
+  padding: 0;
+  overflow: visible; /* Allows notification badge to overlap outside border */
+  box-shadow: var(--shadow);
+  background: var(--white);
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+}
+
+.wireframe-popup-clean {
+  width: 280px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.popup-title-clean {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+}
+
+.popup-meta-clean {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 14px 0;
+}
+
+.popup-actions-clean {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.xp-pill-clean {
+  padding: 6px 14px;
+  border: 2px solid var(--teal);
+  border-radius: 99px;
+  background: var(--teal-tint);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.btn-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.details-btn-clean {
+  padding: 8px 24px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--gold);
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--ink);
+  box-shadow: 0 3px 0 var(--ink);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+}
+
+.details-btn-clean:hover {
+  background: #f7c043;
+}
+
+.details-btn-clean:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--ink);
+  background: #e6a820;
+}
+
+/* ==========================================================================
+   5. SIDEBAR SITE CARDS
+   ========================================================================== */
+.site-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  background: var(--white);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.site-card:hover {
+  transform: translateY(-2px);
+  background: #FAF8F2;
+}
+.site-card-thumb {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #EAE6DC;
+}
+.site-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.card-icon {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  z-index: 2;
+  font-size: 10px;
+  background: var(--white);
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.site-card-info {
+  flex: 1;
+  min-width: 0;
+}
+.site-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.site-card-meta {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.badge-xp {
+  padding: 3px 8px;
+  border: 1px solid var(--teal);
+  border-radius: 99px;
+  background: var(--teal-tint);
+  font-size: 11px;
+  font-weight: 700;
+}
+.badge-visited {
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: #EAE6DC;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* ==========================================================================
+   8. SITE DETAILS SIDE-PANEL DRAWER
+   ========================================================================== */
+.site-drawer {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 30;
+  width: calc(100% - 32px);
+  max-width: 420px;
+  background: var(--cream);
+  border: 2px solid var(--ink);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(31, 36, 48, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateX(110%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.site-drawer.open {
+  transform: translateX(0);
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1.5px solid var(--line);
+  background: var(--white);
+}
+
+.drawer-chips {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.chip-gem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: var(--gold);
+  border: 1.5px solid var(--ink);
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.chip-category {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: var(--white);
+  border: 1.5px solid var(--ink);
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.drawer-close-btn {
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  background: var(--white);
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 0 var(--ink);
+}
+
+.drawer-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.drawer-img {
+  width: 100%;
+  height: 200px;
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  background-color: var(--placeholder);
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 16px;
+}
+
+.drawer-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.drawer-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.drawer-desc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+  margin-bottom: 20px;
+}
+
+.drawer-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  background: var(--white);
+  margin-bottom: 12px;
+}
+
+.drawer-card.reward-card {
+  background: var(--gold-tint);
+}
+
+.card-icon-box {
+  font-size: 20px;
+}
+
+.card-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+}
+
+.card-text strong {
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.drawer-footer {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1.5px solid var(--line);
+  background: var(--white);
+}
+
+.drawer-btn-primary {
+  flex: 1; 
+  min-height: 48px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--gold);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ink);
+  box-shadow: 0 3px 0 var(--ink);
+  cursor: pointer;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-sizing: border-box;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+}
+
+.drawer-btn-primary:hover {
+  background: #f7c043;
+}
+
+.drawer-btn-primary:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--ink);
+  background: #e6a820;
+}
+
+.drawer-btn-secondary {
+  flex: 1;
+  min-height: 48px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--white);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  box-shadow: 0 3px 0 var(--ink);
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   9. Quest Details 
+   ========================================================================== */
+/* --- Compact Sidebar Quest Summary Card --- */
+.quest-summary-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  background: var(--white);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.quest-summary-card:hover {
+  background: #FAF8F2;
+  transform: translateY(-1px);
+}
+.quest-summary-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.quest-summary-sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+.quest-summary-badge {
+  padding: 4px 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: 99px;
+  background: var(--gold);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* --- Quest List Modal --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(31, 36, 48, 0.5);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.quest-modal {
+  width: 100%;
+  max-width: 420px;
+  max-height: 80vh;
+  background: var(--cream);
+  border: 2px solid var(--ink);
+  border-radius: 20px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.quest-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--white);
+  border-bottom: 1.5px solid var(--line);
+}
+.quest-modal-title {
+  font-size: 18px;
+  font-weight: 800;
+}
+.quest-modal-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.modal-quest-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  background: var(--white);
+}
+.modal-quest-item .title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.modal-quest-item .desc {
+  font-size: 12px;
+  color: var(--muted);
+}
+.modal-quest-item progress {
+  width: 100%;
+  height: 6px;
+  border: 1px solid var(--ink);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.modal-quest-item progress::-webkit-progress-value {
+  background: var(--teal);
+}
+.modal-quest-item .meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.quest-next-destination-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.quest-next-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.quest-next-select-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.quest-site-select {
+  flex: 1;
+  min-width: 0; /* Prevents long option text from breaking flex item width */
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  background: var(--cream);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  box-sizing: border-box;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.quest-site-go-btn {
+  padding: 8px 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  background: var(--gold);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink);
+  box-shadow: 0 2px 0 var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.quest-site-go-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 var(--ink);
+}
+
+/* ==========================================================================
+   10. RESPONSIVE BREAKPOINTS (Mobile & Desktop Overrides)
+   ========================================================================== */
+
+/* Mobile-Only Collapsible Sidebar (< 768px) */
+@media (max-width: 767px) {
+  .sidebar {
+    max-height: 70px; /* Collapsed: shows only the search box */
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* When collapsed, explicitly hide everything except the search box */
+  .sidebar:not(.expanded) .categories,
+  .sidebar:not(.expanded) #sidebar-quest-card-container,
+  .sidebar:not(.expanded) .list-header,
+  .sidebar:not(.expanded) .sites-list {
+    display: none !important;
+  }
+
+  /* When expanded (search bar clicked), show everything and allow scrolling */
+  .sidebar.expanded {
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
+  }
+
+  .sidebar.expanded .categories,
+  .sidebar.expanded #sidebar-quest-card-container,
+  .sidebar.expanded .list-header,
+  .sidebar.expanded .sites-list {
+    display: flex !important;
+  }
+}
+
+/* Tablet & Desktop View (>= 768px) */
+@media (min-width: 768px) {
+  body { padding-bottom: 0; }
+
+  #top-nav {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    min-height: var(--nav-h);
+    padding: 0 32px;
+  }
+
+  .brand {
+      font-size: 22px;
+  }
+
+  .brand .logo {
+      width: 40px;
+      height: 40px;
+      flex-basis: 40px;
+  }
+
+  .brand .logo-icon {
+      width: 26px;
+      height: 26px;
+  }
+
+  #main-nav { position: static; padding: 0; background: none; border: 0; }
+  #main-nav ul { display: flex; gap: 8px; padding: 0; }
+  #main-nav a { padding: 9px 16px; font-size: 14px; }
+  
+ #player-status {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  #player-avatar {
+      display: block;
+  }
+
+  .avatar {
+      display: flex;
+  }
+  .home-container {
+    height: calc(100vh - var(--nav-h));
+    margin-top: var(--nav-h);
+  }
+
+  .sidebar {
+    top: 24px;
+    left: 24px;
+    width: 400px;
+    max-height: calc(100% - 48px);
+    overflow-y: auto;
+  }
+}

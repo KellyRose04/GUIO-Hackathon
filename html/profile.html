@@ -1,1 +1,303 @@
 <!-- Profile (Badge Gallery)-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Page settings: character encoding, responsive viewport, and browser tab title -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TourTrail - Passport</title>
+
+    <!-- Browser tab icon and Passport page stylesheet -->
+    <link rel="icon" type="image/png" href="assets/compass.png">
+    <link rel="stylesheet" href="css/profile.css?v=badge-notifications-6">
+
+    <!-- Shared scripts for account selection and notifications -->
+    <script src="js/account.js?v=12" defer></script>
+    <script src="js/notifications.js?v=7" defer></script>
+
+    <!-- PWA manifest for application installation -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Registers the service worker for offline page loading -->
+    <script src="js/pwa-register.js" defer></script>
+</head>
+
+<body>
+<!-- Main application wrapper for the header, dashboard, and mobile navigation -->
+<div class="app-window">
+        
+    <!-- Top Nav (Visible on both, links hidden on mobile) -->
+    <header id="top-nav">
+        <!-- TourTrail logo and brand link to the Map page -->
+        <div class="brand">
+            <a href="index.html">
+                <span class="logo-circle">
+                    <img class="logo-icon" src="assets/compass.png" alt="TourTrail Logo">
+                </span>
+                <span>TourTrail</span>
+            </a>
+        </div>
+        <!-- Primary navigation links; styling changes with screen size -->
+        <nav id="main-nav" class="desktop-only" aria-label="Main">
+            <ul>
+                <li><a href="index.html" class="nav-item">Map</a></li>
+                <li><a href="camera.html" class="nav-item">Check-in</a></li>
+                <li><a href="gallery.html" class="nav-item">Gallery</a></li>
+                <li><a href="passport.html" class="nav-item active" aria-current="page">Passport</a></li>
+            </ul>
+        </nav>
+
+        <!-- Current streak, total XP, and desktop user avatar -->
+        <div class="header-stats" id="player-status">
+            <div class="stat-pill flame" id="streak">Streaks: 0</div>
+            <div class="stat-pill star" id="xp">0 XP</div>
+            <div class="avatar desktop-only" id="player-avatar">
+                <img src="assets/user.png" class="icon" alt="" />
+            </div>
+        </div>
+    </header>
+
+    <!-- DASHBOARD CONTENT -->
+    <main class="dashboard-content" id="view-passport" aria-labelledby="passport-title">
+        <!-- Accessible page heading hidden from the visual layout -->
+        <h2 id="passport-title" hidden>Passport</h2>
+        
+        <!-- LEFT COLUMN -->
+        <div class="left-col" id="passport-left">
+            
+            <!-- Profile -->
+            <article class="neo-card profile-card" id="player-card">
+                <!-- Default profile avatar image -->
+                <div class="profile-avatar">
+                    <img src="assets/user.png" class="icon" alt="" width="32" height="32" />
+                </div>
+                <!-- Username, current level, and XP loaded by Passport JavaScript -->
+                <div class="profile-info">
+                    <h3 class="profile-name">Explorer</h3>
+                    <div class="profile-badge">Level 1 · Bronze Drifter</div>
+                    <div class="progress-text">0 / 500 XP to Level 1</div>
+                    <!-- Progress bar fill is updated from the account XP -->
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill"></div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Stats -->
+            <section class="stats-section" id="stats">
+                <h3 class="section-title">My Stats</h3>
+                <!-- Statistics cards open the matching details in the Stats dialog -->
+                <div class="stats-grid">
+                    <!-- Total distinct sites visited -->
+                    <button type="button" class="neo-card stat-card" data-open="dlg-stat" data-stat="sites" aria-label="Show visited sites">
+                        <div class="stat-icon yellow">
+                            <img src="assets/pin.png" class="icon" alt="" width="24" height="24" />
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">0</div>
+                            <div class="stat-label">Sites visited</div>
+                        </div>
+                    </button>
+                    <!-- Hidden-gem sites visited -->
+                    <button type="button" class="neo-card stat-card" data-open="dlg-stat" data-stat="gems" aria-label="Show visited hidden gems">
+                        <div class="stat-icon yellow">
+                            <img src="assets/gem.png" class="icon" alt="" width="24" height="24" />
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">0</div>
+                            <div class="stat-label">Hidden gems</div>
+                        </div>
+                    </button>
+                    <!-- Completed quests -->
+                    <button type="button" class="neo-card stat-card" data-open="dlg-stat" data-stat="quests" aria-label="Show completed quests">
+                        <div class="stat-icon yellow">
+                            <img src="assets/flag.png" class="icon" alt="" width="24" height="24" />
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">0</div>
+                            <div class="stat-label">Quests done</div>
+                        </div>
+                    </button>
+                    <!-- Check-in day streak -->
+                    <button type="button" class="neo-card stat-card" data-open="dlg-stat" data-stat="streak" aria-label="Show check-in streak history">
+                        <div class="stat-icon yellow">
+                            <img src="assets/flame.png" class="icon" alt="" width="24" height="24" />
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">0</div>
+                            <div class="stat-label">Day streak</div>
+                        </div>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Active Quest -->
+            <article class="neo-card active-quest" id="active-quest" data-open="dlg-quest">
+                <!-- Optional marker for new quest activity -->
+                <div class="badge-bubble" data-field="quest-bubble">0</div>
+                
+                <!-- Active quest icon, title, next stop, and chevron -->
+                <div class="quest-top">
+                    <div class="quest-icon">
+                        <img src="assets/flag.png" class="icon" alt="" width="24" height="24" />
+                    </div>
+                    <div class="quest-info">
+                        <h3 class="quest-title" data-field="quest-card-title">Active quest</h3>
+                        <div class="quest-subtitle" data-field="quest-card-subtitle">Loading quest...</div>
+                    </div>
+                    
+                    <div class="quest-chevron">
+                        <img src="assets/chev.png" class="icon" alt="" width="24" height="24" />
+                    </div>
+                </div>
+
+                <!-- Current quest completion bar and numeric progress -->
+                <div class="quest-progress-row">
+                    <div class="quest-progress-bar">
+                        <div class="quest-progress-fill" data-field="quest-card-fill"></div>
+                    </div>
+                    <div class="quest-progress-text" data-field="quest-card-progress">0 / 0</div>
+                </div>
+            </article>
+
+            <!-- Badges (Dynamically populated) -->
+            <section class="neo-card badges-card" id="badges">
+                <!-- Badge title and total number earned -->
+                <h3 class="section-title badges-header">
+                    Badges
+                    <span class="badges-count">0 earned</span>
+                </h3>
+                <!-- JavaScript inserts earned badges and locked badge slots here -->
+                <div class="badges-grid">
+                </div>
+            </section>
+
+            <section class="neo-card badge-notification-card" aria-label="Badge notifications">
+                <p id="badge-notification-description">
+                    Allow browser notifications to be updated when you earn rewards.
+                </p>
+                <button
+                    id="enable-badge-notifications"
+                    class="badge-notification-toggle"
+                    type="button"
+                    role="switch"
+                    aria-checked="false"
+                    aria-label="Badge notifications"
+                    aria-describedby="badge-notification-description badge-notification-status"
+                >
+                    <span class="badge-notification-toggle-thumb"></span>
+                </button>
+                <p id="badge-notification-status" role="status" aria-live="polite"></p>
+            </section>
+            
+        </div>
+
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION (Hidden on Desktop) -->
+    <nav class="bottom-nav mobile-only-flex" aria-label="Mobile Bottom">
+        <!-- Mobile navigation uses the same destinations as the desktop menu -->
+        <a href="index.html" class="nav-item">Map</a>
+        <a href="camera.html" class="nav-item">Check-in</a>
+        <a href="gallery.html" class="nav-item">Gallery</a>
+        <a href="passport.html" class="nav-item active" aria-current="page">Passport</a>
+    </nav>
+
+</div>
+
+<!-- ===== POP-UPS: native <dialog>, hidden until JS calls showModal(). ===== -->
+<!-- Stats dialog: displays detailed lists for selected statistic cards -->
+<dialog id="dlg-stat" aria-labelledby="dlg-stat-title">
+    <div class="dlg-card">
+        <div class="dlg-top">
+            <span class="dlg-tag">Passport stats</span>
+
+        </div>
+        <!-- The title, summary, and list are filled when a statistic is selected -->
+        <h2 class="dlg-title" id="dlg-stat-title" data-field="stats-title">Sites visited</h2>
+        <p class="dlg-desc stats-detail-summary" data-field="stats-summary"></p>
+        <ul class="stats-detail-list" data-field="stats-list"></ul>
+        <!-- Bottom Close button dismisses the Stats dialog -->
+        <div class="dlg-actions">
+            <button type="button" class="dlg-btn" data-close>Close</button>
+        </div>
+    </div>
+</dialog>
+
+<!-- Stamp and Badge dialog: shared details for collected and locked items -->
+<dialog id="dlg-stamp" aria-labelledby="dlg-stamp-title">
+    <div class="dlg-card">
+        <div class="dlg-top">
+            <span class="dlg-tag" data-field="tag">Stamp</span>
+
+        </div>
+        <!-- The selected stamp or badge icon is displayed here -->
+        <div class="dlg-stamp-icon" data-field="icon">
+            <img src="assets/pin.png" class="icon" alt="Stamp Icon" width="24" height="24" />
+        </div>
+        <!-- Item name, rarity, awarded date, and description -->
+        <h2 class="dlg-title" id="dlg-stamp-title" data-field="title">Salt Keeper</h2>
+        <div class="dlg-rarity">
+            <img src="assets/star.png" class="icon" alt="Stamp Icon" width="24" height="24" />
+            <span data-field="rarity">Rare</span>
+        </div>
+        <p class="dlg-meta" data-field="meta">Collected</p>
+        <p class="dlg-desc" data-field="desc"></p>
+        <!-- Collection progress count and its fill bar -->
+        <div class="dlg-progress">
+            <div class="dlg-progress-row">
+                <span data-field="progress-label">Passport</span>
+                <span data-field="progress-count">0 stamps</span>
+            </div>
+            <div class="dlg-bar" role="progressbar" aria-valuemin="0" aria-valuemax="24" aria-valuenow="0" data-field="progress-bar">
+                <div class="dlg-bar-fill" data-field="progress-fill"></div>
+            </div>
+        </div>
+        <!-- Close dialog or open the related map location when available -->
+        <div class="dlg-actions">
+            <button type="button" class="dlg-btn" data-close>Close</button>
+            <a class="dlg-btn primary" data-field="map" href="index.html">Show site on map</a>
+        </div>
+    </div>
+</dialog>
+
+<!-- Active Quest dialog: quest description, reward, and ordered stops -->
+<dialog id="dlg-quest" aria-labelledby="dlg-quest-title">
+    <div class="dlg-card">
+        <div class="dlg-top">
+            <span class="dlg-tag">Quest</span>
+
+        </div>
+        <!-- Active quest icon and its information -->
+        <div class="dlg-stamp-icon dlg-quest-icon" data-field="quest-icon">
+            <img src="assets/flag.png" class="icon" alt="Quest Icon" width="24" height="24" />
+        </div>
+        <h2 class="dlg-title" id="dlg-quest-title" data-field="quest-title">Active quest</h2>
+        <p class="dlg-desc" data-field="quest-description"></p>
+        <!-- Quest progress count and its fill bar -->
+        <div class="dlg-progress">
+            <div class="dlg-progress-row">
+                <span data-field="quest-progress-label">Progress</span>
+                <span data-field="quest-progress-count">0 of 0</span>
+            </div>
+            <div class="dlg-bar" role="progressbar" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" data-field="quest-progress-bar">
+                <div class="dlg-bar-fill" data-field="quest-progress-fill"></div>
+            </div>
+        </div>
+        <!-- Quest reward and ordered list of completed, next, and locked stops -->
+        <p class="dlg-reward" data-field="quest-reward"></p>
+        <ol class="dlg-stops" data-field="quest-stops"></ol>
+        <!-- Close dialog or view the next quest stop on the map -->
+        <div class="dlg-actions">
+            <button type="button" class="dlg-btn" data-close>Close</button>
+            <a class="dlg-btn primary" data-field="quest-map" href="index.html">Show next stop on map</a>
+        </div>
+    </div>
+</dialog>
+
+<!-- Passport script: fetches account data, updates cards, and controls dialogs -->
+<script src="js/modules/passport.js?v=18" defer></script>
+</body>
+</html>

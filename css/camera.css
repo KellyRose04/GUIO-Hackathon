@@ -1,0 +1,1125 @@
+/* ==========================================================================
+   1. TOKENS AND BASE 
+   ========================================================================== */
+:root {
+    /* Declare initial variables for color palette */
+    --ink: #1F2430; 
+    --white: #FFFFFF;
+    --gold: #F5B82E; 
+    --gold-tint: #FFF1CC; 
+    --teal: #2BB39A; 
+    --teal-tint: #D9F4EE; 
+    --avatar: #E6E1D5; 
+    --line: #D9D4C7; 
+    --muted: #6B7280; 
+    --coral: #E5484D; 
+    --transparent: #1f243062;
+
+    /* Declare values for shared variables*/
+    --radius: 14px; /* Card corner radius */
+    --shadow: 0 3px 0 var(--ink); /* Card shadow */
+    --nav-h: 72px; /* Desktop navigation height */
+    --bottom-nav-h: 68px; /* Mobile bottom navigation height */
+    --font: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; /* Font family */
+}
+
+*, *::before, *::after {
+    box-sizing: border-box; /* Include padding and borders in size calculations. */
+    font-family: var(--font); /* Set the typeface. */
+}
+
+[hidden] {
+    display: none !important; /* Set how the element is laid out. */
+}
+
+body {
+    margin: 0; /* Set the outer spacing. */
+    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom)); /* Set the bottom inner spacing. */
+    color: var(--ink); /* Set the text color. */
+    font: 400 14px/1.45 var(--font); /* Set font shorthand properties. */
+    -webkit-text-size-adjust: 100%; /* Control automatic text resizing in WebKit browsers. */
+}
+
+h1, h2, h3, h4, p, ul, ol, figure, fieldset, dl {
+    margin: 0; /* Set the outer spacing. */
+    padding: 0; /* Set the inner spacing. */
+}
+
+ul, ol {
+    list-style: none; /* Set list marker styling. */
+}
+
+img {
+    display: block; /* Set how the element is laid out. */
+    max-width: 100%; /* Limit the maximum element width. */
+}
+
+a {
+    color: inherit; /* Set the text color. */
+}
+
+button, input, select, textarea {
+    font: inherit; /* Set font shorthand properties. */
+    color: inherit; /* Set the text color. */
+}
+
+button {
+    cursor: pointer; /* Set the pointer cursor appearance. */
+}
+
+:focus-visible {
+    outline: 3px solid var(--coral); /* Draw an outline around the element. */
+    outline-offset: 2px; /* Set the gap between outline and element. */
+}
+
+/* ==========================================================================
+   2. TOP NAV (RESPONSIVE HEADER & FIXED BOTTOM BAR FOR PHONES) 
+   ========================================================================== */
+
+#top-nav {
+    position: sticky; /* Set the element positioning method. */
+    top: 0; /* Set the top position offset. */
+    z-index: 20; /* Set the stacking order. */
+    display: flex; /* Set how the element is laid out. */
+    align-items: center; /* Align children along the cross axis. */
+    justify-content: space-between; /* Align children along the main axis. */
+    gap: 12px; /* Set spacing between children. */
+    min-height: 56px; /* Set the minimum element height. */
+    padding: 0 16px; /* Set the inner spacing. */
+    background: var(--white); /* Set the element background. */
+    border-bottom: 2px solid var(--ink); /* Set the bottom border. */
+}
+
+#connection-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 16px;
+}
+
+#connection-bar p {
+    margin: 0;
+}
+
+.brand {
+    font-size: 18px; /* Set the text size. */
+    font-weight: 800; /* Set the text weight. */
+}
+
+.brand a {
+    position: relative; /* Set the element positioning method. */
+    display: flex; /* Set how the element is laid out. */
+    align-items: center; /* Align children along the cross axis. */
+    gap: 8px; /* Set spacing between children. */
+    text-decoration: none; /* Set text decoration. */
+}
+
+.brand .logo {
+    width: 32px; /* Set the element width. */
+    height: 32px; /* Set the element height. */
+    position: relative; /* Set the element positioning method. */
+    flex: 0 0 32px; /* Set the flex item sizing behavior. */
+    display: grid; /* Set how the element is laid out. */
+    place-items: center; /* Align items within their grid cells. */
+    overflow: hidden; /* Keep the logo image inside its circle. */
+    border: 2px solid var(--ink); /* Set the element border. */
+    border-radius: 50%; /* Round the element corners. */
+    background: var(--gold); /* Set the element background. */
+}
+
+.brand .logo-icon {
+    width: 22px; /* Set the element width. */
+    height: 22px; /* Set the element height. */
+    max-width: 100%; /* Keep the image within the logo circle. */
+    max-height: 100%; /* Keep the image within the logo circle. */
+    z-index: 1; /* Set the stacking order. */
+    object-fit: contain; /* Control how replaced content fits its box. */
+    pointer-events: none; /* Control pointer interaction with the element. */
+}
+
+/* Mobile Bottom Bar Navigation */
+#main-nav {
+    position: fixed; /* Set the element positioning method. */
+    inset: auto 0 0 0; /* Set offsets on all four sides. */
+    z-index: 30; /* Set the stacking order. */
+    padding-bottom: env(safe-area-inset-bottom); /* Set the bottom inner spacing. */
+    background: var(--white); /* Set the element background. */
+    border-top: 2px solid var(--ink); /* Set the top border. */
+}
+
+#main-nav ul {
+    display: grid; /* Set how the element is laid out. */
+    grid-template-columns: repeat(4, 1fr); /* Define the grid column layout. */
+    gap: 4px; /* Set spacing between children. */
+    padding: 8px; /* Set the inner spacing. */
+}
+
+#main-nav a {
+    display: block; /* Set how the element is laid out. */
+    padding: 10px 4px; /* Set the inner spacing. */
+    border: 2px solid transparent; /* Set the element border. */
+    border-radius: 99px; /* Round the element corners. */
+    color: var(--muted); /* Set the text color. */
+    font-size: 12px; /* Set the text size. */
+    font-weight: 500; /* Set the text weight. */
+    text-align: center; /* Align the text. */
+    text-decoration: none; /* Set text decoration. */
+}
+
+#main-nav a[aria-current="page"] {
+    background: var(--gold-tint); /* Set the element background. */
+    border-color: var(--ink); /* Set the border color. */
+    color: var(--ink); /* Set the text color. */
+    font-weight: 700; /* Set the text weight. */
+}
+
+/* Player Status Badges */
+#player-status {
+    display: flex; /* Set how the element is laid out. */
+    align-items: center; /* Align children along the cross axis. */
+    justify-content: flex-end; /* Align status items to the right. */
+    gap: 10px; /* Set spacing between children. */
+    min-width: 0; /* Allow the status group to fit narrow screens. */
+}
+
+.stat-pill {
+    display: inline-flex; /* Set how the element is laid out. */
+    align-items: center; /* Align children along the cross axis. */
+    gap: 4px; /* Set spacing between children. */
+    padding: 3px 10px; /* Set the inner spacing. */
+    border: 1px solid var(--ink); /* Set the element border. */
+    border-radius: 99px; /* Round the element corners. */
+    background: var(--gold-tint); /* Set the element background. */
+    font-size: 12px; /* Set the text size. */
+    font-weight: 600; /* Set the text weight. */
+    line-height: 1.45; /* Set the line spacing. */
+    color: var(--ink); /* Set the text color. */
+    white-space: nowrap; /* Control whitespace and text wrapping. */
+}
+
+.stat-pill.star {
+    background: var(--teal-tint); /* Set the element background. */
+}
+
+.avatar {
+    width: 40px; /* Set the element width. */
+    height: 40px; /* Set the element height. */
+    flex: 0 0 40px; /* Set the flex item sizing behavior. */
+    display: flex; /* Keep the profile avatar visible on mobile. */
+    align-items: center; /* Align children along the cross axis. */
+    justify-content: center; /* Align children along the main axis. */
+    overflow: hidden; /* Control content outside the element bounds. */
+    border: 2px solid var(--ink); /* Set the element border. */
+    border-radius: 50%; /* Round the element corners. */
+    background: var(--avatar); /* Set the element background. */
+}
+
+.avatar .icon {
+    width: 22px; /* Set the element width. */
+    height: 22px; /* Set the element height. */
+}
+
+#player-status > .stat-pill:has(#streak-count:empty),
+#player-status > .stat-pill:has(#xp-count:empty) {
+    display: none; /* Set how the element is laid out. */
+}
+
+/* ==========================================================================
+   3. CAMERA PAGE
+   ========================================================================== */
+.main {
+    display: grid; /* Set how the element is laid out. */
+    grid-template-columns: minmax(0, 1fr); /* Define the grid column layout. */
+    gap: 16px; /* Set spacing between children. */
+    max-width: 1440px; /* Limit the maximum element width. */
+    margin: 0 auto; /* Set the outer spacing. */
+    padding: 16px 12px 0; /* Set the inner spacing. */
+}
+
+@media (max-width: 1023px) {
+    body {
+        height: 100dvh;
+        overflow: hidden;
+        padding-bottom: 0;
+    }
+
+    .main {
+        position: fixed;
+        top: var(--nav-h);
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: auto;
+        margin: 0;
+        overflow-y: auto;
+        padding-bottom: 16px;
+        color-scheme: light;
+        scrollbar-color: auto;
+        scrollbar-width: auto;
+    }
+}
+
+@media (max-width: 767px) {
+    #top-nav {
+        position: fixed; /* Match the full-width mobile header on index. */
+        top: 0;
+        left: 0;
+        right: 0;
+    }
+
+    .main {
+        top: 56px; /* Keep the scrolling content below the fixed header. */
+        bottom: var(--bottom-nav-h);
+        padding-bottom: calc(var(--bottom-nav-h) + 16px + env(safe-area-inset-bottom, 0px));
+    }
+
+    #connection-bar {
+        position: fixed;
+        top: 56px;
+        left: 0;
+        right: 0;
+        z-index: 19;
+    }
+
+    body:has(#connection-status:not([hidden])) .main {
+        top: 96px;
+    }
+}
+
+.camera-panel {
+    min-height: max(420px, calc(100svh - 56px - var(--bottom-nav-h) - 16px)); /* Set the minimum element height. */
+    position: relative; /* Set the element positioning method. */
+    overflow: hidden; /* Control content outside the element bounds. */
+    border: 2px solid var(--ink); /* Set the element border. */
+    border-radius: 14px; /* Round the element corners. */
+    background: var(--camera); /* Set the element background. */
+    color: var(--white); /* Set the text color. */
+}
+
+.camera-feed,
+.captured-photo {
+    position: absolute; /* Set the element positioning method. */
+    z-index: 0; /* Set the stacking order. */
+    inset: 0; /* Set offsets on all four sides. */
+    width: 100%; /* Set the element width. */
+    height: 100%; /* Set the element height. */
+    object-fit: cover; /* Control how replaced content fits its box. */
+}
+
+.camera-feed {
+    background: var(--camera); /* Set the element background. */
+}
+
+.gps-badge {
+    position: absolute; /* Set the element positioning method. */
+    z-index: 1; /* Set the stacking order. */
+    top: 17px; /* Set the top position offset. */
+    left: 17px; /* Set the left position offset. */
+    display: flex; /* Set how the element is laid out. */
+    align-items: center; /* Align children along the cross axis. */
+    gap: 5px; /* Set spacing between children. */
+    padding: 5px 10px; /* Set the inner spacing. */
+    border-radius: 16px; /* Round the element corners. */
+    background: var(--teal-tint); /* Set the element background. */
+    color: var(--ink); /* Set the text color. */
+    font-size: 12px; /* Set the text size. */
+    font-weight: 700; /* Set the text weight. */
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--teal);
+}
+
+.gps-icon {
+    width: 12px; /* Set the element width. */
+    height: 12px; /* Set the element height. */
+}
+
+.camera {
+    position: absolute; /* Set the element positioning method. */
+    z-index: 1; /* Set the stacking order. */
+    inset: 83px 15.5% 192px; /* Set offsets on all four sides. */
+    display: grid; /* Set how the element is laid out. */
+    place-items: center; /* Align items within their grid cells. */
+}
+
+.corner {
+    width: 31px; /* Set the element width. */
+    height: 31px; /* Set the element height. */
+    position: absolute; /* Set the element positioning method. */
+    border-color: var(--transparent); /* Set the border color. */
+    border-style: double; /* Set the border line style. */
+}
+
+.corner.tl {
+    top: 0; /* Set the top position offset. */
+    left: 0; /* Set the left position offset. */
+    border-width: 5px 0 0 5px; /* Set the border thickness. */
+}
+
+.corner.tr {
+    top: 0; /* Set the top position offset. */
+    right: 0; /* Set the right position offset. */
+    border-width: 5px 5px 0 0; /* Set the border thickness. */
+}
+
+.corner.bl {
+    bottom: 0; /* Set the bottom position offset. */
+    left: 0; /* Set the left position offset. */
+    border-width: 0 0 5px 5px; /* Set the border thickness. */
+}
+
+.corner.br {
+    bottom: 0; /* Set the bottom position offset. */
+    right: 0; /* Set the right position offset. */
+    border-width: 0 5px 5px 0; /* Set the border thickness. */
+}
+
+.preview-caption {
+    position: absolute; /* Set the element positioning method. */
+    z-index: 2; /* Set the stacking order. */
+    left: 50%; /* Center the caption within the camera preview. */
+    bottom: 14px; /* Set the bottom position offset. */
+    width: fit-content; /* Let the background fit the message length. */
+    max-width: calc(100% - 40px); /* Keep long messages inside the preview. */
+    padding: 8px 12px; /* Add space between the text and its background. */
+    transform: translateX(-50%); /* Center the content-sized caption. */
+    border: 1px solid var(--muted); /* Match the page's bold card outlines. */
+    border-radius: var(--radius); /* Match the page's rounded cards. */
+    background: var(--transparent); /* Keep text readable over light or dark video. */
+    text-align: center; /* Align the text. */
+    color: var(--white); /* Set the text color. */
+    font-size: 12px; /* Set the text size. */
+    line-height: 1.35; /* Keep wrapped messages compact and legible. */
+}
+
+.camera-retry,
+.verify-retry {
+    position: absolute; /* Set the element positioning method. */
+    z-index: 3; /* Set the stacking order. */
+    bottom: 46px; /* Set the bottom position offset. */
+    left: 50%; /* Set the left position offset. */
+    transform: translateX(-50%); /* Apply a visual transform. */
+    padding: 8px 14px; /* Set the inner spacing. */
+    border: 2px solid var(--white); /* Set the element border. */
+    border-radius: 99px; /* Round the element corners. */
+    background: var(--gold); /* Set the element background. */
+    color: var(--ink); /* Set the text color. */
+    font-weight: 700; /* Set the text weight. */
+    white-space: nowrap; /* Control whitespace and text wrapping. */
+}
+
+.camera-dock {
+    position: absolute; /* Set the element positioning method. */
+    z-index: 3; /* Set the stacking order. */
+    right: 0; /* Set the right position offset. */
+    bottom: 0; /* Set the bottom position offset. */
+    left: 0; /* Set the left position offset. */
+    height: 117px; /* Set the element height. */
+    display: flex; /* Set how the element is laid out. */
+    align-items: center; /* Align children along the cross axis. */
+    justify-content: space-between; /* Align children along the main axis. */
+    padding: 0 7.5%; /* Set the inner spacing. */
+    background: var(--transparent); /* Set the element background. */
+}
+
+.dock-button {
+    width: 48px; /* Set the element width. */
+    height: 48px; /* Set the element height. */
+    display: grid; /* Set how the element is laid out. */
+    place-items: center; /* Align items within their grid cells. */
+    border: 2px solid var(--white); /* Set the element border. */
+    border-radius: 12px; /* Round the element corners. */
+    color: var(--white); /* Set the text color. */
+}
+
+.gallery-icon {
+    width: 22px; /* Set the element width. */
+    height: 22px; /* Set the element height. */
+}
+
+.dock-button.flash {
+    border-radius: 50%; /* Round the element corners. */
+    padding: 0; /* Set the inner spacing. */
+    background: transparent; /* Set the element background. */
+    transition: background-color 120ms ease, box-shadow 120ms ease; /* Animate changes to the listed properties. */
+}
+
+.dock-button.flash.active {
+    background: var(--gold); /* Set the element background. */
+    box-shadow: 0 0 18px rgba(245, 184, 46, 0.8); /* Add a shadow behind the element. */
+}
+
+.dock-button.flash:disabled {
+    cursor: not-allowed; /* Set the pointer cursor appearance. */
+    opacity: 0.55; /* Set the element transparency. */
+}
+
+.flash-icon {
+    width: 23px; /* Set the element width. */
+    height: 23px; /* Set the element height. */
+}
+
+.shutter-wrap {
+    position: absolute; /* Set the element positioning method. */
+    left: 50%; /* Set the left position offset. */
+    bottom: 25px; /* Set the bottom position offset. */
+    transform: translateX(-50%); /* Apply a visual transform. */
+}
+
+.shutter {
+    width: 68px; /* Set the element width. */
+    height: 68px; /* Set the element height. */
+    position: relative; /* Set the element positioning method. */
+    display: grid; /* Set how the element is laid out. */
+    place-items: center; /* Align items within their grid cells. */
+    padding: 0; /* Set the inner spacing. */
+    border: 4px solid var(--white); /* Set the element border. */
+    border-radius: 50%; /* Round the element corners. */
+    background: transparent; /* Set the element background. */
+}
+
+.shutter::before {
+    width: 48px; /* Set the element width. */
+    height: 48px; /* Set the element height. */
+    content: ""; /* Set generated pseudo-element content. */
+    border-radius: 50%; /* Round the element corners. */
+    background: var(--gold); /* Set the element background. */
+}
+
+.sidebar {
+    display: flex; /* Set how the element is laid out. */
+    flex-direction: column; /* Set the direction of flex items. */
+    gap: 10px; /* Set spacing between children. */
+}
+
+.site-card, .steps-card, .reward-card, .recent-card, .offline-card {
+    border: 2px solid var(--ink); /* Set the element border. */
+    border-radius: var(--radius); /* Round the element corners. */
+    background: var(--white); /* Set the element background. */
+    box-shadow: var(--shadow); /* Add a shadow behind the element. */
+}
+
+.site-card {
+    min-height: 91px; /* Set the minimum element height. */
+    display: flex; /* Set how the element is laid out. */
+    align-items: center; /* Align children along the cross axis. */
+    gap: 12px; /* Set spacing between children. */
+    padding: 12px; /* Set the inner spacing. */
+    border-bottom-width: 4px; /* Set the bottom border thickness. */
+}
+
+.site-thumb {
+    width: 84px; /* Set the element width. */
+    height: 84px; /* Set the element height. */
+    flex: 0 0 84px; /* Set the flex item sizing behavior. */
+    display: grid; /* Set how the element is laid out. */
+    place-items: center; /* Align items within their grid cells. */
+    border-radius: 9px; /* Round the element corners. */
+    color: var(--muted); /* Set the text color. */
+    padding: 7px; /* Set the inner spacing. */
+}
+
+.site-icon {
+    width: 100%; /* Set the element width. */
+    height: 100%; /* Set the element height. */
+    object-fit: contain; /* Control how replaced content fits its box. */
+}
+
+.site-info {
+    min-width: 0; /* Set the minimum element width. */
+    display: grid; /* Set how the element is laid out. */
+    gap: 4px; /* Set spacing between children. */
+}
+
+.range-tag {
+    display: inline-block; /* Set how the element is laid out. */
+    justify-self: start; /* Align this item within its grid area. */
+    width: fit-content; /* Set the element width. */
+    max-width: 100%; /* Limit the maximum element width. */
+    margin-bottom: 0; /* Set the bottom outer spacing. */
+    padding: 3px 9px; /* Set the inner spacing. */
+    border: 1px solid var(--teal); /* Set the element border. */
+    border-radius: 12px; /* Round the element corners. */
+    background: var(--teal-tint); /* Set the element background. */
+    color: var(--ink); /* Set the text color. */
+    font-size: 12px; /* Set the text size. */
+    line-height: 1.2; /* Set the line spacing. */
+}
+
+.range-tag.out-of-range,
+.gps-badge.out-of-range {
+    border-color: var(--coral); /* Set the border color. */
+    background: #FDE8E8; /* Set the element background. */
+    color: #8B1E24; /* Set the text color. */
+}
+
+.site-info h1 {
+    margin: 0; /* Set the outer spacing. */
+    font-size: 16px; /* Set the text size. */
+    font-weight: 800; /* Set the text weight. */
+    line-height: 1.2; /* Set the line spacing. */
+}
+
+.site-info p {
+    margin: 0; /* Set the outer spacing. */
+    color: var(--muted); /* Set the text color. */
+    font-size: 12px; /* Set the text size. */
+    line-height: 1.2; /* Set the line spacing. */
+}
+
+.steps-card {
+    min-height: 141px; /* Set the minimum element height. */
+    padding: 14px; /* Set the inner spacing. */
+}
+
+.steps-card h2, .recent-card h2 {
+    margin: 0 0 9px; /* Set the outer spacing. */
+    font-size: 15px; /* Set the text size. */
+    font-weight: 800; /* Set the text weight. */
+}
+
+.step {
+    min-height: 32px; /* Set the minimum element height. */
+    display: flex; /* Set how the element is laid out. */
+    align-items: center; /* Align children along the cross axis. */
+    gap: 9px; /* Set spacing between children. */
+    font-size: 12px; /* Set the text size. */
+}
+
+.step-indicator {
+    width: 23px; /* Set the element width. */
+    height: 23px; /* Set the element height. */
+    flex: 0 0 23px; /* Set the flex item sizing behavior. */
+    display: grid; /* Set how the element is laid out. */
+    place-items: center; /* Align items within their grid cells. */
+    border: 1.5px solid var(--line); /* Set the element border. */
+    border-radius: 50%; /* Round the element corners. */
+    color: var(--muted); /* Set the text color. */
+    font-weight: 700; /* Set the text weight. */
+}
+
+.step.complete .step-indicator {
+    background: var(--teal); /* Set the element background. */
+}
+
+.step.unverified-complete {
+    color: var(--muted); /* Set the text color. */
+}
+
+.step.unverified-complete .step-indicator {
+    border-color: var(--muted); /* Set the border color. */
+    background: #E5E7EB; /* Set the element background. */
+    color: var(--muted); /* Set the text color. */
+}
+
+.step.current {
+    font-weight: 700; /* Set the text weight. */
+}
+
+.step.current .step-indicator {
+    background: var(--gold); /* Set the element background. */
+}
+
+.step.pending {
+    color: var(--muted); /* Set the text color. */
+}
+
+.step.pending .step-indicator {
+    border-color: var(--muted); /* Set the border color. */
+}
+
+.shutter:disabled {
+    cursor: not-allowed; /* Set the pointer cursor appearance. */
+    opacity: 0.55; /* Set the element transparency. */
+}
+
+.reward-card {
+    min-height: 53px; /* Set the minimum element height. */
+    display: flex; /* Set how the element is laid out. */
+    align-items: center; /* Align children along the cross axis. */
+    gap: 12px; /* Set spacing between children. */
+    padding: 9px 13px; /* Set the inner spacing. */
+    background: var(--gold-tint); /* Set the element background. */
+}
+
+.reward-icon {
+    width: 30px; /* Set the element width. */
+    height: 30px; /* Set the element height. */
+    flex: 0 0 30px; /* Set the flex item sizing behavior. */
+    object-fit: contain; /* Control how replaced content fits its box. */
+}
+
+.reward-card strong {
+    display: block; /* Set how the element is laid out. */
+    margin-bottom: 2px; /* Set the bottom outer spacing. */
+    font-size: 12px; /* Set the text size. */
+}
+
+.reward-card p {
+    margin: 0; /* Set the outer spacing. */
+    color: var(--muted); /* Set the text color. */
+    font-size: 12px; /* Set the text size. */
+}
+
+.recent-card {
+    padding: 14px; /* Set the inner spacing. */
+}
+
+.recent-card h2 {
+    margin-bottom: 7px; /* Set the bottom outer spacing. */
+}
+
+.recent-empty {
+    color: var(--muted); /* Set the text color. */
+    font-size: 12px; /* Set the text size. */
+}
+
+.recent-item {
+    display: flex; /* Set how the element is laid out. */
+    align-items: center; /* Align children along the cross axis. */
+    gap: 9px; /* Set spacing between children. */
+    min-height: 52px; /* Set the minimum element height. */
+}
+
+.recent-thumb {
+    width: 48px; /* Set the element width. */
+    height: 48px; /* Set the element height. */
+    flex: 0 0 48px; /* Set the flex item sizing behavior. */
+    display: grid; /* Set how the element is laid out. */
+    place-items: center; /* Align items within their grid cells. */
+    border-radius: 8px; /* Round the element corners. */
+    color: var(--muted); /* Set the text color. */
+    padding: 5px; /* Set the inner spacing. */
+}
+
+.recent-icon {
+    width: 100%; /* Set the element width. */
+    height: 100%; /* Set the element height. */
+    object-fit: contain; /* Control how replaced content fits its box. */
+}
+
+.recent-item strong {
+    display: block; /* Set how the element is laid out. */
+    margin-bottom: 2px; /* Set the bottom outer spacing. */
+    font-size: 12px; /* Set the text size. */
+}
+
+.recent-item span {
+    display: block; /* Set how the element is laid out. */
+    color: var(--muted); /* Set the text color. */
+    font-size: 11px; /* Set the text size. */
+}
+
+.offline-card {
+    min-height: 49px; /* Set the minimum element height. */
+    display: flex; /* Set how the element is laid out. */
+    align-items: center; /* Align children along the cross axis. */
+    gap: 9px; /* Set spacing between children. */
+    padding: 9px 11px; /* Set the inner spacing. */
+    border: 1.5px dashed var(--line); /* Set the element border. */
+    color: var(--ink); /* Set the text color. */
+    font-size: 12px; /* Set the text size. */
+    line-height: 1.35; /* Set the line spacing. */
+    box-shadow: none; /* Add a shadow behind the element. */
+}
+
+.offline-icon {
+    width: 22px; /* Set the element width. */
+    height: 22px; /* Set the element height. */
+    flex: 0 0 22px; /* Set the flex item sizing behavior. */
+    object-fit: contain; /* Control how replaced content fits its box. */
+}
+
+.checkin-dialog {
+    width: min(768px, calc(100% - 20px)); /* Set the element width. */
+    max-width: 768px; /* Limit the maximum element width. */
+    max-height: calc(100dvh - 20px); /* Limit the maximum element height. */
+    overflow: auto; /* Control content outside the element bounds. */
+    padding: 0; /* Set the inner spacing. */
+    border: 2px solid var(--ink); /* Set the element border. */
+    border-radius: 28px; /* Round the element corners. */
+    color: var(--ink); /* Set the text color. */
+    box-shadow: 0 4px 0 var(--ink), 0 8px 30px rgba(31, 36, 48, 0.25); /* Add a shadow behind the element. */
+}
+
+.checkin-dialog::backdrop {
+    background: rgba(31, 36, 48, 0.62); /* Set the element background. */
+}
+
+.checkin-dialog-content {
+    position: relative; /* Set the element positioning method. */
+    display: grid; /* Set how the element is laid out. */
+    gap: 18px; /* Set spacing between children. */
+    padding: 42px; /* Set the inner spacing. */
+}
+
+.checkin-dialog-content > .reward-icon {
+    width: 136px; /* Set the element width. */
+    height: 136px; /* Set the element height. */
+    justify-self: center; /* Align this item within its grid area. */
+    padding: 28px; /* Set the inner spacing. */
+    border: 4px solid var(--ink); /* Set the element border. */
+    border-radius: 50%; /* Round the element corners. */
+    outline: 3px dashed var(--ink); /* Draw an outline around the element. */
+    outline-offset: 7px; /* Set the gap between outline and element. */
+    background: var(--gold); /* Set the element background. */
+    object-fit: contain; /* Control how replaced content fits its box. */
+}
+
+.checkin-dialog-content h2 {
+    margin-top: 0; /* Set the top outer spacing. */
+    font-size: clamp(28px, 5vw, 40px); /* Set the text size. */
+    font-weight: 800; /* Set the text weight. */
+    line-height: 1.1; /* Set the line spacing. */
+    text-align: center; /* Align the text. */
+}
+
+.completion-site {
+    color: var(--muted); /* Set the text color. */
+    font-size: 19px; /* Set the text size. */
+    text-align: center; /* Align the text. */
+}
+
+#completion-site-label[hidden] {
+    display: none; /* Set how the element is laid out. */
+}
+
+.verification-status {
+    color: inherit; /* Set the text color. */
+    font-weight: 700; /* Set the text weight. */
+}
+
+.verification-status.unverified {
+    color: #4B5563; /* Set the text color. */
+}
+
+.checkin-dialog-content > #completion-verification {
+    margin-top: -12px; /* Set the top outer spacing. */
+    color: var(--muted); /* Set the text color. */
+    font-size: 14px; /* Set the text size. */
+    text-align: center; /* Align the text. */
+}
+
+.completion-rewards {
+    width: 100%; /* Set the element width. */
+    display: flex; /* Set how the element is laid out. */
+    flex-wrap: wrap; /* Allow flex items to wrap. */
+    justify-content: center; /* Align children along the main axis. */
+    gap: 10px; /* Set spacing between children. */
+}
+
+.completion-rewards > span {
+    min-height: 42px; /* Set the minimum element height. */
+    display: inline-flex; /* Set how the element is laid out. */
+    align-items: center; /* Align children along the cross axis. */
+    justify-content: center; /* Align children along the main axis. */
+    gap: 7px; /* Set spacing between children. */
+    padding: 6px 14px; /* Set the inner spacing. */
+    border: 2px solid var(--ink); /* Set the element border. */
+    border-radius: 99px; /* Round the element corners. */
+    background: var(--gold-tint); /* Set the element background. */
+    font-weight: 700; /* Set the text weight. */
+}
+
+.completion-rewards > span:first-child {
+    border-color: var(--teal); /* Set the border color. */
+    background: var(--teal-tint); /* Set the element background. */
+}
+
+.completion-rewards img {
+    width: 21px; /* Set the element width. */
+    height: 21px; /* Set the element height. */
+    object-fit: contain; /* Control how replaced content fits its box. */
+}
+
+.completion-progress {
+    width: 100%; /* Set the element width. */
+}
+
+.completion-progress > div {
+    display: flex; /* Set how the element is laid out. */
+    justify-content: space-between; /* Align children along the main axis. */
+    gap: 12px; /* Set spacing between children. */
+    margin-bottom: 6px; /* Set the bottom outer spacing. */
+    font-size: 17px; /* Set the text size. */
+}
+
+.completion-progress > div span {
+    color: var(--muted); /* Set the text color. */
+    text-align: right; /* Align the text. */
+}
+
+.completion-progress progress {
+    width: 100%; /* Set the element width. */
+    height: 19px; /* Set the element height. */
+    display: block; /* Set how the element is laid out. */
+    overflow: hidden; /* Control content outside the element bounds. */
+    appearance: none; /* Use native browser control appearance. */
+    border: 2px solid var(--ink); /* Set the element border. */
+    border-radius: 99px; /* Round the element corners. */
+    background: var(--avatar); /* Set the element background. */
+}
+
+.completion-progress progress::-webkit-progress-bar {
+    border-radius: 99px; /* Round the element corners. */
+    background: var(--avatar); /* Set the element background. */
+}
+
+.completion-progress progress::-webkit-progress-value {
+    border-radius: 99px; /* Round the element corners. */
+    background: var(--teal); /* Set the element background. */
+}
+
+.completion-progress progress::-moz-progress-bar {
+    border-radius: 99px; /* Round the element corners. */
+    background: var(--teal); /* Set the element background. */
+}
+
+.completion-quest,
+.completion-offline {
+    min-height: 62px; /* Set the minimum element height. */
+    display: flex; /* Set how the element is laid out. */
+    align-items: center; /* Align children along the cross axis. */
+    gap: 12px; /* Set spacing between children. */
+    padding: 12px 16px; /* Set the inner spacing. */
+    border: 2px solid var(--ink); /* Set the element border. */
+    border-radius: 18px; /* Round the element corners. */
+    font-size: 17px; /* Set the text size. */
+}
+
+.completion-quest {
+    background: var(--gold-tint); /* Set the element background. */
+    font-weight: 700; /* Set the text weight. */
+}
+
+.completion-quest img,
+.completion-offline img {
+    width: 24px; /* Set the element width. */
+    height: 24px; /* Set the element height. */
+    flex: 0 0 24px; /* Set the flex item sizing behavior. */
+    object-fit: contain; /* Control how replaced content fits its box. */
+}
+
+.completion-offline {
+    border: 2px dashed #9B9584; /* Set the element border. */
+    background: var(--avatar); /* Set the element background. */
+    color: #394052; /* Set the text color. */
+}
+
+#completion-distance-row {
+    display: flex; /* Set how the element is laid out. */
+    justify-content: space-between; /* Align children along the main axis. */
+    gap: 12px; /* Set spacing between children. */
+    color: var(--muted); /* Set the text color. */
+}
+
+#completion-distance-row span:last-child {
+    color: var(--ink); /* Set the text color. */
+    font-weight: 700; /* Set the text weight. */
+}
+
+.dialog-close {
+    position: absolute; /* Set the element positioning method. */
+    top: 8px; /* Set the top position offset. */
+    right: 10px; /* Set the right position offset. */
+    padding: 2px 8px; /* Set the inner spacing. */
+    border: 0; /* Set the element border. */
+    background: transparent; /* Set the element background. */
+    font-size: 26px; /* Set the text size. */
+    line-height: 1; /* Set the line spacing. */
+}
+
+.dialog-actions {
+    width: 100%; /* Set the element width. */
+    display: flex; /* Set how the element is laid out. */
+    gap: 18px; /* Set spacing between children. */
+}
+
+.dialog-done,
+.view-passport {
+    min-width: 0; /* Set the minimum element width. */
+    flex: 1; /* Set the flex item sizing behavior. */
+    min-height: 64px; /* Set the minimum element height. */
+    display: flex; /* Set how the element is laid out. */
+    align-items: center; /* Align children along the cross axis. */
+    justify-content: center; /* Align children along the main axis. */
+    padding: 12px 16px; /* Set the inner spacing. */
+    border: 3px solid var(--ink); /* Set the element border. */
+    border-radius: 18px; /* Round the element corners. */
+    box-shadow: 0 4px 0 var(--ink); /* Add a shadow behind the element. */
+    font-size: 18px; /* Set the text size. */
+    font-weight: 800; /* Set the text weight. */
+    text-align: center; /* Align the text. */
+}
+
+.dialog-done {
+    background: var(--white); /* Set the element background. */
+}
+
+.view-passport {
+    background: var(--gold); /* Set the element background. */
+    text-decoration: none; /* Set text decoration. */
+}
+
+@media (max-width: 520px) {
+    .checkin-dialog-content {
+        gap: 14px; /* Set spacing between children. */
+        padding: 28px 18px; /* Set the inner spacing. */
+    }
+
+    .checkin-dialog-content > .reward-icon {
+        width: 112px; /* Set the element width. */
+        height: 112px; /* Set the element height. */
+        padding: 22px; /* Set the inner spacing. */
+    }
+
+    .completion-site {
+        font-size: 15px; /* Set the text size. */
+        overflow-wrap: anywhere; /* Allow long text to wrap. */
+    }
+
+    .completion-quest,
+    .completion-offline {
+        min-height: 56px; /* Set the minimum element height. */
+        padding: 10px 12px; /* Set the inner spacing. */
+        font-size: 14px; /* Set the text size. */
+    }
+
+    .dialog-actions {
+        gap: 12px; /* Set spacing between children. */
+    }
+
+    .dialog-done,
+    .view-passport {
+        min-height: 56px; /* Set the minimum element height. */
+        padding: 10px 8px; /* Set the inner spacing. */
+        font-size: 15px; /* Set the text size. */
+    }
+}
+
+@media (max-height: 760px) {
+    .checkin-dialog-content {
+        gap: 12px; /* Set spacing between children. */
+        padding-top: 28px; /* Set the top inner spacing. */
+        padding-bottom: 28px; /* Set the bottom inner spacing. */
+    }
+
+    .checkin-dialog-content > .reward-icon {
+        width: 112px; /* Set the element width. */
+        height: 112px; /* Set the element height. */
+        padding: 22px; /* Set the inner spacing. */
+    }
+
+    .completion-quest,
+    .completion-offline {
+        min-height: 54px; /* Set the minimum element height. */
+        padding-top: 8px; /* Set the top inner spacing. */
+        padding-bottom: 8px; /* Set the bottom inner spacing. */
+    }
+
+    .dialog-done,
+    .view-passport {
+        min-height: 56px; /* Set the minimum element height. */
+    }
+}
+
+/* ========================================================================== 
+    4. TABLET AND UP (768px)
+   ========================================================================== */
+@media (min-width: 768px) {
+    body {
+        padding-bottom: 0; /* Set the bottom inner spacing. */
+    }
+
+    .main {
+        padding-bottom: 24px; /* Set the bottom inner spacing. */
+    }
+
+    .camera-panel {
+        min-height: max(420px, calc(100svh - var(--nav-h) - 40px)); /* Set the minimum element height. */
+    }
+
+    /* Nav shifts into top header bar */
+    #top-nav {
+        display: grid; /* Set how the element is laid out. */
+        grid-template-columns: 1fr auto 1fr; /* Define the grid column layout. */
+        min-height: var(--nav-h); /* Set the minimum element height. */
+        padding: 0 32px; /* Set the inner spacing. */
+    }
+
+    .brand {
+        font-size: 22px; /* Set the text size. */
+    }
+
+    .brand .logo {
+        width: 40px; /* Set the element width. */
+        height: 40px; /* Set the element height. */
+        flex-basis: 40px; /* Set the initial flex item size. */
+    }
+
+    .brand .logo-icon {
+        width: 26px; /* Set the element width. */
+        height: 26px; /* Set the element height. */
+    }
+
+    #main-nav {
+        position: static; /* Set the element positioning method. */
+        padding: 0; /* Set the inner spacing. */
+        background: none; /* Set the element background. */
+        border: 0; /* Set the element border. */
+    }
+
+    #main-nav ul {
+        display: flex; /* Set how the element is laid out. */
+        gap: 8px; /* Set spacing between children. */
+        padding: 0; /* Set the inner spacing. */
+    }
+
+    #main-nav a {
+        padding: 9px 16px; /* Set the inner spacing. */
+        font-size: 14px; /* Set the text size. */
+    }
+
+    #player-status {
+        justify-self: end; /* Align this item within its grid area. */
+        gap: 10px; /* Set spacing between children. */
+    }
+
+    .avatar {
+        display: flex; /* Set how the element is laid out. */
+    }
+}
+
+
+/* ==========================================================================
+   5. DESKTOP (1024px) - Side-by-side Camera & Sidebar Layout
+   ========================================================================== */
+@media (min-width: 1024px) {
+    body {
+        position: relative;
+        height: 100dvh;
+        overflow: hidden;
+    }
+
+    .main {
+        position: absolute;
+        top: var(--nav-h);
+        right: 0;
+        bottom: 0;
+        left: 0;
+        grid-template-columns: minmax(0, 2.08fr) minmax(315px, .95fr); /* Define the grid column layout. */
+        grid-template-rows: minmax(0, 1fr);
+        gap: 20px; /* Set spacing between children. */
+        max-width: none; /* Limit the maximum element width. */
+        height: auto;
+        min-height: 0;
+        margin: 0; /* Set the outer spacing. */
+        padding: 19px 32px 24px; /* Set the inner spacing. */
+        align-items: start; /* Align children along the cross axis. */
+    }
+
+    .camera-panel {
+        height: 100%;
+        min-height: 0;
+    }
+}
