@@ -397,12 +397,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('drawer-title').textContent = site.title;
         document.getElementById('drawer-sub').textContent = `${site.formatted_distance} · Open ${site.operating_hours} · ${site.entrance_fee}`;
         document.getElementById('drawer-desc').textContent = site.description;
-<<<<<<< HEAD
-=======
-        document.getElementById('drawer-reward-text').textContent =
-            `Stamp: ${site.stamp_name || 'Unavailable'}`;
-
->>>>>>> 3c74c87e040657ea1aea96b8615a0c863023967a
         // Check-in button link
         const checkinBtn = document.getElementById('drawer-checkin-btn');
         if (checkinBtn) {
