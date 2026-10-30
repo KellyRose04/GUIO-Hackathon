@@ -253,19 +253,6 @@ body {
     font-weight: 600;
 }
 
-#connection-status {
-    background: var(--teal-tint);
-    border: 1.5px solid var(--teal);
-}
-
-#connection-status[data-state="offline"] {
-    background: var(--danger-tint);
-    border-color: var(--coral);
-    color: var(--coral);
-}
-
-#connection-status:empty { display: none; }
-
 #pending-status {
     background: var(--gold-tint);
     border: 1.5px solid var(--ink);
@@ -1230,12 +1217,6 @@ dialog[open] { animation: dlg-pop 0.18s ease-out; }
         color: var(--ink);
         font-weight: 700;
     }
-}
-
-#connection-status[data-state="cached"] {
-    background: var(--gold-tint);
-    border: 1.5px solid var(--gold);
-    color: var(--ink);
 }
 
 @media (max-width: 650px) {

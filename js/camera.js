@@ -413,9 +413,9 @@
     elements.gpsBadge.classList.toggle("out-of-range", !isInRange);
     // Show the map reward before the user takes a photo.
     elements.rewardTitle.textContent = `+${site.xpAvailable} XP · Stamp: ${site.stamp}`;
-    // Explain whether the display uses cached data, a previously visited site, or a new site.
+    // Explain whether the display uses the latest available data or a new site.
     elements.rewardDescription.textContent = stale
-      ? "Showing the nearest site saved on this device."
+      ? "Showing the latest available nearby site."
       : site.status === "visited"
         ? "This site was already visited. XP is awarded once per site."
         : "Check in here to earn this site's map XP and stamp.";
@@ -519,7 +519,6 @@
           (Number.isInteger(error.status) && error.status >= 500))
       ) {
         window.TourTrailAccount.markServerOffline();
-        if (window.TourTrailAccount.showOfflinePage()) return;
       }
       // A network/API failure may still permit a nearby-site display from prior data.
       let cachedSites = [];
@@ -1178,13 +1177,13 @@
     updateCameraControls();
 
     // Label the popup as pending; XP and verification are not known yet.
-    elements.rewardTitle.textContent = "Uploading · Check-in saved";
+    elements.rewardTitle.textContent = "Check-in saved · Upload pending";
     elements.rewardDescription.textContent =
-      "Saved on this device. It will upload and be verified when the server is available.";
+      "Your check-in is saved. Upload and location verification will continue when a connection is available.";
     // Show site details only when a matching cached site was found.
-    document.getElementById("checkin-dialog-title").textContent = "Check-in uploading";
+    document.getElementById("checkin-dialog-title").textContent = "Check-in saved";
     document.getElementById("verification-status").classList.remove("unverified");
-    document.getElementById("verification-status").textContent = "Uploading";
+    document.getElementById("verification-status").textContent = "Upload pending";
     document.getElementById("verification-status").hidden = false;
     document.getElementById("completion-site-label").textContent = "Spot";
     document.getElementById("completion-site-label").hidden = !site;
@@ -1192,17 +1191,16 @@
     document.getElementById("completion-site-separator").hidden = !site;
     document.getElementById("completion-verification").hidden = false;
     document.getElementById("completion-verification").textContent =
-      "Saved on this device. Upload and location verification will finish when the server returns.";
+      "Upload and location verification will continue when a connection is available.";
     document.getElementById("completion-xp-label").textContent = "XP status";
     document.getElementById("completion-xp").textContent = "Pending";
     document.getElementById("completion-stamp-label").hidden = true;
     document.getElementById("completion-stamp").textContent = "";
     document.getElementById("completion-quest").hidden = true;
     document.getElementById("completion-distance-row").hidden = true;
-    // Open the popup and show the offline page if network recovery is needed.
-    elements.previewCaption.textContent = "Check-in saved locally · Uploading when online";
+    // Keep the pending upload visible in the check-in confirmation.
+    elements.previewCaption.textContent = "Check-in saved · Upload pending";
     if (!elements.dialog.open) elements.dialog.showModal();
-    window.TourTrailAccount.showOfflinePage();
   }
 
   /**
@@ -1406,24 +1404,6 @@
     elements.rewardTitle.textContent = "Nearby site rewards";
     elements.rewardDescription.textContent = "Finding the closest tourist spot.";
     elements.xpCount.textContent = "—";
-    // Both offline indicators should reflect the browser's current network state.
-    // Keep offline notices in sync with browser network events.
-    const offlineNotices = [
-      document.getElementById("offline-card"),
-      document.getElementById("completion-offline"),
-    ];
-    const updateCompletionOfflineNotice = () => {
-      const isOffline = window.TourTrailAccount
-        ? window.TourTrailAccount.isOffline()
-        : !navigator.onLine;
-      offlineNotices.forEach((notice) => {
-        notice.hidden = !isOffline;
-      });
-    };
-    updateCompletionOfflineNotice();
-    window.addEventListener("online", updateCompletionOfflineNotice);
-    window.addEventListener("offline", updateCompletionOfflineNotice);
-    window.addEventListener("tourtrail-connection-changed", updateCompletionOfflineNotice);
     window.addEventListener("tourtrail-checkin-synced", (event) => {
       if (!queuedPhotoId || event.detail?.id !== queuedPhotoId) return;
       queuedPhotoId = null;

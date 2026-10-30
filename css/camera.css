@@ -297,7 +297,7 @@ button {
         z-index: 19;
     }
 
-    body:has(#connection-status:not([hidden])) .main {
+    body:has(#pending-status:not([hidden])) .main {
         top: 96px;
     }
 }
@@ -508,7 +508,7 @@ button {
     gap: 10px; /* Set spacing between children. */
 }
 
-.site-card, .steps-card, .reward-card, .recent-card, .offline-card {
+.site-card, .steps-card, .reward-card, .recent-card {
     border: 2px solid var(--ink); /* Set the element border. */
     border-radius: var(--radius); /* Round the element corners. */
     background: var(--white); /* Set the element background. */
@@ -727,26 +727,6 @@ button {
     font-size: 11px; /* Set the text size. */
 }
 
-.offline-card {
-    min-height: 49px; /* Set the minimum element height. */
-    display: flex; /* Set how the element is laid out. */
-    align-items: center; /* Align children along the cross axis. */
-    gap: 9px; /* Set spacing between children. */
-    padding: 9px 11px; /* Set the inner spacing. */
-    border: 1.5px dashed var(--line); /* Set the element border. */
-    color: var(--ink); /* Set the text color. */
-    font-size: 12px; /* Set the text size. */
-    line-height: 1.35; /* Set the line spacing. */
-    box-shadow: none; /* Add a shadow behind the element. */
-}
-
-.offline-icon {
-    width: 22px; /* Set the element width. */
-    height: 22px; /* Set the element height. */
-    flex: 0 0 22px; /* Set the flex item sizing behavior. */
-    object-fit: contain; /* Control how replaced content fits its box. */
-}
-
 .checkin-dialog {
     width: min(768px, calc(100% - 20px)); /* Set the element width. */
     max-width: 768px; /* Limit the maximum element width. */
@@ -892,8 +872,7 @@ button {
     background: var(--teal); /* Set the element background. */
 }
 
-.completion-quest,
-.completion-offline {
+.completion-quest {
     min-height: 62px; /* Set the minimum element height. */
     display: flex; /* Set how the element is laid out. */
     align-items: center; /* Align children along the cross axis. */
@@ -909,18 +888,11 @@ button {
     font-weight: 700; /* Set the text weight. */
 }
 
-.completion-quest img,
-.completion-offline img {
+.completion-quest img {
     width: 24px; /* Set the element width. */
     height: 24px; /* Set the element height. */
     flex: 0 0 24px; /* Set the flex item sizing behavior. */
     object-fit: contain; /* Control how replaced content fits its box. */
-}
-
-.completion-offline {
-    border: 2px dashed var(--line); /* Set the element border. */
-    background: var(--avatar); /* Set the element background. */
-    color: #174B83; /* Set the text color. */
 }
 
 #completion-distance-row {
@@ -996,8 +968,7 @@ button {
         overflow-wrap: anywhere; /* Allow long text to wrap. */
     }
 
-    .completion-quest,
-    .completion-offline {
+    .completion-quest {
         min-height: 56px; /* Set the minimum element height. */
         padding: 10px 12px; /* Set the inner spacing. */
         font-size: 14px; /* Set the text size. */
@@ -1028,8 +999,7 @@ button {
         padding: 22px; /* Set the inner spacing. */
     }
 
-    .completion-quest,
-    .completion-offline {
+    .completion-quest {
         min-height: 54px; /* Set the minimum element height. */
         padding-top: 8px; /* Set the top inner spacing. */
         padding-bottom: 8px; /* Set the bottom inner spacing. */
@@ -1173,8 +1143,7 @@ button {
 .completion-rewards,
 .completion-progress,
 .completion-quest,
-#completion-distance-row,
-.completion-offline {
+#completion-distance-row {
     display: none !important;
 }
 

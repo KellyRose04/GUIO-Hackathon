@@ -60,7 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     (Number.isInteger(err.status) && err.status >= 500);
                 if (serverUnavailable && window.TourTrailAccount) {
                     window.TourTrailAccount.markServerOffline();
-                    if (window.TourTrailAccount.username && window.TourTrailAccount.showOfflinePage()) return;
                 }
 
                 let cachedSites = [];
@@ -71,10 +70,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     console.error("Could not read the last loaded site data:", cacheError);
                 }
 
-                const renderOfflineSites = (sites) => processAndRenderSites(sites);
+                const renderSavedSites = (sites) => processAndRenderSites(sites);
 
                 if (cachedSites.length) {
-                    renderOfflineSites(cachedSites);
+                    renderSavedSites(cachedSites);
                 } else {
                     console.warn("No saved site snapshot is available yet.");
                     renderNoActiveQuest();
@@ -82,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     }
 
-    // Helper to render sites cleanly for both online and offline paths
+    // Helper to render sites cleanly whether the response is fresh or saved.
     function processAndRenderSites(sites, quests = []) {
         loadedSites = sites;
         renderMapMarkers(loadedSites);
