@@ -6,11 +6,6 @@ require_once __DIR__ . '/config.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 
-const DB_HOST = 'localhost';
-const DB_NAME = 'guio_db';
-const DB_USER = 'root';
-const DB_PASS = '';
-
 function respond(int $status, array $payload): void
 {
     http_response_code($status);
@@ -110,16 +105,7 @@ function activeQuestPayload(PDO $pdo, int $userQuestId, int $userId): ?array
 }
 
 try {
-    $pdo = new PDO(
-        'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
-        DB_USER,
-        DB_PASS,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]
-    );
+    $pdo = tourtrail_database();
 
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     if (!in_array($method, ['GET', 'POST'], true)) {

@@ -52,18 +52,7 @@ try {
     // Identify the viewer making the request
     $username = tourtrail_requested_username();
 
-    // Open the database connection with exceptions, assoc fetch mode,
-    // and real (non-emulated) prepared statements
-    $pdo = new PDO(
-        'mysql:host=localhost;dbname=guio_db;charset=utf8mb4',
-        'root',
-        '',
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]
-    );
+    $pdo = tourtrail_database();
 
     // Resolve the viewer's user ID; stop if the user does not exist
     $viewerId = tourtrail_find_user_id($pdo, $username);
@@ -355,7 +344,6 @@ try {
             c.latitude_captured,
             c.longitude_captured,
             c.created_at,
-            c.xp_earned,
             c.is_verified,
             c.site_id,
             (SELECT COUNT(*)
@@ -441,6 +429,10 @@ try {
             // the same site image as their fallback.
         } // end of fallback image handling
 
+        if ($imageUrl !== '' && !preg_match('~^https?://|^data:~i', $imageUrl)) {
+            $imageUrl = '/' . ltrim($imageUrl, '/\\');
+        }
+
         // Cast values to proper types and shape the response item
         $items[] = [
             'id' => (int) $row['id'],
@@ -449,7 +441,6 @@ try {
             'lat' => $row['latitude_captured'] === null ? null : (float) $row['latitude_captured'],
             'lng' => $row['longitude_captured'] === null ? null : (float) $row['longitude_captured'],
             'createdAt' => $row['created_at'],
-            'xpEarned' => (int) $row['xp_earned'],
             'isVerified' => (bool) $row['is_verified'],
             'siteId' => $row['site_id'] === null ? null : (int) $row['site_id'],
             'siteName' => $row['site_name'],

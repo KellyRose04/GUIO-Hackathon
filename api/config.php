@@ -17,6 +17,44 @@ function tourtrail_requested_username(): string
     return $username;
 }
 
+/** Create the shared MySQL connection from server-side environment variables. */
+function tourtrail_database(): PDO
+{
+    $host = getenv('GUIO_DB_HOST');
+    $name = getenv('GUIO_DB_NAME');
+    $user = getenv('GUIO_DB_USER');
+    $password = getenv('GUIO_DB_PASSWORD');
+    $port = getenv('GUIO_DB_PORT');
+
+    if ($host === false || trim($host) === '' ||
+        $name === false || trim($name) === '' ||
+        $user === false || trim($user) === '' ||
+        $password === false) {
+        throw new PDOException('Database connection is not configured.');
+    }
+
+    $portNumber = $port === false || $port === '' ? 3306 : filter_var($port, FILTER_VALIDATE_INT);
+    if ($portNumber === false || $portNumber < 1 || $portNumber > 65535) {
+        throw new PDOException('Database port configuration is invalid.');
+    }
+
+    return new PDO(
+        sprintf(
+            'mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4',
+            $host,
+            $portNumber,
+            $name
+        ),
+        $user,
+        $password,
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ]
+    );
+}
+
 /** Look up an account's database ID without exposing other user fields. */
 function tourtrail_find_user_id(PDO $pdo, string $username): ?int
 {

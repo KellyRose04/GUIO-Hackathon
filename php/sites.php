@@ -4,21 +4,8 @@ require_once __DIR__ . '/config.php';
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-$host = 'localhost';
-$db   = 'guio_db';
-$user = 'root';
-$pass = '';
-$charset = 'utf8mb4';
-
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-$options = [
-    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES   => true, 
-];
-
 try {
-    $pdo = new PDO($dsn, $user, $pass, $options);
+    $pdo = tourtrail_database();
 
     $username = tourtrail_requested_username();
     $userId = tourtrail_find_user_id($pdo, $username);

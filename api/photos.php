@@ -20,16 +20,7 @@ if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'PATCH'], true)) {
 
 try {
     $username = tourtrail_requested_username();
-    $pdo = new PDO(
-        'mysql:host=localhost;dbname=guio_db;charset=utf8mb4',
-        'root',
-        '',
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]
-    );
+    $pdo = tourtrail_database();
     $pdo->exec("SET time_zone = '+08:00'");
 
     $userId = tourtrail_find_user_id($pdo, $username);
@@ -112,8 +103,6 @@ try {
     $sort = is_string($sortValue) ? $sortValue : 'newest';
     if ($sort === 'oldest') {
         $orderBy = 'c.created_at ASC, c.id ASC';
-    } elseif ($sort === 'xp') {
-        $orderBy = 'c.xp_earned DESC, c.created_at DESC, c.id DESC';
     } else {
         $orderBy = 'c.created_at DESC, c.id DESC';
     }
@@ -127,7 +116,7 @@ try {
 
     $statement = $pdo->prepare(
         "SELECT c.id, c.image_url, c.caption, c.latitude_captured,
-                c.longitude_captured, c.created_at, c.xp_earned,
+                c.longitude_captured, c.created_at,
                 c.is_verified, c.site_id,
                 owner.username AS owner_username,
                 COALESCE(NULLIF(owner.display_name, ''), owner.username) AS owner_name,
@@ -179,6 +168,9 @@ try {
             $imageUrl = $siteImageUrl;
         }
 
+        if ($imageUrl !== '' && !preg_match('~^https?://|^data:~i', $imageUrl)) {
+            $imageUrl = '/' . ltrim($imageUrl, '/\\');
+        }
         $row['image_url'] = $imageUrl;
         $availableRows[] = $row;
         if ($row['site_id'] !== null) {
@@ -215,7 +207,6 @@ try {
                     'lat' => (float) $row['latitude_captured'],
                     'lng' => (float) $row['longitude_captured'],
                 ],
-            'xp' => (int) $row['xp_earned'],
         ];
     }
 

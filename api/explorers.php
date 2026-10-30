@@ -1,19 +1,12 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/config.php';
+
 header('Content-Type: application/json; charset=utf-8');
 
 try {
-    $pdo = new PDO(
-        'mysql:host=localhost;dbname=guio_db;charset=utf8mb4',
-        'root',
-        '',
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]
-    );
+    $pdo = tourtrail_database();
 
     $statement = $pdo->query(
         "SELECT u.id,

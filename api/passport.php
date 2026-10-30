@@ -10,13 +10,6 @@ require_once __DIR__ . '/config.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 
-// ---- Edit these to match your MySQL setup (XAMPP defaults shown) ----
-const DB_HOST = 'localhost';
-const DB_NAME = 'guio_db';
-const DB_USER = 'root';
-const DB_PASS = '';
-// ---------------------------------------------------------------------
-
 function fail(int $code, string $message): void
 {
     // Return API errors in JSON so the passport client can report request failures.
@@ -32,15 +25,7 @@ try {
 }
 
 try {
-    $pdo = new PDO(
-        'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
-        DB_USER,
-        DB_PASS,
-        [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        ]
-    );
+    $pdo = tourtrail_database();
 
     // Timestamps are stored in UTC; read them back as Philippine time so
     // weekdays and dates match what the user sees on their phone.
@@ -49,7 +34,7 @@ try {
     // 1. The user (never select email or password_hash)
     $stmt = $pdo->prepare(
         'SELECT id, username, COALESCE(NULLIF(display_name, \'\'), username) AS display_name,
-                xp_count, streak_count, longest_streak
+                streak_count, longest_streak
            FROM users
           WHERE username = :u'
     );
@@ -59,25 +44,6 @@ try {
         fail(404, 'User not found');
     }
     $uid = (int) $user['id'];
-
-    // Level titles and thresholds come from the database, not client-side constants.
-    $stmt = $pdo->query(
-        'SELECT level, title, description, xp_required
-           FROM levels
-          ORDER BY xp_required, level'
-    );
-    $levels = array_map(
-        fn($r) => [
-            'level'       => (int) $r['level'],
-            'title'       => $r['title'],
-            'description' => $r['description'],
-            'xp_required' => (int) $r['xp_required'],
-        ],
-        $stmt->fetchAll()
-    );
-    if (!$levels) {
-        fail(500, 'Level data is unavailable');
-    }
 
     // Passport site counts include only verified check-ins linked to a registered site.
     $stmt = $pdo->prepare(
@@ -325,11 +291,9 @@ try {
         'user' => [
             'username'     => $user['username'],
             'display_name' => $user['display_name'],
-            'xp_count'     => (int) $user['xp_count'],
             'streak_count' => (int) $user['streak_count'],
             'longest_streak' => (int) $user['longest_streak'],
         ],
-        'levels' => $levels,
         'stats' => [
             'sites_visited' => (int) $stats['sites_visited'],
             'hidden_gems'   => (int) $stats['hidden_gems'],

@@ -26,9 +26,16 @@
     window.history.replaceState(null, "", activeUrl);
   }
 
+  function applicationBaseUrl() {
+    const applicationPath = window.location.pathname.includes("/html/")
+      ? "../"
+      : "./";
+    return new URL(applicationPath, window.location.href);
+  }
+
   // Add the active username to API and page links while preserving other query parameters.
   function accountUrl(path) {
-    const url = new URL(path, window.location.href);
+    const url = new URL(path, applicationBaseUrl());
     if (username) url.searchParams.set("user", username);
     return url.href;
   }
@@ -287,7 +294,7 @@
     isOffline,
     pendingCheckInCount,
     pageUrl(path) {
-      const url = new URL(path, window.location.href);
+      const url = new URL(path, applicationBaseUrl());
       if (username && url.origin === window.location.origin) {
         url.searchParams.set("user", username);
       }
