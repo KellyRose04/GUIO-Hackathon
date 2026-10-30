@@ -3,7 +3,7 @@ compatibility_date = "2026-10-31"
 pages_build_output_dir = "."
 
 [[d1_databases]]
-binding = "guio_db"
+binding = "DB"
 database_name = "guio_db"
 database_id = "5dca9a96-a552-4595-bdcc-c0cf2df30623"
 migrations_dir = "migrations"
