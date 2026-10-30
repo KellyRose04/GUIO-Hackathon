@@ -8,25 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let userLocationMarker = null;
     let userAccuracyCircle = null;
 
-    // 2. Sidebar expansion/collapse & site list controls
-    const sidebar = document.querySelector('.sidebar');
-    const sidebarToggleButton = document.getElementById('sidebar-toggle-btn');
-    const sortSelect = document.getElementById('sort-select');
-
-    function setSidebarExpanded(expanded) {
-        if (!sidebar) return;
-        sidebar.classList.toggle('expanded', expanded);
-        if (sidebarToggleButton) {
-            sidebarToggleButton.setAttribute('aria-expanded', String(expanded));
-            sidebarToggleButton.textContent = expanded ? 'Close sites' : 'Browse sites';
-        }
-    }
-
-    sidebarToggleButton?.addEventListener('click', () => {
-        setSidebarExpanded(!sidebar?.classList.contains('expanded'));
-    });
-
-    // 3. Custom Marker Icon Generator (Using raw transparent PNG icons)
+    // 2. Custom Marker Icon Generator (Using raw transparent PNG icons)
     function createCustomIcon(status) {
         let iconPath = 'assets/marker.png';
 
@@ -59,8 +41,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const markersGroup = L.layerGroup().addTo(map);
 
     // 4. Fetch map sites through the extracted map API client.
-    function fetchSites(category = 'all', search = '', sort = 'nearest') {
-        mapApi.fetchSites({ category, search, sort, coordinates: userCoords })
+    function fetchSites() {
+        mapApi.fetchSites({ coordinates: userCoords })
             .then(res => {
                 if (window.TourTrailAccount) window.TourTrailAccount.markServerOnline();
                 try {
@@ -68,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 } catch (error) {
                     console.error("Could not save the latest site snapshot:", error);
                 }
-                processAndRenderSites(res.data, search, res.active_quests);
+                processAndRenderSites(res.data, res.active_quests);
             })
             .catch(err => {
                 console.warn("Server unavailable. Loading saved site data...", err);
@@ -89,34 +71,20 @@ document.addEventListener("DOMContentLoaded", () => {
                     console.error("Could not read the last loaded site data:", cacheError);
                 }
 
-                const renderOfflineSites = (sites) => {
-                    let filteredSites = sites;
-                    if (category && category !== 'all') {
-                        filteredSites = filteredSites.filter(s => s.category === category);
-                    }
-                    if (search.trim() !== '') {
-                        const term = search.toLowerCase();
-                        filteredSites = filteredSites.filter(s =>
-                            String(s.title || s.name || '').toLowerCase().includes(term)
-                        );
-                    }
-                    processAndRenderSites(filteredSites, search);
-                };
+                const renderOfflineSites = (sites) => processAndRenderSites(sites);
 
                 if (cachedSites.length) {
                     renderOfflineSites(cachedSites);
                 } else {
                     console.warn("No saved site snapshot is available yet.");
-                    renderSidebarList([]);
                     renderNoActiveQuest();
                 }
             });
     }
 
     // Helper to render sites cleanly for both online and offline paths
-    function processAndRenderSites(sites, search, quests = []) {
+    function processAndRenderSites(sites, quests = []) {
         loadedSites = sites;
-        renderSidebarList(loadedSites);
         renderMapMarkers(loadedSites);
         if (Array.isArray(quests) && quests.length > 0) {
             renderSidebarQuests(quests);
@@ -124,27 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
             renderNoActiveQuest();
         }
 
-        if (search.trim() !== '' && loadedSites.length > 0) {
-            const firstMatch = loadedSites[0];
-            map.flyTo([firstMatch.latitude, firstMatch.longitude], 16);
-            if (markersMap[firstMatch.id]){
-                markersMap[firstMatch.id].openPopup();
-            }
-        }
-    }
-
-    function handleLoadedSites(sites, search) {
-        loadedSites = sites;
-        renderSidebarList(loadedSites);
-        renderMapMarkers(loadedSites);
-
-        if (search.trim() !== '' && loadedSites.length > 0) {
-            const firstMatch = loadedSites[0];
-            map.flyTo([firstMatch.latitude, firstMatch.longitude], 16);
-            if (markersMap[firstMatch.id]){
-                markersMap[firstMatch.id].openPopup();
-            }
-        }
     }
 
     // 5b. Render Quest Card Data from Database
@@ -186,6 +133,70 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         container.appendChild(card);
+        renderNextLocation(quest);
+    }
+
+    function renderNextLocation(quest) {
+        const container = document.getElementById('next-location-container');
+        if (!container) return;
+
+        container.replaceChildren();
+
+        const nextStop = Array.isArray(quest?.stops)
+            ? quest.stops.find(stop => stop.stop_state === 'next' || stop.state === 'next')
+            : null;
+        const nextSiteId = nextStop?.site_id ?? quest?.next_site_id ?? quest?.next_stop_site_id;
+        const nextSite = nextSiteId == null
+            ? null
+            : loadedSites.find(site => String(site.id) === String(nextSiteId));
+        const title = nextStop?.title || nextSite?.title || quest?.next_site_title || quest?.next_site_name;
+
+        const card = document.createElement('div');
+        card.className = `next-location-card${title ? '' : ' is-empty'}`;
+
+        const pin = document.createElement('span');
+        pin.className = 'next-location-pin';
+        pin.setAttribute('aria-hidden', 'true');
+        pin.textContent = '⌖';
+
+        const copy = document.createElement('div');
+        copy.className = 'next-location-copy';
+        const titleElement = document.createElement('h3');
+        titleElement.textContent = title || (quest ? 'No upcoming stop' : 'No active quest');
+        const meta = document.createElement('p');
+        const locationMeta = [
+            nextSite?.category ? capitalize(nextSite.category) : '',
+            nextSite?.formatted_distance || ''
+        ].filter(Boolean);
+        if (locationMeta.length) {
+            meta.textContent = locationMeta.join(' · ');
+        } else if (title) {
+            meta.textContent = 'Next stop in your active quest';
+        } else if (quest?.quest_type === 'streak') {
+            meta.textContent = 'Keep checking in to continue this quest.';
+        } else if (quest) {
+            meta.textContent = 'Your next stop will appear here when it is available.';
+        } else {
+            meta.textContent = 'Start a quest to see your next location here.';
+        }
+        copy.append(titleElement, meta);
+        card.append(pin, copy);
+
+        const latitude = Number(nextSite?.latitude);
+        const longitude = Number(nextSite?.longitude);
+        if (title && Number.isFinite(latitude) && Number.isFinite(longitude)) {
+            const button = document.createElement('button');
+            button.className = 'next-location-button';
+            button.type = 'button';
+            button.textContent = 'Show on map';
+            button.addEventListener('click', () => {
+                map.flyTo([latitude, longitude], 16);
+                if (markersMap[nextSite.id]) markersMap[nextSite.id].openPopup();
+            });
+            card.append(button);
+        }
+
+        container.append(card);
     }
 
     function renderNoActiveQuest() {
@@ -203,6 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
             `;
         }
+        renderNextLocation(null);
     }
 
     // Populate and display the active quests list in the Popup
@@ -289,9 +301,6 @@ document.addEventListener("DOMContentLoaded", () => {
                                 markersMap[targetSite.id].openPopup();
                             }
 
-                            if (window.innerWidth < 768 && sidebar) {
-                                setSidebarExpanded(false);
-                            }
                         }
                     });
                 }
@@ -315,69 +324,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Sort Dropdown Handler
-    if (sortSelect) {
-        sortSelect.addEventListener('change', (e) => {
-            const activeChip = document.querySelector('.chip.active');
-            const category = activeChip ? activeChip.dataset.cat : 'all';
-            fetchSites(category, '', e.target.value);
-        });
-    }
-
-    // 6. Render List in Sidebar
-    function renderSidebarList(sites) {
-        const container = document.getElementById('sites-list');
-        if (!container) return;
-
-        container.innerHTML = '';
-
-        if (sites.length === 0) {
-            container.innerHTML = '<p style="padding: 12px; color: var(--muted);">No sites found.</p>';
-            return;
-        }
-
-        sites.forEach(site => {
-            const card = document.createElement('div');
-            card.className = 'site-card';
-
-            const badgeRight = site.status === 'visited' ? 
-                `<span class="site-card-badge visited">Visited</span>` : 
-                `<span class="site-card-badge xp">+${site.xp_reward} XP</span>`;
-
-            card.innerHTML = `
-                <div class="site-card-thumb" style="background-image: url('${site.image_url}')">
-                </div>
-                <div class="site-card-info">
-                    <div class="site-card-title">${site.title}</div>
-                    <div class="site-card-sub">${site.formatted_distance} · ${capitalize(site.category)} ${site.is_hidden_gem ? '· Hidden gem' : ''}</div>
-                </div>
-                ${badgeRight}
-            `;
-
-            // Fly to marker location and handle view-specific behavior on card click
-            card.addEventListener('click', () => {
-                map.flyTo([site.latitude, site.longitude], 16);
-                if(markersMap[site.id]) {
-                    markersMap[site.id].openPopup();
-                }
-                
-                // On Desktop: If the details drawer is already open, instantly switch it to the newly clicked site's details
-                const drawer = document.getElementById('site-details-drawer');
-                if (window.innerWidth >= 768 && drawer && drawer.classList.contains('open')) {
-                    openSiteDrawer(site);
-                }
-
-                // On Mobile: Collapse sidebar to reveal the map and popup
-                if (window.innerWidth < 768 && sidebar) {
-                    setSidebarExpanded(false);
-                }
-            });
-
-            container.appendChild(card);
-        });
-    }
-
-    // 7. Render Pins on Map
+    // 6. Render Pins on Map
     function renderMapMarkers(sites) {
         markersGroup.clearLayers();
         markersMap = {};
@@ -500,12 +447,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            // Collapse mobile sidebar when clicking outside on the map
-            if (window.innerWidth < 768 && sidebar && sidebar.classList.contains('expanded')) {
-                if (!sidebar.contains(e.target)) {
-                    setSidebarExpanded(false);
-                }
-            }
         });
     }
 
@@ -514,19 +455,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
-    // 9. Category Filter Handler
-    const categoryContainer = document.getElementById('category-filters');
-    if (categoryContainer) {
-        categoryContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('chip')) {
-                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-                e.target.classList.add('active');
-                fetchSites(e.target.dataset.cat, '', sortSelect ? sortSelect.value : 'nearest');
-            }
-        });
-    }
-
-    // 10. Inject Map Legend Bar
+    // 8. Inject Map Legend Bar
     if (mapView) {
         const legend = document.createElement('div');
         legend.className = 'map-legend';
@@ -589,10 +518,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.addEventListener('pageshow', (event) => {
         if (event.persisted) {
-            const activeChip = document.querySelector('.chip.active');
-            const category = activeChip ? activeChip.dataset.cat : 'all';
-            const currentSort = sortSelect ? sortSelect.value : 'nearest';
-            fetchSites(category, '', currentSort);
+            fetchSites();
         }
     });
 });

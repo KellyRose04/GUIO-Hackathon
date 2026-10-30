@@ -330,49 +330,6 @@ button { cursor: pointer; }
   color: var(--muted);
   font-size: 12px;
 }
-.sidebar-toggle-btn {
-  display: none;
-  align-items: center;
-  min-height: 32px;
-  padding: 0 10px;
-  border: 2px solid var(--ink);
-  border-radius: 9px;
-  background: var(--white);
-  color: var(--ink);
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-/* --- Category Chips (Fix 2: Fully Visible Filter Options) --- */
-.categories {
-  display: flex !important;
-  gap: 6px;
-  padding: 4px 2px 8px 2px;
-  overflow-x: auto;
-  scrollbar-width: none; /* Hide horizontal scrollbar for clean UI */
-  flex-shrink: 0;
-  min-height: 44px; /* Ensures chips aren't squished vertically */
-}
-.categories::-webkit-scrollbar {
-  display: none;
-}
-.chip {
-  flex: none;
-  padding: 6px 14px;
-  border: 1.5px solid var(--ink);
-  border-radius: 99px;
-  background: var(--white);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1;
-  cursor: pointer;
-}
-.chip.active { 
-  background: var(--ink); 
-  color: var(--white); 
-}
-
 /* --- Quest Card --- */
 .quest-card {
   display: flex !important;
@@ -396,30 +353,49 @@ button { cursor: pointer; }
 }
 .quest-card progress::-webkit-progress-value { background: var(--teal); }
 
-/* --- Nearby Sites Header & Selector --- */
-.list-header {
-  display: flex !important;
+.next-location-section { display: flex; flex-direction: column; gap: 8px; }
+.next-location-section > h2 { color: var(--ink); font-size: 13px; font-weight: 800; }
+.next-location-card {
+  display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-  opacity: 1 !important;
-}
-.sites-title { font-size: 16px; font-weight: 800; }
-#sort-select {
-  padding: 4px 8px;
-  border: 1.5px solid var(--ink);
-  border-radius: 8px;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
   background: var(--white);
-  font-size: 12px;
+  box-shadow: 0 4px 0 var(--ink);
 }
-
-/* --- Sites List Container --- */
-.sites-list {
-  display: flex !important;
-  flex-direction: column;
-  gap: 8px;
-  opacity: 1 !important;
+.next-location-card.is-empty { background: var(--gold-tint); }
+.next-location-pin {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--gold-tint);
+  color: var(--ink);
+  font-size: 22px;
+  font-weight: 800;
 }
+.next-location-copy { min-width: 0; flex: 1; }
+.next-location-copy h3 { overflow: hidden; color: var(--ink); font-size: 13px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+.next-location-copy p { margin-top: 3px; color: var(--muted); font-size: 11px; line-height: 1.35; }
+.next-location-button {
+  flex: 0 0 auto;
+  min-height: 32px;
+  padding: 6px 9px;
+  border: 1.5px solid var(--ink);
+  border-radius: 9px;
+  background: var(--gold-tint);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.next-location-button:hover { background: var(--cream); }
 
 /* Quest Card */
 .quest-card-banner {
@@ -644,89 +620,6 @@ button { cursor: pointer; }
   transform: translateY(3px);
   box-shadow: 0 0 0 var(--ink);
   background: #10385F;
-}
-
-/* ==========================================================================
-   5. SIDEBAR SITE CARDS
-   ========================================================================== */
-.site-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  border: 1.5px solid var(--ink);
-  border-radius: 12px;
-  background: var(--white);
-  cursor: pointer;
-  transition: transform 0.15s ease, background 0.15s ease;
-}
-.site-card:hover {
-  transform: translateY(-2px);
-  background: var(--gold-tint);
-}
-.site-card-thumb {
-  position: relative;
-  width: 50px;
-  height: 50px;
-  border: 1px solid var(--ink);
-  border-radius: 8px;
-  overflow: hidden;
-  flex-shrink: 0;
-  background: var(--gold-tint);
-}
-.site-card-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.card-icon {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  z-index: 2;
-  font-size: 10px;
-  background: var(--white);
-  border: 1px solid var(--ink);
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.site-card-info {
-  flex: 1;
-  min-width: 0;
-}
-.site-card-title {
-  font-size: 13px;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.site-card-meta {
-  font-size: 11px;
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.badge-xp {
-  padding: 3px 8px;
-  border: 1px solid var(--teal);
-  border-radius: 99px;
-  background: var(--teal-tint);
-  font-size: 11px;
-  font-weight: 700;
-}
-.badge-visited {
-  padding: 3px 8px;
-  border: 1px solid var(--line);
-  border-radius: 99px;
-  background: var(--gold-tint);
-  font-size: 11px;
-  color: var(--muted);
 }
 
 /* ==========================================================================
@@ -1111,7 +1004,7 @@ button { cursor: pointer; }
    10. RESPONSIVE BREAKPOINTS (Mobile & Desktop Overrides)
    ========================================================================== */
 
-/* Mobile-Only Collapsible Sidebar (< 768px) */
+/* Mobile sidebar fits above the fixed bottom navigation. */
 @media (max-width: 767px) {
   #main-nav a {
     display: flex;
@@ -1133,36 +1026,8 @@ button { cursor: pointer; }
   }
 
   .sidebar {
-    max-height: 204px; /* Collapsed: keeps the current quest visible */
-    overflow: hidden;
-    transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .sidebar-toggle-btn {
-    display: inline-flex;
-  }
-
-  /* Keep the current quest visible while the site filters are collapsed. */
-  .sidebar:not(.expanded) .categories,
-  .sidebar:not(.expanded) .list-header,
-  .sidebar:not(.expanded) .sites-list {
-    display: none !important;
-  }
-
-  /* When expanded, show the site filters and list. */
-  .sidebar.expanded {
-    max-height: calc(100vh - 140px);
+    max-height: calc(100dvh - 140px);
     overflow-y: auto;
-  }
-
-  .sidebar.expanded .categories,
-  .sidebar.expanded .list-header,
-  .sidebar.expanded .sites-list {
-    display: flex !important;
-  }
-
-  .sidebar.expanded #sidebar-quest-card-container {
-    display: block !important;
   }
 }
 
@@ -1224,7 +1089,4 @@ button { cursor: pointer; }
     overflow-y: auto;
   }
 
-  .sidebar-toggle-btn {
-    display: none;
-  }
 }

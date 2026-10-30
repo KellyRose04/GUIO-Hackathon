@@ -9,7 +9,7 @@
     <title>GUIO - Map</title>
     <link rel="icon" type="image/png" href="assets/guio_logo.png">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="css/index.css?v=blue-cream-2">
+    <link rel="stylesheet" href="css/index.css?v=next-location-1">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="api/leaflet/leaflet-css/leaflet.css">
 
@@ -39,39 +39,23 @@
     </header>
 
     <main class="home-container">
-        <!-- Sidebar Controls & List-->
+        <!-- Current quest and its next stop -->
         <aside class="sidebar">
-            <!-- Current quest replaces the search control. -->
             <section class="current-quest-box" aria-labelledby="current-quest-heading">
                 <div class="current-quest-header">
                     <h2 id="current-quest-heading">Current quest</h2>
-                    <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" type="button" aria-expanded="false">
-                        Browse sites
-                    </button>
                 </div>
                 <div id="sidebar-quest-card-container" aria-live="polite">
                     <p class="current-quest-loading" role="status">Loading your current quest...</p>
                 </div>
             </section>
 
-            <!-- Categories -->
-            <div class="categories" id="category-filters">
-                <button class="chip active" data-cat="all">All</button>
-                <button class="chip" data-cat="gems">Gems</button>
-                <button class="chip" data-cat="heritage">Heritage</button>
-                <button class="chip" data-cat="food">Food</button>
-                <button class="chip" data-cat="nature">Nature</button>
-            </div>
-
-            <!-- Nearby Sites List (Rendered by DOM API)-->
-            <div class="list-header">
-                <h3 class="sites-title">Discovery Sites</h3>
-                <select id="sort-select">
-                    <option value="nearest">Sort: Nearest</option>
-                    <option value="xp">Sort: Highest XP</option>
-                </select>
-            </div>
-            <div id="sites-list" class="sites-list"></div>
+            <section class="next-location-section" aria-labelledby="next-location-heading">
+                <h2 id="next-location-heading">Next location</h2>
+                <div id="next-location-container" aria-live="polite">
+                    <p class="current-quest-loading" role="status">Finding your next stop...</p>
+                </div>
+            </section>
         </aside>
 
         <!-- Site Details Slide-Out Drawer -->
@@ -151,6 +135,6 @@
     <!-- Shared account context, then the extracted map API and map UI. -->
     <script src="js/profile.js?v=14"></script>
     <script src="js/map-api.js?v=1"></script>
-    <script src="js/index.js?v=guiouquest-1"></script>
+    <script src="js/index.js?v=next-location-1"></script>
 </body>
 </html>
