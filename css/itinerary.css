@@ -1,0 +1,215 @@
+/* ==========================================================================
+   TourTrail: index.css (Full-Screen Map & Floating Collapsible Drawer)
+   ========================================================================== */
+
+:root {
+  --ink: #1F2430;
+  --cream: #FFFDF8;
+  --white: #FFFFFF;
+  --gold: #F5B82E;
+  --gold-tint: #FFF1CC;
+  --teal: #2BB39A;
+  --teal-tint: #D9F4EE;
+  --placeholder: #E6E1D5;
+  --line: #D9D4C7;
+  --muted: #6B7280;
+  --coral: #E5484D;
+  --radius: 14px;
+  --shadow: 0 4px 12px rgba(31, 36, 48, 0.15);
+  --nav-h: 72px;
+  --bottom-nav-h: 68px;
+  --font: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ==========================================================================
+   1. TOP NAVIGATION
+   ========================================================================== */
+#top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 0 16px;
+  background: var(--white);
+  border-bottom: 2px solid var(--ink);
+}
+
+#connection-bar {
+  position: fixed;
+  top: 60px;
+  right: 12px;
+  z-index: 19;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+#connection-bar p {
+  margin: 0;
+}
+
+.brand {
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.brand a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--ink);
+}
+
+.brand .logo {
+    width: 32px;
+    height: 32px;
+    position: relative;
+    flex: 0 0 32px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--gold);
+}
+
+.brand .logo-icon {
+    width: 22px;
+    height: 22px;
+    max-width: 100%;
+    max-height: 100%;
+    z-index: 1;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+#main-nav {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 30;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--white);
+  border-top: 2px solid var(--ink);
+}
+#main-nav ul { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 8px; list-style: none; }
+#main-nav a {
+  display: block;
+  padding: 10px 4px;
+  border: 2px solid transparent;
+  border-radius: 99px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+}
+#main-nav a[aria-current="page"] {
+  background: var(--gold-tint);
+  border-color: var(--ink);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+#player-status {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    min-width: 0;
+}
+
+#player-status .avatar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 0;
+    overflow: hidden;
+}
+
+#player-status .avatar img,
+#player-status .avatar svg,
+#player-status .avatar .icon,
+#player-status .avatar i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: block;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    padding: 0;
+    flex: none;
+}
+
+.stat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border: 1px solid var(--ink);
+    border-radius: 99px;
+    background: var(--gold-tint);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--ink);
+    white-space: nowrap;
+}
+
+.stat-pill.star {
+    background: var(--teal-tint);
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--placeholder);
+    line-height: 0;
+}
+
+.avatar img,
+.avatar .icon {
+    display: block;
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    margin: 0;
+    object-fit: contain;
+}
+
+#player-status > .stat-pill:has(#streak-count:empty),
+#player-status > .stat-pill:has(#xp-count:empty) {
+    display: none;
+}
+
+#player-avatar {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    margin: 0;
+    padding: 0;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--placeholder);
+    object-fit: cover;
+    display: block;
+}
