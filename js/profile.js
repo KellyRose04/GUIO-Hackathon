@@ -1,0 +1,438 @@
+(() => {
+  // Use the account explicitly selected in the URL, or the last selection in this tab.
+  // This app has no authentication session yet, so do not silently choose an account.
+  const ACCOUNT_STORAGE_KEY = "tourtrail-active-username";
+  const activeUrl = new URL(window.location.href);
+  const requestedUser = activeUrl.searchParams.get("user");
+  // The offline flag is an internal navigation detail, not part of the account selection.
+  activeUrl.searchParams.delete("offline");
+  let username = "";
+
+  try {
+    if (requestedUser !== null) {
+      // An explicit URL choice takes precedence and becomes this tab's active account.
+      username = requestedUser.trim();
+      if (username) window.sessionStorage.setItem(ACCOUNT_STORAGE_KEY, username);
+      else window.sessionStorage.removeItem(ACCOUNT_STORAGE_KEY);
+    } else {
+      username = (window.sessionStorage.getItem(ACCOUNT_STORAGE_KEY) || "").trim();
+    }
+  } catch (error) {
+    // Continue with the URL selection if storage is unavailable in this browser.
+    username = (requestedUser || "").trim();
+  }
+
+  if (username) activeUrl.searchParams.set("user", username);
+  else activeUrl.searchParams.delete("user");
+  if (activeUrl.href !== window.location.href) {
+    window.history.replaceState(null, "", activeUrl);
+  }
+
+  // Add the active username to API and page links while preserving other query parameters.
+  function accountUrl(path) {
+    const url = new URL(path, window.location.href);
+    if (username) url.searchParams.set("user", username);
+    return url.href;
+  }
+
+  // Update a header pill's text without removing any icon or nested elements.
+  function setPill(element, label, value) {
+    if (!element) return;
+    Array.from(element.childNodes).forEach((node) => {
+      if (node.nodeType === Node.TEXT_NODE) node.remove();
+    });
+    element.appendChild(document.createTextNode(`${label}${value}`));
+  }
+
+  // Expose account-aware URL helpers for map, camera, passport, and gallery scripts.
+  const PENDING_CHECKINS_KEY = "tourtrail-pending-checkins";
+  const SERVER_OFFLINE_KEY = "tourtrail-server-offline";
+  const OFFLINE_CONTINUE_KEY = "tourtrail-offline-continue";
+  let syncInProgress = false;
+  let pendingSyncTimer = null;
+
+  function readPendingCheckIns() {
+    try {
+      const records = JSON.parse(window.localStorage.getItem(PENDING_CHECKINS_KEY) || "[]");
+      if (!Array.isArray(records)) {
+        // Treat malformed stored data as an error instead of silently discarding check-ins.
+        throw new Error("Pending check-in data is not a list.");
+      }
+      return records;
+    } catch (error) {
+      console.error("Could not read pending check-ins:", error);
+      throw error;
+    }
+  }
+
+  function updateConnectionStatus() {
+    let serverOffline = false;
+    try {
+      serverOffline = window.localStorage.getItem(SERVER_OFFLINE_KEY) === "true";
+    } catch (error) {
+      console.error("Could not read the saved connection status:", error);
+    }
+
+    let status = document.getElementById("connection-status");
+    let pendingStatus = document.getElementById("pending-status");
+    if (!status || !pendingStatus) {
+      const header = document.querySelector("#top-nav, .offline-nav");
+      if (!header) return;
+      let bar = document.getElementById("connection-bar");
+      if (!bar) {
+        bar = document.createElement("div");
+        bar.id = "connection-bar";
+        bar.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;padding:8px 16px;";
+        header.insertAdjacentElement("afterend", bar);
+      }
+      if (!status) {
+        status = document.createElement("p");
+        status.id = "connection-status";
+        status.setAttribute("role", "status");
+        status.setAttribute("aria-live", "polite");
+        status.style.cssText = "margin:0;padding:5px 12px;border:1px solid #2BB39A;border-radius:99px;background:#D9F4EE;font-size:12px;font-weight:700;";
+        bar.appendChild(status);
+      }
+      if (!pendingStatus) {
+        pendingStatus = document.createElement("p");
+        pendingStatus.id = "pending-status";
+        pendingStatus.setAttribute("role", "status");
+        pendingStatus.setAttribute("aria-live", "polite");
+        pendingStatus.style.cssText = "margin:0;padding:5px 12px;border:1px solid #1F2430;border-radius:99px;background:#FFF1CC;font-size:12px;font-weight:700;";
+        pendingStatus.innerHTML = '<span id="pending-count">0</span> record(s) waiting to be sent';
+        bar.appendChild(pendingStatus);
+      }
+    }
+
+    const isOffline = !navigator.onLine || serverOffline;
+    let count = 0;
+    try {
+      // Keep the pending count and its status pill synchronized with local queued uploads.
+      count = readPendingCheckIns().length;
+      const countElement = document.getElementById("pending-count");
+      if (countElement) countElement.textContent = String(count);
+      pendingStatus.hidden = count === 0;
+    } catch (error) {
+      pendingStatus.hidden = false;
+      pendingStatus.textContent = "Pending check-ins could not be read.";
+    }
+    status.textContent = isOffline ? "Offline — using saved data" : "Online";
+    status.dataset.state = isOffline ? "offline" : "online";
+    status.hidden = !isOffline && count === 0;
+    status.style.background = isOffline ? "#FFEBEB" : "#D9F4EE";
+    status.style.borderColor = isOffline ? "#E5484D" : "#2BB39A";
+    status.style.color = isOffline ? "#E5484D" : "#1F2430";
+  }
+
+  function savePendingCheckIns(records) {
+    window.localStorage.setItem(PENDING_CHECKINS_KEY, JSON.stringify(records));
+    updateConnectionStatus();
+    window.dispatchEvent(new Event("tourtrail-pending-checkins-changed"));
+    // Retry queued uploads periodically, stopping the timer when the queue is empty.
+    if (records.length && pendingSyncTimer === null) {
+      pendingSyncTimer = window.setInterval(syncPendingCheckIns, 30000);
+    } else if (!records.length && pendingSyncTimer !== null) {
+      window.clearInterval(pendingSyncTimer);
+      pendingSyncTimer = null;
+    }
+  }
+
+  function markServerOffline() {
+    try {
+      window.localStorage.setItem(SERVER_OFFLINE_KEY, "true");
+    } catch (error) {
+      console.error("Could not save the offline connection status:", error);
+    }
+    updateConnectionStatus();
+    window.dispatchEvent(new Event("tourtrail-connection-changed"));
+  }
+
+  function markServerOnline() {
+    try {
+      window.localStorage.removeItem(SERVER_OFFLINE_KEY);
+      window.sessionStorage.removeItem(OFFLINE_CONTINUE_KEY);
+    } catch (error) {
+      console.error("Could not save the online connection status:", error);
+    }
+    updateConnectionStatus();
+    window.dispatchEvent(new Event("tourtrail-connection-changed"));
+  }
+
+  function isServerOffline() {
+    try {
+      return window.localStorage.getItem(SERVER_OFFLINE_KEY) === "true";
+    } catch (error) {
+      console.error("Could not read the saved connection status:", error);
+      return false;
+    }
+  }
+
+  function isOffline() {
+    return !navigator.onLine || isServerOffline();
+  }
+
+  function pendingCheckInCount() {
+    return readPendingCheckIns().length;
+  }
+
+  function showOfflinePage() {
+    if (window.location.pathname.endsWith("/offline.html")) return false;
+    try {
+      if (window.sessionStorage.getItem(OFFLINE_CONTINUE_KEY) === "true") {
+        return false;
+      }
+      window.sessionStorage.setItem("tourtrail-offline-return", window.location.href);
+    } catch (error) {
+      console.error("Could not save the page to return to after offline mode:", error);
+    }
+    window.location.href = accountUrl("offline.html");
+    return true;
+  }
+
+  function queueCheckIn(photo, siteId = null) {
+    if (!photo || typeof photo.id !== "string" || !photo.imageUrl?.startsWith("data:image/")) {
+      throw new Error("A captured photo is required to queue a check-in.");
+    }
+    const records = readPendingCheckIns();
+    if (!records.some((record) => record.id === photo.id)) {
+      records.push({
+        id: photo.id,
+        imageUrl: photo.imageUrl,
+        gps: photo.gps || null,
+        siteId: siteId === null ? null : String(siteId),
+        username,
+        takenAt: photo.takenAt || new Date().toISOString(),
+      });
+      savePendingCheckIns(records);
+    }
+    return records.find((record) => record.id === photo.id);
+  }
+
+  async function syncPendingCheckIns() {
+    // Avoid overlapping retries and leave queued records untouched while offline.
+    if (syncInProgress || !navigator.onLine) return;
+    syncInProgress = true;
+    try {
+      const records = readPendingCheckIns();
+      // A shared queue may contain records from more than one selected account.
+      const matchingRecords = records.filter((record) => record.username === username);
+      if (!matchingRecords.length) return;
+      for (const record of matchingRecords) {
+        const image = await fetch(record.imageUrl).then((response) => {
+          if (!response.ok) throw new Error("The saved check-in photo could not be read.");
+          return response.blob();
+        });
+        const formData = new FormData();
+        formData.append("photo", image, "check-in.jpg");
+        formData.append("client_photo_id", record.id);
+        if (record.gps) {
+          formData.append("latitude", String(record.gps.lat));
+          formData.append("longitude", String(record.gps.lng));
+          if (Number.isFinite(record.gps.accuracy)) {
+            formData.append("accuracy", String(record.gps.accuracy));
+          }
+        }
+        if (record.siteId !== null) formData.append("site_id", record.siteId);
+
+        const response = await fetch(accountUrl("api/checkins.php"), {
+          method: "POST",
+          headers: { Accept: "application/json" },
+          body: formData,
+        });
+        const payload = await response.json();
+        if (!response.ok || payload.status !== "success" || !payload.data?.checkin_id) {
+          const error = new Error(payload.error || `Check-in upload failed (${response.status}).`);
+          error.status = response.status;
+          throw error;
+        }
+
+        // Older API/database drivers may encode booleans as numbers or strings.
+        const isVerified = payload.data.is_verified === true ||
+          payload.data.is_verified === 1 ||
+          payload.data.is_verified === "1" ||
+          payload.data.verification_status === "verified";
+        const hasVerificationResult =
+          payload.data.is_verified === true ||
+          payload.data.is_verified === false ||
+          payload.data.is_verified === 1 ||
+          payload.data.is_verified === 0 ||
+          payload.data.is_verified === "1" ||
+          payload.data.is_verified === "0" ||
+          payload.data.verification_status === "verified" ||
+          payload.data.verification_status === "unverified";
+        if (!hasVerificationResult) {
+          throw new Error("Check-in upload returned no verification result.");
+        }
+        if (isVerified) {
+          const rewardResponse = await fetch(accountUrl("api/checkins.php"), {
+            method: "PATCH",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ checkin_id: payload.data.checkin_id }),
+          });
+          const reward = await rewardResponse.json();
+          const rewardData = reward.data;
+          if (
+            !rewardResponse.ok ||
+            reward.status !== "success" ||
+            !Number.isFinite(Number(rewardData?.xp_earned)) ||
+            !Number.isFinite(Number(rewardData?.total_xp)) ||
+            !Array.isArray(rewardData?.badges_awarded) ||
+            !Array.isArray(rewardData?.quests_completed) ||
+            typeof rewardData?.streak_updated !== "boolean" ||
+            !["awarded", "already_collected", "unavailable"].includes(rewardData?.stamp_status)
+          ) {
+            const error = new Error(
+              reward.error || `Check-in reward sync failed (${rewardResponse.status}).`
+            );
+            error.status = rewardResponse.status;
+            throw error;
+          }
+        }
+
+        // Remove a record only after both upload and any required reward sync succeed.
+        const latestRecords = readPendingCheckIns();
+        savePendingCheckIns(latestRecords.filter((pending) => pending.id !== record.id));
+        window.dispatchEvent(new CustomEvent("tourtrail-checkin-synced", {
+          detail: {
+            id: record.id,
+            verified: isVerified,
+            siteName: payload.data.site_name || null,
+          },
+        }));
+      }
+      markServerOnline();
+    } catch (error) {
+      if (
+        !navigator.onLine ||
+        error.name === "TypeError" ||
+        (Number.isInteger(error.status) && error.status >= 500)
+      ) {
+        markServerOffline();
+      }
+      console.error("Could not sync pending check-ins:", error);
+    } finally {
+      syncInProgress = false;
+    }
+  }
+
+  const account = {
+    username,
+    apiUrl: accountUrl,
+    markServerOffline,
+    markServerOnline,
+    showOfflinePage,
+    queueCheckIn,
+    syncPendingCheckIns,
+    updateConnectionStatus,
+    isServerOffline,
+    isOffline,
+    pendingCheckInCount,
+    pageUrl(path) {
+      const url = new URL(path, window.location.href);
+      if (username && url.origin === window.location.origin) {
+        url.searchParams.set("user", username);
+      }
+      return url.href;
+    },
+  };
+
+  // Other page scripts use this shared interface for account-aware navigation and sync.
+  window.TourTrailAccount = account;
+
+  document.addEventListener("DOMContentLoaded", () => {
+    updateConnectionStatus();
+    syncPendingCheckIns();
+    try {
+      if (pendingCheckInCount() > 0) {
+        pendingSyncTimer = window.setInterval(syncPendingCheckIns, 30000);
+      }
+    } catch (error) {
+      console.error("Could not check for pending check-ins:", error);
+    }
+    window.addEventListener("online", syncPendingCheckIns);
+    window.addEventListener("focus", syncPendingCheckIns);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) syncPendingCheckIns();
+    });
+    window.addEventListener("online", updateConnectionStatus);
+    window.addEventListener("offline", updateConnectionStatus);
+    // Other tabs can modify the shared queue, so refresh this tab's status when they do.
+    window.addEventListener("storage", (event) => {
+      if (event.key === PENDING_CHECKINS_KEY || event.key === SERVER_OFFLINE_KEY) {
+        updateConnectionStatus();
+      }
+    });
+    window.addEventListener("tourtrail-pending-checkins-changed", updateConnectionStatus);
+
+    // Keep same-site navigation on the selected account.
+    document.querySelectorAll('a[href$=".html"]').forEach((link) => {
+      const url = new URL(link.href, window.location.href);
+      if (username && url.origin === window.location.origin) {
+        url.searchParams.set("user", username);
+        link.href = url.href;
+      }
+    });
+
+    // Load the account summary once and use it to populate shared XP and streak headers.
+    if (!username) return;
+
+    fetch(account.apiUrl("api/passport.php"), {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    })
+      .then(async (response) => {
+        const profile = await response.json();
+        if (!response.ok || !profile.user) {
+          const error = new Error(profile.error || `Account request failed (${response.status}).`);
+          error.status = response.status;
+          throw error;
+        }
+        markServerOnline();
+
+        const streak = Number(profile.user.streak_count);
+        const xp = Number(profile.user.xp_count);
+        const avatarUrl = profile.user.avatar_url;
+
+        // Update all matching header indicators, including pages with duplicate layouts.
+        document.querySelectorAll("#streak-count").forEach((element) => {
+          element.textContent = Number.isFinite(streak) ? String(streak) : "0";
+        });
+
+        // Update XP count elements
+        document.querySelectorAll("#xp-count").forEach((element) => {
+          element.textContent = Number.isFinite(xp) ? xp.toLocaleString("en-US") : "0";
+        });
+
+        // Leave the current avatar in place when the account has no saved image.
+        if (avatarUrl) {
+          document.querySelectorAll("#player-avatar img").forEach((imgElement) => {
+            imgElement.src = avatarUrl;
+          });
+        }
+
+        setPill(
+          document.querySelector("#streak"),
+          "Streaks: ",
+          Number.isFinite(streak) ? String(streak) : "0"
+        );
+        setPill(
+          document.querySelector("#xp"),
+          "",
+          `${Number.isFinite(xp) ? xp.toLocaleString("en-US") : "0"} XP`
+        );
+      })
+      .catch((error) => {
+        if (
+          !navigator.onLine ||
+          error.name === "TypeError" ||
+          (Number.isInteger(error.status) && error.status >= 500)
+        ) {
+          markServerOffline();
+        }
+        console.error("Could not load the account summary:", error);
+      })
+  });
+})();
