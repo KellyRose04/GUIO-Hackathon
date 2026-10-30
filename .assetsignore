@@ -1,0 +1,6 @@
+api/
+php/
+database/
+*.php
+*.sql
+.env
