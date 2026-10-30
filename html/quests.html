@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#FBF9F2">
   <title>GUIO — Quests</title>
   <link rel="icon" type="image/png" href="../assets/guio_logo.png">
-  <link rel="stylesheet" href="../css/quests.css?v=blue-cream-2">
-  <script src="../js/quests.js?v=quest-page-2" defer></script>
+  <link rel="stylesheet" href="../css/quests.css?v=quest-qr-1">
+  <script src="../js/quests.js?v=quest-qr-1" defer></script>
 </head>
 <body>
   <header id="top-nav">
@@ -35,7 +35,7 @@
       <div>
         <p class="eyebrow">Explore Baguio</p>
         <h1>Quests</h1>
-        <p class="page-intro">Follow a trail, discover local stories, and check in at each stop.</p>
+        <p class="page-intro">Follow a trail, discover local stories, and scan a destination QR code to complete each mission.</p>
       </div>
       <div class="heading-mark" aria-hidden="true">⚑</div>
     </div>
@@ -109,20 +109,29 @@
       <div class="tag-row" id="mission-tags"></div>
       <h2 id="mission-title"></h2>
       <p class="mission-location" id="mission-location"></p>
-      <p class="dialog-description" id="mission-description">Visit this stop and check in to continue your quest.</p>
+      <p class="dialog-description" id="mission-description">Visit this destination and scan its QR code provided by the focal person.</p>
       <section class="todo-card" aria-labelledby="mission-todo-heading">
         <h3 id="mission-todo-heading">What to do here</h3>
         <ol>
           <li><span>1</span><span>Explore the site and its local story</span></li>
           <li><span>2</span><span>Look for details that make this stop unique</span></li>
-          <li><span>3</span><span>Check in to record your mission</span></li>
+          <li><span>3</span><span>Ask the destination focal person for the QR code</span></li>
         </ol>
       </section>
       <div class="reward-row mission-reward">
         <span class="reward-icon" aria-hidden="true">✦</span>
-        <div><strong>Mission reward</strong><span id="mission-reward-copy">Earn XP and a site stamp when you check in.</span></div>
+        <div><strong>Mission verification</strong><span id="mission-reward-copy">Scan the destination QR code to complete this mission.</span></div>
       </div>
-      <a class="primary-button dialog-action" id="mission-checkin" href="camera.html">Check in here</a>
+      <div class="destination-qr-controls">
+        <video id="destination-qr-video" playsinline muted hidden></video>
+        <button class="primary-button dialog-action" id="scan-destination-qr" type="button">Scan destination QR</button>
+        <p id="destination-qr-status" role="status" aria-live="polite">Start the quest to scan destination codes.</p>
+        <label for="destination-qr-token">Or enter the QR code</label>
+        <div class="destination-qr-entry">
+          <input id="destination-qr-token" type="text" inputmode="text" autocomplete="off" placeholder="Paste QR code text" disabled>
+          <button class="secondary-button" id="verify-destination-qr" type="button" disabled>Verify</button>
+        </div>
+      </div>
     </div>
   </dialog>
 </body>

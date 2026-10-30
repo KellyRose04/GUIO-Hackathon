@@ -446,19 +446,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
         // Track quest badges alongside XP so the response can notify about every new award.
         $badgesAwarded = [];
         $questsCompleted = [];
-        // Update active quests and collect any quest-completion XP.
-        $questXp = updateQuestProgressForCheckin(
-            $pdo,
-            $userId,
-            $siteId,
-            $checkinId,
-            $visitDate,
-            $streakCount,
-            $isCurrentStreakCheckin,
-            $badgesAwarded,
-            $questsCompleted
-        );
-        // Add newly earned site XP and quest XP to the user's account total.
+        // Check-ins do not advance quest missions; destination QR verification does.
+        $questXp = 0;
+        // Add newly earned site XP to the user's account total.
         $totalXpDelta = max(0, $xpEarned - $previousXp) + $questXp;
         if ($totalXpDelta > 0) {
             $updateUserXp = $pdo->prepare(

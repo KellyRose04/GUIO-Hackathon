@@ -6,6 +6,11 @@
   const filterContainer = document.getElementById("quest-filters");
   const questDialog = document.getElementById("quest-dialog");
   const missionDialog = document.getElementById("mission-dialog");
+  const scanButton = document.getElementById("scan-destination-qr");
+  const qrVideo = document.getElementById("destination-qr-video");
+  const qrInput = document.getElementById("destination-qr-token");
+  const verifyButton = document.getElementById("verify-destination-qr");
+  const qrStatus = document.getElementById("destination-qr-status");
   if (!questGrid || !currentContent || !filterContainer || !questDialog || !missionDialog) return;
 
   let selectedFilter = "all";
@@ -14,6 +19,9 @@
   let questCatalog = [];
   let displayedQuests = [];
   let questCatalogStatus = "loading";
+  let cameraStream = null;
+  let scanFrame = null;
+  let isVerifyingDestination = false;
 
   function getUsername() {
     const params = new URLSearchParams(window.location.search);
@@ -66,6 +74,7 @@
           state: stop.stop_state || stop.state,
         }))
       : [];
+    const status = raw.quest_status || raw.status || "available";
 
     return {
       key: raw.quest_key || `quest-${raw.quest_id || "unknown"}`,
@@ -76,9 +85,12 @@
       questType: raw.quest_type || "sites",
       target: Math.max(0, Number(raw.target_count) || stops.length),
       xp: Math.max(0, Number(raw.xp_reward) || 0),
-      badge: raw.reward_badge_name || "Quest reward",
       icon: raw.icon || "⚑",
       stops,
+      progress: Math.max(0, Number(raw.progress_count) || 0),
+      status,
+      isActive: status === "current",
+      isDone: status === "done",
     };
   }
 
@@ -113,9 +125,9 @@
       target,
       progress,
       xp: Math.max(0, Number(raw.xp_reward) || Number(fallback?.xp) || 0),
-      badge: raw.reward_badge_name || fallback?.badge || "Quest reward",
       icon: raw.icon || fallback?.icon || "⚑",
       stops,
+      status: "current",
       isActive: true,
       nextSiteId: stops.find((stop) => stop.state === "next")?.site_id || raw.next_site_id || null,
     };
@@ -153,7 +165,7 @@
         let state = stop.state;
         if (!state) {
           if (quest.isActive && index < quest.progress) state = "done";
-          else if (!nextMarked) { state = "next"; nextMarked = true; }
+          else if (quest.isActive && !nextMarked) { state = "next"; nextMarked = true; }
           else state = "locked";
         }
         if (state === "next") nextMarked = true;
@@ -232,7 +244,7 @@
       const content = element("span", "quest-card-content");
       const heading = element("span", "quest-card-heading");
       heading.append(element("span", "", quest.title));
-      if (quest.isActive) heading.append(element("span", "active-tag", "Active"));
+      heading.append(element("span", quest.isActive ? "active-tag" : "quest-tag", quest.isActive ? "Current" : quest.isDone ? "Done" : "Available"));
       content.append(heading);
       content.append(element("span", "quest-card-description", quest.description));
       const meta = element("span", "quest-card-meta");
@@ -265,15 +277,19 @@
     title.textContent = quest.title;
     description.textContent = quest.description;
     tags.replaceChildren(element("span", "quest-tag", quest.category || "Quest"));
-    if (quest.isActive) tags.append(element("span", "active-tag", "Active"));
+    tags.append(element(
+      quest.isActive ? "active-tag" : "quest-tag",
+      "",
+      quest.isActive ? "Current" : quest.isDone ? "Done" : "Available"
+    ));
     progressCount.textContent = quest.isActive
       ? `${quest.progress} of ${quest.target}`
       : `${quest.target || stops.length} missions`;
     document.getElementById("dialog-progress-label").textContent = quest.isActive ? "Quest progress" : "Route length";
     const percent = quest.isActive && quest.target ? Math.min(100, (quest.progress / quest.target) * 100) : 0;
     progressFill.style.width = `${percent}%`;
-    rewardTitle.textContent = quest.isActive ? `+${quest.xp} XP · ${quest.badge}` : `Up to +${quest.xp} XP`;
-    rewardCopy.textContent = quest.isActive ? "Quest reward" : "Earn XP as you complete the trail.";
+    rewardTitle.textContent = quest.isActive ? `+${quest.xp} XP` : `Up to +${quest.xp} XP`;
+    rewardCopy.textContent = quest.isActive ? "Quest reward" : "Complete the destinations to finish this quest.";
     document.getElementById("dialog-mission-total").textContent = `${stops.length || quest.target || 0} total`;
 
     missionList.replaceChildren();
@@ -285,7 +301,7 @@
         const item = element("li", `is-${state}`);
         item.append(element("span", "mission-state", state === "done" ? "✓" : String(index + 1)));
         const name = element("span", "mission-name", stop.title);
-        const label = state === "done" ? "Visited" : state === "next" ? "Next mission" : `Locked until mission ${index}`;
+        const label = state === "done" ? "Visited" : state === "next" ? "Current mission" : "To be visited";
         name.append(element("span", "mission-subtitle", label));
         item.append(name, element("span", "mission-chevron", state === "locked" ? "·" : "›"));
         missionList.append(item);
@@ -293,12 +309,173 @@
     }
 
     const openMissionButton = document.getElementById("open-mission");
-    openMissionButton.textContent = quest.isActive ? "Go to next mission" : "Preview route";
+    openMissionButton.textContent = quest.isActive
+      ? "Go to current destination"
+      : quest.isDone
+        ? "Quest complete"
+        : username
+          ? "Start quest"
+          : "Select an account to start";
+    openMissionButton.disabled = quest.isDone || (!username && !quest.isActive);
     questDialog.showModal();
   }
 
-  function openMission() {
+  function stopQrCamera() {
+    if (scanFrame !== null) {
+      window.cancelAnimationFrame(scanFrame);
+      scanFrame = null;
+    }
+    if (cameraStream) {
+      cameraStream.getTracks().forEach((track) => track.stop());
+      cameraStream = null;
+    }
+    if (qrVideo) {
+      qrVideo.pause();
+      qrVideo.srcObject = null;
+      qrVideo.hidden = true;
+    }
+  }
+
+  function qrTokenFromValue(value) {
+    const rawValue = String(value || "").trim();
+    if (!rawValue) return "";
+    try {
+      const url = new URL(rawValue);
+      return url.searchParams.get("token") || rawValue;
+    } catch {
+      return rawValue;
+    }
+  }
+
+  async function verifyDestinationQr(rawValue) {
+    if (!username || !activeQuest || isVerifyingDestination) return;
+    const qrToken = qrTokenFromValue(rawValue);
+    if (!qrToken) {
+      qrStatus.textContent = "Scan or enter a destination QR code.";
+      return;
+    }
+
+    isVerifyingDestination = true;
+    verifyButton.disabled = true;
+    scanButton.disabled = true;
+    qrStatus.textContent = "Verifying destination code…";
+    try {
+      const url = new URL("../api/quests.php", window.location.href);
+      url.searchParams.set("user", username);
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ action: "verify_destination", qr_token: qrToken }),
+      });
+      const payload = await response.json();
+      if (!response.ok || payload.status !== "success") {
+        throw new Error(payload.error || "This destination code could not be verified.");
+      }
+
+      stopQrCamera();
+      qrInput.value = "";
+      qrStatus.textContent = payload.quest_status === "done"
+        ? "Quest complete! You finished every destination."
+        : "Destination verified. Your next mission is now current.";
+      await loadQuestCatalog();
+      if (payload.quest_status === "done") {
+        missionDialog.close();
+        return;
+      }
+      if (activeQuest) {
+        selectedQuest = activeQuest;
+        missionDialog.close();
+        openMission();
+      }
+    } catch (error) {
+      qrStatus.textContent = error.message || "This destination code could not be verified.";
+    } finally {
+      isVerifyingDestination = false;
+      verifyButton.disabled = false;
+      scanButton.disabled = false;
+    }
+  }
+
+  async function startQrCamera() {
+    if (typeof window.BarcodeDetector !== "function") {
+      qrStatus.textContent = "QR scanning isn't supported by this browser. Enter the code below.";
+      return;
+    }
+    if (!navigator.mediaDevices?.getUserMedia) {
+      qrStatus.textContent = "Camera access is unavailable. Enter the QR code below.";
+      return;
+    }
+
+    stopQrCamera();
+    try {
+      const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
+      cameraStream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: { facingMode: { ideal: "environment" } },
+      });
+      qrVideo.srcObject = cameraStream;
+      qrVideo.hidden = false;
+      await qrVideo.play();
+      qrStatus.textContent = "Point your camera at the destination QR code.";
+
+      const scan = async () => {
+        if (!cameraStream || missionDialog.open === false) return;
+        try {
+          const codes = await detector.detect(qrVideo);
+          if (codes.length && codes[0].rawValue) {
+            stopQrCamera();
+            await verifyDestinationQr(codes[0].rawValue);
+            return;
+          }
+        } catch (error) {
+          qrStatus.textContent = "Could not read the QR code. Try again or enter it below.";
+          stopQrCamera();
+          return;
+        }
+        scanFrame = window.requestAnimationFrame(scan);
+      };
+      scanFrame = window.requestAnimationFrame(scan);
+    } catch (error) {
+      stopQrCamera();
+      qrStatus.textContent = error.name === "NotAllowedError"
+        ? "Allow camera access to scan, or enter the QR code below."
+        : "The camera couldn't be started. Enter the QR code below.";
+    }
+  }
+
+  async function openMission() {
     if (!selectedQuest) return;
+    if (!selectedQuest.isActive && !selectedQuest.isDone) {
+      if (!username) return;
+      const startButton = document.getElementById("open-mission");
+      startButton.disabled = true;
+      try {
+        const url = new URL("../api/quests.php", window.location.href);
+        url.searchParams.set("user", username);
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ quest_key: selectedQuest.key }),
+        });
+        const payload = await response.json();
+        if (!response.ok || !payload.active_quest) {
+          throw new Error(payload.error || "This quest could not be started.");
+        }
+
+        activeQuest = normaliseActiveQuest(payload.active_quest);
+        await loadQuestCatalog();
+        selectedQuest = activeQuest || normaliseQuest(payload.active_quest);
+        questDialog.close();
+        openQuest(selectedQuest);
+      } catch (error) {
+        console.error("Could not start quest:", error);
+        startButton.disabled = false;
+        startButton.textContent = error.message || "Quest could not be started";
+        return;
+      }
+    }
+
+    if (selectedQuest.isDone) return;
     const stops = getQuestStops(selectedQuest);
     const nextIndex = stops.findIndex((stop) => stop.state === "next");
     const mission = nextIndex >= 0 ? stops[nextIndex] : stops[0];
@@ -312,26 +489,44 @@
       ? `Mission ${Math.max(0, nextIndex >= 0 ? nextIndex : 0) + 1} of ${stops.length || selectedQuest.target || 1}`
       : "Explore nearby stops on the map";
     document.getElementById("mission-description").textContent = selectedQuest.isActive
-      ? "Visit this stop and check in to continue your quest."
+      ? "Visit this destination and scan its QR code provided by the focal person."
       : "Preview this route and browse its nearby stops on the map.";
     document.getElementById("mission-reward-copy").textContent = selectedQuest.isActive
-      ? `Part of the +${selectedQuest.xp} XP ${selectedQuest.badge} quest reward.`
-      : `Earn up to +${selectedQuest.xp} XP by completing the trail.`;
+      ? "The focal person’s QR code verifies this destination."
+      : "Start the quest to unlock its first destination.";
 
-    const checkin = document.getElementById("mission-checkin");
-    checkin.textContent = selectedQuest.isActive ? "Check in here" : "Browse nearby sites";
-    const targetPath = selectedQuest.isActive ? "camera.html" : "../index.html";
-    const url = new URL(targetPath, window.location.href);
-    if (selectedQuest.isActive && mission?.site_id) url.searchParams.set("siteId", mission.site_id);
-    if (username) url.searchParams.set("user", username);
-    checkin.href = url.href;
+    scanButton.hidden = !selectedQuest.isActive;
+    qrInput.disabled = !selectedQuest.isActive;
+    verifyButton.disabled = !selectedQuest.isActive;
+    qrStatus.textContent = selectedQuest.isActive
+      ? "Scan the QR code at this destination."
+      : "Start the quest to scan destination codes.";
+    qrInput.value = "";
+    stopQrCamera();
 
     questDialog.close();
     missionDialog.showModal();
   }
 
-  function renderFromProfile(profile) {
-    activeQuest = normaliseActiveQuest(profile?.active_quest);
+  async function loadQuestCatalog() {
+    try {
+      const url = new URL("../api/quests.php", window.location.href);
+      if (username) url.searchParams.set("user", username);
+      const response = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok || !Array.isArray(payload.quests)) {
+        throw new Error(payload.error || "Quest catalog is unavailable.");
+      }
+      questCatalog = payload.quests.map(normaliseQuest).filter(Boolean);
+      activeQuest = normaliseActiveQuest(payload.active_quest);
+      questCatalogStatus = "loaded";
+    } catch (error) {
+      console.warn("Could not load quest catalog:", error);
+      questCatalog = [];
+      activeQuest = null;
+      questCatalogStatus = "error";
+    }
+
     displayedQuests = [...questCatalog];
     if (activeQuest) {
       const existingIndex = displayedQuests.findIndex((quest) => quest.key === activeQuest.key || quest.title === activeQuest.title);
@@ -343,61 +538,27 @@
     renderCards();
   }
 
-  async function loadQuestCatalog() {
-    try {
-      const url = new URL("../api/quests.php", window.location.href);
-      const response = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
-      const payload = await response.json();
-      if (!response.ok || !Array.isArray(payload.quests)) {
-        throw new Error(payload.error || "Quest catalog is unavailable.");
-      }
-      questCatalog = payload.quests.map(normaliseQuest).filter(Boolean);
-      questCatalogStatus = "loaded";
-    } catch (error) {
-      console.warn("Could not load quest catalog:", error);
-      questCatalog = [];
-      questCatalogStatus = "error";
-    }
-
-    displayedQuests = [...questCatalog];
-    if (activeQuest) {
-      const existingIndex = displayedQuests.findIndex((quest) => quest.key === activeQuest.key || quest.title === activeQuest.title);
-      if (existingIndex >= 0) displayedQuests[existingIndex] = { ...displayedQuests[existingIndex], ...activeQuest };
-      else displayedQuests.unshift(activeQuest);
-    }
-    renderFilters();
-    renderCards();
-  }
-
-  async function loadQuestProgress() {
-    if (!username) {
-      renderCurrentQuest();
-      renderCards();
-      return;
-    }
-    try {
-      const url = new URL("../api/passport.php", window.location.href);
-      url.searchParams.set("user", username);
-      const response = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
-      const profile = await response.json();
-      if (!response.ok || !profile.user) throw new Error(profile.error || "Quest progress is unavailable.");
-      renderFromProfile(profile);
-    } catch (error) {
-      console.warn("Could not load quest progress:", error);
-      renderFromProfile(null);
-      currentContent.querySelector(".current-empty p").textContent = "Quest progress is unavailable right now. You can still browse available quests.";
-    }
-  }
-
   document.querySelector("[data-close-quest]").addEventListener("click", () => questDialog.close());
-  document.querySelector("[data-close-mission]").addEventListener("click", () => missionDialog.close());
+  document.querySelector("[data-close-mission]").addEventListener("click", () => {
+    stopQrCamera();
+    missionDialog.close();
+  });
   document.querySelector("[data-back-quest]").addEventListener("click", () => {
+    stopQrCamera();
     missionDialog.close();
     window.setTimeout(() => questDialog.showModal(), 0);
   });
   document.getElementById("open-mission").addEventListener("click", openMission);
+  scanButton.addEventListener("click", startQrCamera);
+  verifyButton.addEventListener("click", () => verifyDestinationQr(qrInput.value));
+  qrInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      verifyDestinationQr(qrInput.value);
+    }
+  });
+  missionDialog.addEventListener("close", stopQrCamera);
   addUserToLinks();
   renderFilters();
   loadQuestCatalog();
-  loadQuestProgress();
 })();
