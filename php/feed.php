@@ -1,6 +1,6 @@
 <?php
 /**
- * TourTrail: feed.php
+ * GUIO feed API.
  *
  * JSON API endpoint for the social feed.
  *

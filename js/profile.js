@@ -123,7 +123,6 @@
       console.error("Could not save the offline connection status:", error);
     }
     updateConnectionStatus();
-    window.dispatchEvent(new Event("tourtrail-connection-changed"));
   }
 
   function markServerOnline() {
@@ -133,7 +132,6 @@
       console.error("Could not save the online connection status:", error);
     }
     updateConnectionStatus();
-    window.dispatchEvent(new Event("tourtrail-connection-changed"));
   }
 
   function isServerOffline() {

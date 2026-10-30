@@ -24,19 +24,9 @@ try {
     $search   = isset($_GET['search']) ? trim($_GET['search']) : '';
     $sort     = isset($_GET['sort']) ? $_GET['sort'] : 'nearest';
 
-    $statusSql = $userId === null
-        ? "CASE WHEN is_hidden_gem = 1 THEN 'hidden_gem' ELSE 'new' END"
-        : "CASE WHEN EXISTS (
-                SELECT 1 FROM checkins c
-                 WHERE c.site_id = sites.id AND c.user_id = :account_user_id
-                   AND c.is_verified = 1
-            ) THEN 'visited'
-                 WHEN is_hidden_gem = 1 THEN 'hidden_gem'
-                 ELSE 'new'
-            END";
+    $statusSql = "CASE WHEN is_hidden_gem = 1 THEN 'hidden_gem' ELSE 'new' END";
 
     $sql = "SELECT id, title, category, is_hidden_gem,
-            (SELECT stamp_name FROM stamps WHERE site_id = sites.id ORDER BY id LIMIT 1) AS stamp_name,
             $statusSql AS status,
             latitude, longitude, image_url, description, operating_hours, entrance_fee,
             ( 6371 * acos( cos( radians(:user_lat1) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(:user_lng) ) + sin( radians(:user_lat2) ) * sin( radians( latitude ) ) ) ) AS distance_km
@@ -47,10 +37,6 @@ try {
         ':user_lng'  => $user_lng,
         ':user_lat2' => $user_lat
     ];
-    if ($userId !== null) {
-        $params[':account_user_id'] = $userId;
-    }
-
     if ($category !== 'all') {
         if ($category === 'gems') {
             $sql .= " AND is_hidden_gem = 1";
@@ -100,7 +86,7 @@ try {
     echo json_encode([
         'status' => 'error',
         'code' => 'database_unavailable',
-        'error' => 'Sites are temporarily unavailable. Check-ins will sync when the database is available.',
+        'error' => 'Destinations are temporarily unavailable.',
     ]);
 } catch (InvalidArgumentException $e) {
     http_response_code(400);
