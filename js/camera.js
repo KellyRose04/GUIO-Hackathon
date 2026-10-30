@@ -29,14 +29,12 @@
     // Camera messages and retry controls.
     previewCaption: document.getElementById("preview-caption"),
     cameraRetry: document.getElementById("camera-retry"),
-    verifyRetry: document.getElementById("verify-retry"),
     captureButton: document.getElementById("capture-button"),
     photoMode: document.getElementById("photo-mode"),
     qrMode: document.getElementById("qr-mode"),
     qrResult: document.getElementById("qr-result"),
     qrResultText: document.getElementById("qr-result-text"),
     qrRescan: document.getElementById("qr-rescan"),
-    earnStampButton: document.getElementById("earn-stamp-button"),
     // Nearby-site stamp reward text.
     rewardTitle: document.getElementById("reward-title"),
     rewardDescription: document.getElementById("reward-description"),
@@ -290,10 +288,11 @@
       Boolean(verifiedSite) ||
       checkInComplete;
     // Only offer reward after site verification; only offer retry while verification can be retried.
-    elements.earnStampButton.hidden = !verifiedSite || awarding || checkInComplete;
-    elements.verifyRetry.hidden =
-      !pendingPhoto || Boolean(verifiedSite) || verifying || checkInComplete;
-    elements.earnStampButton.disabled = !verifiedSite || awarding || checkInComplete;
+    if (elements.earnStampButton) {
+      elements.earnStampButton.hidden = true;
+      elements.earnStampButton.disabled = true;
+    }
+    if (elements.verifyRetry) elements.verifyRetry.hidden = true;
     const modeLocked = capturing || verifying || awarding || Boolean(verifiedSite) || checkInComplete;
     elements.photoMode.disabled = modeLocked;
     elements.qrMode.disabled = modeLocked;
@@ -819,10 +818,9 @@
     });
   }
 
-  // Takes a photo from the preview and starts the check-in process.
+  // Saves the captured photo locally and confirms it before opening My Gallery.
   async function capturePhoto() {
-    // Do not start another capture while a check-in is being processed or completed.
-    if (!cameraReady || capturing || verifying || awarding || verifiedSite) return;
+    if (!cameraReady || capturing) return;
     // Wait until the video element has received a frame before capturing.
     if (!elements.video.videoWidth || !elements.video.videoHeight) {
       elements.previewCaption.textContent = "Waiting for the camera to be ready. Try again in a moment.";
@@ -846,7 +844,7 @@
       return;
     }
 
-    // Disable the shutter while preparing and verifying this photo.
+    // Disable the shutter while the photo is being saved.
     capturing = true;
     updateCameraControls();
     let imageUrl;
@@ -862,40 +860,37 @@
     elements.video.hidden = true;
     elements.panel.classList.add("is-captured");
     elements.previewCaption.textContent = "Preparing your photo…";
-    try {
-      await requestPhotoLocation();
-    } catch (error) {
-      console.warn("Could not get a photo location:", error);
-      currentPosition = null;
-    }
-    // Attach a location fix only when available so the server can validate the check-in.
     const photo = {
       id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       imageUrl,
       takenAt: new Date().toISOString(),
-      gps: currentPosition
-        ? {
-            lat: currentPosition.latitude,
-            lng: currentPosition.longitude,
-            accuracy: currentPosition.accuracy,
-          }
-        : null,
-      xp: 0,
     };
 
     try {
-      // Save this photo as the sole pending check-in and begin the verification flow.
-      pendingPhoto = photo;
-      verifiedSite = null;
-      checkInComplete = false;
-      completionVerified = false;
-      updateStepStates();
-      elements.previewCaption.textContent = "Saving your photo…";
-      await verifyCheckIn(photo);
+      if (!window.GUIOGalleryStorage) {
+        throw new Error("My Gallery is unavailable. Please reload and try again.");
+      }
+      await window.GUIOGalleryStorage.savePhoto(photo);
+      document.getElementById("checkin-dialog-title").textContent = "Photo saved";
+      document.getElementById("completion-site").textContent = "";
+      document.getElementById("completion-site-label").hidden = true;
+      document.getElementById("completion-site-separator").hidden = true;
+      document.getElementById("verification-status").hidden = true;
+      document.getElementById("completion-verification").hidden = true;
+      document.getElementById("completion-stamp-label").textContent = "Saved to";
+      document.getElementById("completion-stamp").textContent = "My Gallery";
+      document.getElementById("completion-quest").hidden = true;
+      document.getElementById("completion-distance-row").hidden = true;
+      document.getElementById("done-checkin-dialog").textContent = "Take another photo";
+      document.getElementById("view-gallery-link").href =
+        new URL("profile.html#view-gallery", window.location.href).href;
+      elements.previewCaption.textContent = "Photo saved to My Gallery.";
+      if (!elements.dialog.open) elements.dialog.showModal();
     } catch (error) {
       console.error("Could not process the captured photo:", error);
-      elements.previewCaption.textContent =
-        "The photo could not be processed. Please try again.";
+      elements.previewCaption.textContent = error instanceof Error
+        ? error.message
+        : "The photo could not be saved. Please try again.";
     } finally {
       capturing = false;
       updateCameraControls();
@@ -1233,8 +1228,7 @@
         ? "No passport stamp is configured for this site."
         : `${verifiedSite.name} check-in verified.`;
     // Reset verification and site labels to their successful-check-in state.
-    document.getElementById("checkin-dialog-title").textContent =
-      "Check-in complete!";
+    document.getElementById("checkin-dialog-title").textContent = "Photo saved";
     document.getElementById("verification-status").classList.remove("unverified");
     document.getElementById("verification-status").hidden = false;
     document.getElementById("completion-site-separator").textContent = " · ";
@@ -1306,19 +1300,6 @@
     elements.qrMode.addEventListener("click", () => setCameraMode("qr"));
     elements.qrRescan.addEventListener("click", () => setCameraMode("qr"));
     elements.cameraRetry.addEventListener("click", startCamera);
-    // Let the visitor retry verification using the same captured photo.
-    elements.verifyRetry.addEventListener("click", () => {
-      // Retry the same captured photo rather than capturing a new one.
-      verifyCheckIn(pendingPhoto);
-    });
-    // Connect the reward button to the verified-site award flow.
-    elements.earnStampButton.addEventListener("click", () => {
-      earnStamp().catch((error) => {
-        console.error("Could not award the verified stamp:", error);
-        elements.previewCaption.textContent =
-          "The stamp could not be saved. Please try again.";
-      });
-    });
     /** Closes the completion dialog and resets transient check-in state. */
     // Reset temporary state and popup styling when the visitor closes the dialog.
     const closeCheckInDialog = () => {

@@ -9,9 +9,10 @@
   <title>GUIO — Camera</title>
   <meta name="theme-color" content="#FBF9F2">
   <link rel="icon" type="image/png" href="../assets/guio_logo.png"> <!-- Logo for browser tab -->
-  <link rel="stylesheet" href="../css/camera.css?v=no-level-xp-1">
+  <link rel="stylesheet" href="../css/camera.css?v=hide-pending-status-1">
+  <script src="../js/gallery-storage.js?v=1" defer></script>
   <script src="../js/profile.js?v=15" defer></script>
-  <script src="../js/camera.js?v=no-level-xp-1" defer></script>
+  <script src="../js/camera.js?v=photo-saved-gallery-1" defer></script>
 </head>
 
 <body>
@@ -68,7 +69,6 @@
         <i class="corner br"></i>
         <div class="preview-caption" id="preview-caption">Requesting camera access…</div>
         <button class="camera-retry" id="camera-retry" type="button" hidden>Allow camera access</button>
-        <button class="verify-retry" id="verify-retry" type="button" hidden>Retry verification</button>
       </div>
       <div class="qr-result" id="qr-result" hidden aria-live="polite">
         <p id="qr-result-text"></p>
@@ -98,34 +98,33 @@
       </section>
       <!-- Check-in steps card -->
       <section class="steps-card">
-        <h2>Check-in steps</h2>
+        <h2>Next step</h2>
         <div class="step current" id="step-photo">
           <span class="step-indicator">1</span>
-          <span>Take a photo of the site</span>
+          <span>Take your photo</span>
         </div>
         <div class="step pending" id="step-proof">
           <span class="step-indicator">2</span>
-          <span>Verify the location on the map</span>
+          <span>Your photo opens in My Gallery</span>
         </div>
-        <div class="step pending" id="step-verify">
-          <span class="step-indicator">3</span>
-          <span>Earn your stamp</span>
-        </div>
-        <button class="earn-stamp-button" id="earn-stamp-button" type="button" hidden>Earn stamp</button>
       </section>
       <!-- Check-in stamp reward -->
       <section class="reward-card">
-        <img class="reward-icon" src="../assets/Group.png" alt="">
+        <span class="photo-saved-check" role="img" aria-label="Success">
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <path d="m11 24 9 9 18-19" />
+          </svg>
+        </span>
         <div>
-          <strong id="reward-title">Stamp: Salt Keeper</strong>
-          <p id="reward-description">Complete your check-in to earn this site’s stamp.</p>
+          <strong id="reward-title">My Gallery</strong>
+          <p id="reward-description">After you take a photo, it will be saved and your gallery will open.</p>
         </div>
       </section>
       <!-- List of recent check-ins card -->
       <section class="recent-card">
         <h2>Recent check-ins</h2>
         <div id="recent-checkins-list">
-          <p class="recent-empty">No verified check-ins yet.</p>
+          <p class="recent-empty">Your saved photos appear in My Gallery.</p>
         </div>
       </section>
     </aside>
@@ -135,8 +134,8 @@
   <dialog class="checkin-dialog" id="checkin-dialog">
     <div class="checkin-dialog-content">
       <button class="dialog-close" id="close-checkin-dialog" type="button">×</button>
-      <img class="reward-icon" src="../assets/Group.png" alt="">
-      <h2 id="checkin-dialog-title">Check-in complete!</h2>
+      <img class="reward-icon" src="../assets/camera.png" alt="">
+      <h2 id="checkin-dialog-title">Photo saved</h2>
       <!-- Details about the site where the user checked in -->
       <p class="completion-site">
         <span id="completion-site-label" hidden>Spot</span>
@@ -144,27 +143,25 @@
         <span id="completion-site-separator"> · </span>
         <span id="verification-status" class="verification-status">Verified by GPS</span>
       </p>
-      <p id="completion-verification">GPS matched a registered tourist spot</p>
+      <p id="completion-verification" hidden></p>
       <div class="completion-rewards">
         <span>
-          <span id="completion-stamp-label">Stamp earned</span>
-          <span id="completion-stamp"></span>
+          <span id="completion-stamp-label">Saved to</span>
+          <span id="completion-stamp">My Gallery</span>
         </span>
       </div>
       <!-- Display current quest -->
-      <div class="completion-quest" id="completion-quest">
+      <div class="completion-quest" id="completion-quest" hidden>
         <img src="../assets/Group.png" alt="">
         <span>Hidden Gems Trail: — / — sites</span>
       </div>
-      <!-- Distance from exact site (shown when site is verified; hidden when site is unverified) -->
       <div id="completion-distance-row" hidden>
         <span>Distance</span>
         <span id="completion-distance"></span>
       </div>
-      <!-- Two buttons at the bottom of the pop up -->
       <div class="dialog-actions">
-        <button class="dialog-done" id="done-checkin-dialog" type="button">Keep exploring</button>
-        <a class="view-passport" href="profile.html">View my profile</a>
+        <button class="dialog-done" id="done-checkin-dialog" type="button">Take another photo</button>
+        <a class="view-passport" id="view-gallery-link" href="profile.html#view-gallery">View My Gallery</a>
       </div>
     </div>
   </dialog>

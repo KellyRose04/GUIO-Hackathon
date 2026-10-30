@@ -93,10 +93,7 @@ button {
 }
 
 #connection-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 8px 16px;
+    display: none !important;
 }
 
 #connection-bar p {
@@ -288,17 +285,6 @@ button {
         padding-bottom: calc(var(--bottom-nav-h) + 16px + env(safe-area-inset-bottom, 0px));
     }
 
-    #connection-bar {
-        position: fixed;
-        top: 56px;
-        left: 0;
-        right: 0;
-        z-index: 19;
-    }
-
-    body:has(#pending-status:not([hidden])) .main {
-        top: 96px;
-    }
 }
 
 .camera-panel {
@@ -760,6 +746,29 @@ button {
     outline-offset: 7px; /* Set the gap between outline and element. */
     background: var(--gold); /* Set the element background. */
     object-fit: contain; /* Control how replaced content fits its box. */
+}
+
+.photo-saved-check {
+    width: 136px;
+    height: 136px;
+    display: grid;
+    place-items: center;
+    justify-self: center;
+    border: 4px solid var(--ink);
+    border-radius: 50%;
+    outline: 3px dashed var(--ink);
+    outline-offset: 7px;
+    background: var(--gold);
+}
+
+.photo-saved-check svg {
+    width: 76px;
+    height: 76px;
+    fill: none;
+    stroke: var(--ink);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 5;
 }
 
 .checkin-dialog-content h2 {
