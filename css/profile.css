@@ -1,31 +1,31 @@
 /* Defines reusable site colors, typography, and navigation dimensions. */
 :root {
-    --bg-body: #EAF3FF;
-    --bg-main: #FFFFFF;
-    --border-dark: #174B83;
+    --bg-body: #E5E7EB;
+    --bg-main: #FDFDFB;
+    --border-dark: #2F3135;
     --border-width: 2px;
 
-    --yellow-main: #EAF3FF;
-    --yellow-pale: #EAF3FF;
-    --teal-main: #174B83;
-    --teal-pale: #EAF3FF;
+    --yellow-main: #F6B83B;
+    --yellow-pale: #FBE6B1;
+    --teal-main: #38B291;
+    --teal-pale: #D6EFE9;
     --red-badge: #EF5350;
 
-    --text-dark: #174B83;
-    --text-gray: #536D88;
-    --text-light-gray: #8CA2BA;
+    --text-dark: #2F3135;
+    --text-gray: #6B7280;
+    --text-light-gray: #9CA3AF;
 
-    --gray-locked-bg: #EAF3FF;
-    --gray-locked-border: #D3E2F3;
+    --gray-locked-bg: #F3F4F6;
+    --gray-locked-border: #D1D5DB;
 
-    --ink: #174B83;
+    --ink: #1F2430;
     --white: #FFFFFF;
-    --gold: #EAF3FF;
-    --gold-tint: #EAF3FF;
-    --teal: #174B83;
-    --teal-tint: #EAF3FF;
-    --placeholder: #EAF3FF;
-    --muted: #536D88;
+    --gold: #F5B82E;
+    --gold-tint: #FFF1CC;
+    --teal: #2BB39A;
+    --teal-tint: #D9F4EE;
+    --placeholder: #E6E1D5;
+    --muted: #6B7280;
     --coral: #E5484D;
     --danger-tint: #FDE7E8;
     --nav-h: 72px;
@@ -386,13 +386,13 @@ body {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background-color: #EAF3FF;
+    background-color: #E2E2E2;
     border: var(--border-width) solid var(--border-dark);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: #536D88;
+    color: #999;
 }
 
 /* Controls icon or avatar appearance for .profile-avatar .icon. */
@@ -443,7 +443,7 @@ body {
 .progress-bar-container {
     width: 100%;
     height: 12px;
-    background-color: #EAF3FF;
+    background-color: #E5E7EB;
     border: var(--border-width) solid var(--border-dark);
     border-radius: 6px;
     overflow: hidden;
@@ -700,7 +700,7 @@ body {
 /* Defines interactive and focus states for .stamp-item[data-open="dlg-stamp"]:hover .stamp-circle. */
 .stamp-item[data-open="dlg-stamp"]:hover .stamp-circle {
     transform: scale(1.08) rotate(-4deg);
-    filter: drop-shadow(0 3px 2px rgba(23, 75, 131, 0.2));
+    filter: drop-shadow(0 3px 2px rgba(47, 49, 53, 0.2));
 }
 .badge-item[data-open="dlg-stamp"]:active,
 /* Defines interactive and focus states for .stamp-item[data-open="dlg-stamp"]:active. */
@@ -753,7 +753,7 @@ dialog {
 }
 /* Styles modal popups for stats, stamps, badges, and quests. */
 dialog::backdrop {
-    background: rgba(23, 75, 131, 0.45);
+    background: rgba(47, 49, 53, 0.45);
 }
 /* Styles modal popups for stats, stamps, badges, and quests. */
 dialog[open] { animation: dlg-pop 0.18s ease-out; }
@@ -928,7 +928,7 @@ dialog[open] { animation: dlg-pop 0.18s ease-out; }
 /* Controls chart display and labels for .dlg-bar. */
 .dlg-bar {
     height: 8px;
-    background-color: #EAF3FF;
+    background-color: #E5E7EB;
     border: var(--border-width) solid var(--border-dark);
     border-radius: 4px;
     overflow: hidden;
@@ -968,7 +968,7 @@ dialog[open] { animation: dlg-pop 0.18s ease-out; }
 /* Controls icon or avatar appearance for .dlg-btn .icon. */
 .dlg-btn .icon { width: 14px; height: 14px; }
 /* Controls dialog components for .dlg-btn.primary. */
-.dlg-btn.primary { background-color: var(--teal-main); color: var(--white); }
+.dlg-btn.primary { background-color: var(--yellow-main); }
 /* Defines interactive and focus states for .dlg-btn:hover. */
 .dlg-btn:hover { filter: brightness(0.96); }
 /* Defines interactive and focus states for .dlg-btn:focus-visible. */
@@ -1767,3 +1767,494 @@ html, body {
         bottom: var(--bottom-nav-h);
     }
 }
+
+
+/* ===========================================================================
+   8. MERGED PASSPORT + MY GALLERY
+   Keep the original Passport styles above. All gallery styles below are scoped
+   to its new column or to its two named photo/site dialogs, avoiding gallery.css
+   global selectors that otherwise override the Passport modal and navbar CSS.
+   =========================================================================== */
+
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* The screenshot's two-column Passport layout. */
+@media (min-width: 768px) {
+    .dashboard-content {
+        display: grid;
+        grid-template-columns: minmax(250px, 29%) minmax(0, 1fr);
+        align-items: start;
+        gap: clamp(18px, 2.5vw, 38px);
+        padding: 24px clamp(20px, 3vw, 48px);
+    }
+
+    .dashboard-content > .left-col,
+    .dashboard-content > .right-col {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .dashboard-content > .right-col {
+        grid-column: 2;
+        align-self: start;
+    }
+
+    .left-col { gap: 16px; }
+    .profile-card { padding: 16px; gap: 12px; }
+    .profile-avatar { width: 64px; height: 64px; }
+    .profile-avatar .icon { width: 32px; height: 32px; }
+    .stats-grid { gap: 10px; }
+    .stat-card { padding: 10px; gap: 8px; }
+    .stat-icon { width: 32px; height: 32px; }
+    .active-quest { padding: 14px; gap: 10px; }
+    .badges-card { padding: 16px; flex-grow: 0; }
+    .badges-grid { gap: 12px 6px; }
+    .badge-circle { width: 40px; height: 40px; }
+    .badge-notification-card { padding: 12px 14px; }
+}
+
+@media (min-width: 768px) and (max-width: 1050px) {
+    .dashboard-content { grid-template-columns: minmax(240px, 32%) minmax(0, 1fr); }
+    .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .stat-card { flex-direction: row; text-align: left; }
+    .stat-icon { flex: 0 0 30px; width: 30px; height: 30px; }
+    .profile-avatar { width: 54px; height: 54px; }
+    .profile-avatar .icon { width: 28px; height: 28px; }
+    .profile-name { font-size: 16px; }
+    .stat-card { padding: 8px; gap: 6px; }
+    .stat-number { font-size: 17px; }
+    .stat-label { font-size: 10px; }
+    .badge-circle { width: 34px; height: 34px; }
+    .badge-label { font-size: 9px; }
+}
+
+@media (max-width: 767px) {
+    .dashboard-content {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+        padding: 16px 12px calc(var(--bottom-nav-h) + 28px + env(safe-area-inset-bottom, 0px));
+    }
+    .dashboard-content > .left-col,
+    .dashboard-content > .right-col {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        min-width: 0;
+    }
+    .dashboard-content > .left-col,
+    .dashboard-content > .right-col { flex: 0 0 auto; }
+    .left-col { gap: 16px; }
+    .passport-gallery { margin-top: 8px; }
+    .badge-notification-card { flex-grow: 0; }
+    .profile-card { order: initial; }
+    .stats-section { order: initial; }
+    .active-quest { order: initial; }
+    .badges-card { order: initial; }
+    .badge-notification-card { order: initial; }
+}
+
+/* An unobtrusive connection/PWA status (does not take space in the grid). */
+#connection-bar {
+    position: fixed;
+    top: calc(var(--nav-h) + 4px);
+    right: 12px;
+    z-index: 19;
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0;
+    pointer-events: none;
+}
+#connection-bar p { margin: 0; }
+@media (max-width: 767px) { #connection-bar { top: 60px; } }
+
+/* Compact gallery controls. */
+.passport-gallery {
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    gap: 12px;
+}
+#gallery-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+    margin: 4px 0 2px;
+}
+#gallery-tabs { justify-self: start; min-width: 0; }
+#tab-btn-feed { display: none !important; }
+#tab-btn-mine {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 39px;
+    width: clamp(140px, 17vw, 290px);
+    max-width: 100%;
+    padding: 7px 16px;
+    border: 2px solid var(--border-dark);
+    border-radius: 10px;
+    background: var(--white);
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+#tab-btn-mine:hover { background: var(--gold-tint); }
+.gallery-tab-icon { font-size: 16px; font-weight: 500; line-height: 1; }
+#gallery-count {
+    justify-self: center;
+    min-width: 0;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+}
+#gallery-search {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    min-width: 0;
+    justify-self: end;
+    padding: 0 8px;
+    border: 1.5px solid var(--ink);
+    border-radius: 99px;
+    background: var(--white);
+}
+#gallery-search select {
+    min-width: 0;
+    max-width: 160px;
+    height: 29px;
+    padding: 0 12px 0 2px;
+    border: 0;
+    outline-offset: 1px;
+    background: transparent;
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Photo tiles: four equal columns, site name overlaid on a dark bottom strip. */
+#tab-mine { min-width: 0; width: 100%; }
+#photo-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(10px, 1.15vw, 18px);
+    align-content: start;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+#photo-grid > li { min-width: 0; margin: 0; }
+#photo-grid .gallery-post {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: 10px;
+    box-shadow: none;
+}
+#photo-grid .photo-open {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 10px;
+    background: var(--placeholder);
+    color: var(--ink);
+    text-align: left;
+    box-shadow: none;
+    cursor: pointer;
+}
+#photo-grid .photo-open:hover .photo-img { transform: scale(1.04); }
+#photo-grid .photo-thumb {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--placeholder);
+}
+#photo-grid .photo-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 200ms ease;
+}
+#photo-grid .photo-location {
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    min-height: 25px;
+    padding: 5px 9px;
+    background: rgb(53 53 53 / 80%);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+#photo-grid .photo-location img { display: none; }
+#photo-grid .photo-location-name {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#photo-grid .caption { display: none; }
+#photo-grid .gem-badge,
+#photo-grid .sync-badge {
+    position: absolute;
+    z-index: 2;
+    top: 7px;
+    width: auto;
+    max-width: calc(100% - 14px);
+    padding: 3px 7px;
+    border: 1.5px solid var(--ink);
+    border-radius: 99px;
+    background: var(--gold);
+    color: var(--ink);
+    font-size: 10px;
+    font-weight: 700;
+    pointer-events: none;
+}
+#photo-grid .gem-badge { left: 7px; }
+#photo-grid .gem-badge:empty::before { content: '★'; }
+#photo-grid .sync-badge { right: 7px; background: #fff; }
+
+#mine-loading,
+#mine-empty,
+#mine-error {
+    padding: 24px 14px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+}
+#mine-empty a { color: var(--ink); font-weight: 700; }
+#mine-error { color: var(--coral); }
+#mine-retry,
+#mine-more {
+    min-height: 36px;
+    padding: 7px 14px;
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    background: var(--gold);
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+#mine-more { display: block; margin: 16px auto; }
+#mine-retry { margin-left: 8px; }
+
+/* Breakpoints preserve the rest of the Passport page and its mobile navigation. */
+@media (min-width: 768px) and (max-width: 1250px) {
+    #photo-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 768px) and (max-width: 980px) {
+    #gallery-header { grid-template-columns: 1fr auto; gap: 8px; }
+    #gallery-tabs { grid-column: 1; }
+    #gallery-count { grid-column: 1; grid-row: 2; justify-self: start; }
+    #gallery-search { grid-column: 2; grid-row: 1 / 3; }
+    #tab-btn-mine { width: 150px; }
+}
+@media (max-width: 767px) {
+    #gallery-header { grid-template-columns: 1fr auto; gap: 8px; margin-top: 0; }
+    #gallery-tabs { grid-column: 1; }
+    #gallery-count { grid-column: 1; grid-row: 2; justify-self: start; }
+    #gallery-search { grid-column: 2; grid-row: 1 / 3; }
+    #tab-btn-mine { width: auto; min-width: 145px; }
+    #photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    #photo-grid .photo-location { min-height: 24px; font-size: 10px; }
+}
+@media (max-width: 360px) {
+    #gallery-header { grid-template-columns: minmax(0, 1fr) auto; }
+    #tab-btn-mine { min-width: 122px; padding: 7px 8px; font-size: 11px; }
+    #gallery-search { padding: 0 4px; }
+    #gallery-search select { max-width: 92px; font-size: 10px; }
+}
+
+/* Gallery's photo dialog and destination dialog without affecting Passport dialogs. */
+#dlg-photo,
+#dlg-site {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    width: min(900px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    height: fit-content;
+    max-height: calc(100dvh - 32px);
+    margin: 0;
+    padding: 16px 20px 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 2px solid var(--ink);
+    border-radius: 18px;
+    background: var(--bg-main);
+    color: var(--ink);
+    box-shadow: 0 12px 32px rgba(0,0,0,.2);
+    transform: translate(-50%, -50%);
+}
+#dlg-site { width: min(480px, calc(100vw - 32px)); }
+#dlg-photo::backdrop,
+#dlg-site::backdrop { background: rgb(31 36 48 / 60%); }
+#dlg-photo [data-close],
+#dlg-site [data-close] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    min-height: 40px;
+    margin: 0 0 14px auto;
+    padding: 7px 18px;
+    border: 2px solid var(--ink);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--ink);
+    font: 700 13px/1.2 var(--font);
+    cursor: pointer;
+}
+#photo-content,
+#site-content { display: grid; gap: 12px; min-width: 0; }
+#photo-large,
+#site-photo {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border: 1px solid var(--gray-locked-border);
+    border-radius: 12px;
+    background: var(--placeholder);
+}
+#photo-site-name,
+#site-name { font-size: 20px; font-weight: 800; }
+#photo-author { display: flex; align-items: center; gap: 8px; }
+#photo-author-avatar {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--ink);
+    border-radius: 50%;
+    background: var(--placeholder);
+    object-fit: cover;
+}
+#photo-view,
+#photo-edit-form,
+#photo-delete-confirm {
+    padding: 12px;
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    background: #fff;
+}
+#photo-view { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+#photo-edit-form { display: grid; gap: 8px; }
+#photo-edit-form textarea {
+    width: 100%;
+    min-height: 88px;
+    padding: 8px 10px;
+    border: 1.5px solid var(--ink);
+    border-radius: 8px;
+    resize: vertical;
+}
+#photo-meta { display: grid; gap: 4px; padding: 0; list-style: none; font-size: 12px; }
+#photo-content button:not([data-close]),
+#dlg-site button:not([data-close]),
+#site-checkin {
+    min-height: 35px;
+    padding: 7px 12px;
+    border: 1.5px solid var(--ink);
+    border-radius: 10px;
+    background: #fff;
+    font: 700 12px var(--font);
+    cursor: pointer;
+}
+#photo-edit-form [type='submit'],
+#site-checkin { background: var(--gold); }
+#site-checkin { display: inline-flex; justify-content: center; text-decoration: none; }
+#photo-content [data-action='delete'],
+#photo-content [data-action='confirm-delete'] { background: var(--danger-tint); color: var(--coral); }
+#photo-delete-confirm { display: grid; gap: 8px; }
+#photo-delete-confirm h3 { font-size: 16px; }
+#photo-edit-error,
+#photo-delete-error { font-size: 12px; color: var(--coral); }
+#dlg-photo [hidden],
+#dlg-site [hidden] { display: none !important; }
+#photo-gem,
+#site-gem {
+    justify-self: start;
+    padding: 3px 10px;
+    border: 1.5px solid var(--ink);
+    border-radius: 99px;
+    background: var(--gold);
+    font-size: 11px;
+    font-weight: 700;
+}
+@media (min-width: 768px) {
+    #photo-content { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 12px 24px; }
+    #photo-content > * { grid-column: 2; }
+    #photo-content > #photo-large { grid-column: 1; grid-row: 1 / span 12; }
+}
+@media (max-width: 767px) {
+    #dlg-photo,
+    #dlg-site { width: calc(100% - 20px); max-height: calc(100dvh - 32px); padding: 14px; }
+    #photo-large, #site-photo { max-height: min(34dvh, 280px); object-fit: contain; }
+}
+
+/* The original gallery controller uses this toast for updates and errors. */
+#toast {
+    position: fixed;
+    z-index: 60;
+    bottom: calc(var(--bottom-nav-h) + 16px);
+    left: 50%;
+    max-width: calc(100% - 24px);
+    padding: 10px 16px;
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    background: var(--ink);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    transform: translateX(-50%);
+}
+#toast:empty { display: none; }
+@media (min-width: 768px) { #toast { bottom: 24px; } }
