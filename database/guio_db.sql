@@ -1,10 +1,15 @@
+CREATE DATABASE IF NOT EXISTS guio_db;
 USE guio_db;
 
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     username VARCHAR(100) NOT NULL,
+    anonymous_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_seen TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE KEY uq_users_username (username)
+    UNIQUE KEY uq_users_username (username),
+    UNIQUE KEY uq_users_anonymous_id (anonymous_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS sites (
