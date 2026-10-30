@@ -332,7 +332,7 @@
       }
     });
 
-    // Load the account summary once and use it to populate shared XP and streak headers.
+    // Load the account summary once and populate any shared streak indicators.
     if (!username) return;
 
     fetch(account.apiUrl("api/passport.php"), {
@@ -349,17 +349,11 @@
         markServerOnline();
 
         const streak = Number(profile.user.streak_count);
-        const xp = Number(profile.user.xp_count);
         const avatarUrl = profile.user.avatar_url;
 
         // Update all matching header indicators, including pages with duplicate layouts.
         document.querySelectorAll("#streak-count").forEach((element) => {
           element.textContent = Number.isFinite(streak) ? String(streak) : "0";
-        });
-
-        // Update XP count elements
-        document.querySelectorAll("#xp-count").forEach((element) => {
-          element.textContent = Number.isFinite(xp) ? xp.toLocaleString("en-US") : "0";
         });
 
         // Leave the current avatar in place when the account has no saved image.
@@ -373,11 +367,6 @@
           document.querySelector("#streak"),
           "Streaks: ",
           Number.isFinite(streak) ? String(streak) : "0"
-        );
-        setPill(
-          document.querySelector("#xp"),
-          "",
-          `${Number.isFinite(xp) ? xp.toLocaleString("en-US") : "0"} XP`
         );
       })
       .catch((error) => {

@@ -98,7 +98,6 @@
       category: categoryLabel(raw.category || raw.quest_category || raw.quest_type),
       questType: raw.quest_type || "sites",
       target: Math.max(0, Number(raw.target_count) || stops.length),
-      xp: Math.max(0, Number(raw.xp_reward) || 0),
       icon: raw.icon || "⚑",
       stops,
       progress: Math.max(0, Number(raw.progress_count) || 0),
@@ -138,7 +137,6 @@
       questType: raw.quest_type || fallback?.questType || "sites",
       target,
       progress,
-      xp: Math.max(0, Number(raw.xp_reward) || Number(fallback?.xp) || 0),
       icon: raw.icon || fallback?.icon || "⚑",
       stops,
       status: "current",
@@ -321,8 +319,12 @@
     document.getElementById("dialog-progress-label").textContent = quest.isActive ? "Quest progress" : "Route length";
     const percent = quest.isActive && quest.target ? Math.min(100, (quest.progress / quest.target) * 100) : 0;
     progressFill.style.width = `${percent}%`;
-    rewardTitle.textContent = quest.isActive ? `+${quest.xp} XP` : `Up to +${quest.xp} XP`;
-    rewardCopy.textContent = quest.isActive ? "Quest reward" : "Complete the destinations to finish this quest.";
+    rewardTitle.textContent = "Quest reward";
+    rewardCopy.textContent = quest.isDone
+      ? "You have completed this quest."
+      : quest.isActive
+        ? "Complete the destinations to finish this quest."
+        : "Start this quest to begin exploring its destinations.";
     document.getElementById("dialog-mission-total").textContent = `${stops.length || quest.target || 0} total`;
 
     missionList.replaceChildren();

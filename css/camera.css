@@ -224,8 +224,7 @@ button {
     height: 22px; /* Set the element height. */
 }
 
-#player-status > .stat-pill:has(#streak-count:empty),
-#player-status > .stat-pill:has(#xp-count:empty) {
+#player-status > .stat-pill:has(#streak-count:empty) {
     display: none; /* Set how the element is laid out. */
 }
 
@@ -829,49 +828,6 @@ button {
     object-fit: contain; /* Control how replaced content fits its box. */
 }
 
-.completion-progress {
-    width: 100%; /* Set the element width. */
-}
-
-.completion-progress > div {
-    display: flex; /* Set how the element is laid out. */
-    justify-content: space-between; /* Align children along the main axis. */
-    gap: 12px; /* Set spacing between children. */
-    margin-bottom: 6px; /* Set the bottom outer spacing. */
-    font-size: 17px; /* Set the text size. */
-}
-
-.completion-progress > div span {
-    color: var(--muted); /* Set the text color. */
-    text-align: right; /* Align the text. */
-}
-
-.completion-progress progress {
-    width: 100%; /* Set the element width. */
-    height: 19px; /* Set the element height. */
-    display: block; /* Set how the element is laid out. */
-    overflow: hidden; /* Control content outside the element bounds. */
-    appearance: none; /* Use native browser control appearance. */
-    border: 2px solid var(--ink); /* Set the element border. */
-    border-radius: 99px; /* Round the element corners. */
-    background: var(--avatar); /* Set the element background. */
-}
-
-.completion-progress progress::-webkit-progress-bar {
-    border-radius: 99px; /* Round the element corners. */
-    background: var(--avatar); /* Set the element background. */
-}
-
-.completion-progress progress::-webkit-progress-value {
-    border-radius: 99px; /* Round the element corners. */
-    background: var(--teal); /* Set the element background. */
-}
-
-.completion-progress progress::-moz-progress-bar {
-    border-radius: 99px; /* Round the element corners. */
-    background: var(--teal); /* Set the element background. */
-}
-
 .completion-quest {
     min-height: 62px; /* Set the minimum element height. */
     display: flex; /* Set how the element is laid out. */
@@ -1141,7 +1097,6 @@ button {
 .completion-site,
 #completion-verification,
 .completion-rewards,
-.completion-progress,
 .completion-quest,
 #completion-distance-row {
     display: none !important;

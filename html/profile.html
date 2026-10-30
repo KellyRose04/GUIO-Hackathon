@@ -7,7 +7,7 @@
     <title>GUIO - Profile</title>
 
     <link rel="icon" type="image/png" href="../assets/guio_logo.png">
-    <link rel="stylesheet" href="../css/profile.css?v=passport-wireframe-1">
+    <link rel="stylesheet" href="../css/profile.css?v=no-level-xp-1">
     <link rel="manifest" href="../manifest.json">
 
     <script src="../js/account.js?v=12" defer></script>
@@ -81,16 +81,6 @@
 
                     <div class="profile-info">
                         <h3 class="profile-name">Explorer</h3>
-                        <div class="profile-badge">
-                            Level 1 · Bronze Drifter
-                        </div>
-                        <div class="progress-text">
-                            0 / 500 XP to Level 1
-                        </div>
-
-                        <div class="progress-bar-container">
-                            <div class="progress-bar-fill"></div>
-                        </div>
                     </div>
                 </article>
 
@@ -303,8 +293,6 @@
         <li data-user-id="">
             <img class="avatar" src="../assets/user.png" alt="">
             <h4 class="explorer-name"></h4>
-            <p class="explorer-level"></p>
-            <span class="explorer-xp"></span>
         </li>
     </template>
 
@@ -360,7 +348,6 @@
                 <li>Posted: <time id="photo-date"></time></li>
                 <li>Latitude: <span id="photo-lat"></span></li>
                 <li>Longitude: <span id="photo-lng"></span></li>
-                <li>XP earned: <span id="photo-xp"></span></li>
             </ul>
 
             <button type="button" data-action="delete">Delete</button>
@@ -590,4 +577,3 @@
     <script src="../js/modules/gallery/gallery.js?v=5" defer></script>
 </body>
 </html>
-

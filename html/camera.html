@@ -9,9 +9,9 @@
   <title>GUIO — Camera</title>
   <meta name="theme-color" content="#FBF9F2">
   <link rel="icon" type="image/png" href="../assets/guio_logo.png"> <!-- Logo for browser tab -->
-  <link rel="stylesheet" href="../css/camera.css?v=camera-qr-2">
-  <script src="../js/profile.js?v=14" defer></script>
-  <script src="../js/camera.js?v=camera-qr-1" defer></script>
+  <link rel="stylesheet" href="../css/camera.css?v=no-level-xp-1">
+  <script src="../js/profile.js?v=15" defer></script>
+  <script src="../js/camera.js?v=no-level-xp-1" defer></script>
 </head>
 
 <body>
@@ -35,7 +35,6 @@
       <div class="avatar" id="player-avatar" role="img" aria-label="Profile">
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.4-3.4 2.8-5.3 6.5-5.3s6.1 1.9 6.5 5.3"/></svg>
       </div>
-      <span id="xp-count" hidden></span>
     </div>
   </header>
 
@@ -114,11 +113,11 @@
         </div>
         <button class="earn-stamp-button" id="earn-stamp-button" type="button" hidden>Earn stamp</button>
       </section>
-      <!-- XP and rewards card -->
+      <!-- Check-in stamp reward -->
       <section class="reward-card">
         <img class="reward-icon" src="../assets/Group.png" alt="">
         <div>
-          <strong id="reward-title">+120 XP · Stamp: Salt Keeper</strong>
+          <strong id="reward-title">Stamp: Salt Keeper</strong>
           <p id="reward-description">Complete your check-in to earn this site’s stamp.</p>
         </div>
       </section>
@@ -146,27 +145,12 @@
         <span id="verification-status" class="verification-status">Verified by GPS</span>
       </p>
       <p id="completion-verification">GPS matched a registered tourist spot</p>
-      <!-- Show earned XP -->
       <div class="completion-rewards">
-        <span>
-          <img src="../assets/Group.png" alt="">
-          <span id="completion-xp-label">XP earned</span>
-          <span id="completion-xp"></span>
-        </span>
-        <!-- Display earned stamp -->
         <span>
           <span id="completion-stamp-label">Stamp earned</span>
           <span id="completion-stamp"></span>
         </span>
       </div>
-      <!-- Show current user XP -->
-      <section class="completion-progress">
-        <div>
-          <strong>Level —</strong>
-          <span>— / — XP</span>
-        </div>
-        <progress value="0" max="100"></progress>
-      </section>
       <!-- Display current quest -->
       <div class="completion-quest" id="completion-quest">
         <img src="../assets/Group.png" alt="">

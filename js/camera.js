@@ -8,7 +8,7 @@
   const CHECK_IN_RADIUS_METERS = 250;
   // Successful nearby-site responses are kept locally to show a fallback when offline.
   const SITE_CACHE_KEY = "tourtrail-sites-cache";
-  // Passport endpoint used for the account XP, level thresholds, and active quest.
+  // Passport endpoint used to refresh the active quest after a check-in.
   const PASSPORT_API_URL = "api/passport.php";
   // A siteId query parameter makes the camera verify against a specific map site.
   const selectedSiteId = new URLSearchParams(window.location.search).get("siteId");
@@ -37,10 +37,9 @@
     qrResultText: document.getElementById("qr-result-text"),
     qrRescan: document.getElementById("qr-rescan"),
     earnStampButton: document.getElementById("earn-stamp-button"),
-    // Nearby-site reward text and account XP in the header.
+    // Nearby-site stamp reward text.
     rewardTitle: document.getElementById("reward-title"),
     rewardDescription: document.getElementById("reward-description"),
-    xpCount: document.getElementById("xp-count"),
     recentCheckIns: document.getElementById("recent-checkins-list"),
     // Three progress indicators for photo, verification, and reward.
     steps: [
@@ -82,9 +81,8 @@
   // Recent verified check-ins are maintained for the small history list.
   // New entries are combined with this list before display.
   let recentCheckIns = [];
-  // Passport values are retained so reward completion can show level and quest progress.
+  // Retain the active quest so reward completion can show updated quest progress.
   // The active quest is saved in case this check-in completes it.
-  let passportLevels = [];
   let activeQuest = null;
   let passportDataLoaded = false;
   // Lookup tracking avoids redundant requests and discards stale asynchronous responses.
@@ -103,57 +101,8 @@
       : `${(meters / 1000).toFixed(1)} km`;
   }
 
-  // Formats XP shown in the header and completion popup.
-  function formatXp(xp) {
-    // Use the visitor's locale for thousands separators.
-    return xp.toLocaleString();
-  }
-
-  // Updates the level and progress bar in the completion popup.
-  function renderLevelProgress(xp) {
-    // Do not render until valid levels and an XP value are available.
-    if (!passportLevels.length || !Number.isFinite(xp) || xp < 0) return;
-
-    // Find the popup's level progress elements.
-    const section = document.querySelector(".completion-progress");
-    const levelTitle = section?.querySelector("strong");
-    const progressText = section?.querySelector("span");
-    const progressBar = section?.querySelector("progress");
-    if (!levelTitle || !progressText || !progressBar) return;
-
-    // Choose the highest level reached by the current XP total.
-    let currentLevel = passportLevels[0];
-    for (const level of passportLevels) {
-      if (xp >= level.xpRequired) currentLevel = level;
-    }
-    // Find the next level the visitor can reach.
-    const nextLevel =
-      passportLevels.find((level) => level.xpRequired > xp) || null;
-
-    // Display the current level title above the progress bar.
-    levelTitle.textContent =
-      `Level ${currentLevel.level} · ${currentLevel.title}`;
-    progressBar.max = 100;
-    // A visitor at the highest level has no next threshold to fill toward.
-    if (!nextLevel) {
-      // At or beyond the highest threshold, show a full bar and max-level label.
-      progressText.textContent = `${formatXp(xp)} XP · Max level`;
-      progressBar.value = 100;
-      return;
-    }
-
-    // Measure only XP earned since reaching the current level.
-    const xpRange = nextLevel.xpRequired - currentLevel.xpRequired;
-    const progress = xpRange > 0
-      ? ((xp - currentLevel.xpRequired) / xpRange) * 100
-      : 0;
-    progressText.textContent =
-      `${formatXp(xp)} / ${formatXp(nextLevel.xpRequired)} XP to Level ${nextLevel.level}`;
-    progressBar.value = Math.max(0, Math.min(100, progress));
-  }
-
-  // Loads account XP for the header and level/quest details in the completion popup.
-  async function loadAccountXp(xpOverride = null) {
+  // Loads account and active-quest data after a check-in.
+  async function loadPassportData() {
     // Use the shared account URL helper where available (for deployment paths/auth).
     const passportUrl = window.TourTrailAccount
       ? window.TourTrailAccount.apiUrl(PASSPORT_API_URL)
@@ -163,45 +112,15 @@
       headers: { Accept: "application/json" },
       cache: "no-store",
     });
-    // Read the account total and reject invalid API responses.
+    // Reject invalid API responses before reading the active quest.
     const payload = await response.json();
-    const accountXp = Number(payload.user?.xp_count);
-    if (!response.ok || !Number.isFinite(accountXp) || accountXp < 0) {
+    if (!response.ok || !payload.user) {
       throw new Error(payload.error || `Account request failed (${response.status}).`);
-    }
-    // Reject missing level thresholds because the popup cannot calculate progress without them.
-    if (!Array.isArray(payload.levels) || !payload.levels.length) {
-      throw new Error("Passport level data is unavailable.");
-    }
-
-    // Convert API values to numbers and remove invalid level records.
-    const levels = payload.levels
-      .map((level) => ({
-        level: Number(level.level),
-        title: String(level.title || ""),
-        xpRequired: Number(level.xp_required),
-      }))
-      .filter((level) =>
-        Number.isInteger(level.level) &&
-        level.level > 0 &&
-        level.title &&
-        Number.isFinite(level.xpRequired) &&
-        level.xpRequired >= 0
-      )
-      .sort((a, b) => a.xpRequired - b.xpRequired || a.level - b.level);
-    // Reject a response if every level threshold was malformed.
-    if (!levels.length) {
-      throw new Error("Passport level data is invalid.");
     }
 
     // Keep the authoritative quest snapshot for comparison after reward processing.
-    passportLevels = levels;
     activeQuest = payload.active_quest || null;
     passportDataLoaded = true;
-    // Refresh the account XP in the page header and completion popup.
-    const xp = xpOverride === null ? accountXp : xpOverride;
-    elements.xpCount.textContent = formatXp(xp);
-    renderLevelProgress(xp);
     return payload;
   }
 
@@ -278,11 +197,8 @@
     // Support both field names returned by map API and saved site records.
     const id = record.id ?? record.site_id;
     const name = record.title ?? record.name;
-    // Keep the site's reward and visit status for the reward card.
-    const reward = Number(record.xp_reward);
+    // Keep the site's visit status for the reward card.
     const status = record.status || "new";
-    // Use the site's reward when valid; otherwise keep the existing default.
-    const availableReward = Number.isFinite(reward) && reward >= 0 ? reward : 120;
     // Reject invalid IDs, names, and out-of-range coordinates before using the record.
     if (
       id == null ||
@@ -310,8 +226,6 @@
         latitude,
         longitude
       ),
-      xpReward: availableReward,
-      xpAvailable: status === "visited" ? 0 : availableReward,
       status,
       // Use the configured stamp or a simple site-name fallback.
       stamp: record.stamp_name || `${String(name).split(/\s+/, 1)[0]} Explorer`,
@@ -385,7 +299,7 @@
     elements.qrMode.disabled = modeLocked;
   }
 
-  // Updates the site card, GPS badge, and map reward shown beside the preview.
+  // Updates the site card, GPS badge, and stamp reward shown beside the preview.
   function renderNearestSite(site, stale = false) {
     // Keep the selected site available for later GPS updates and check-in.
     nearestSite = site;
@@ -411,14 +325,14 @@
       ? `GPS in range · ${formatDistance(site.distance)} away`
       : `GPS active · ${formatDistance(site.distance)} away`;
     elements.gpsBadge.classList.toggle("out-of-range", !isInRange);
-    // Show the map reward before the user takes a photo.
-    elements.rewardTitle.textContent = `+${site.xpAvailable} XP · Stamp: ${site.stamp}`;
-    // Explain whether the display uses the latest available data or a new site.
+    // Show the stamp reward before the user takes a photo.
+    elements.rewardTitle.textContent = `Stamp: ${site.stamp}`;
+    // Explain whether the site has already been visited.
     elements.rewardDescription.textContent = stale
       ? "Showing the latest available nearby site."
       : site.status === "visited"
-        ? "This site was already visited. XP is awarded once per site."
-        : "Check in here to earn this site's map XP and stamp.";
+        ? "You have already visited this site."
+        : "Check in here to earn this site's stamp.";
     // Avoid replacing verification messages while a photo is being processed.
     if (!pendingPhoto && !verifiedSite) {
       elements.previewCaption.textContent = cameraReady
@@ -808,7 +722,7 @@
     return photo.verified;
   }
 
-  // Saves XP and stamp rewards after the check-in is verified.
+  // Saves the check-in's stamp and quest rewards after verification.
   async function updateCheckInXpInDatabase(checkinId) {
     const checkinsUrl = window.TourTrailAccount
       ? window.TourTrailAccount.apiUrl("api/checkins.php")
@@ -1176,7 +1090,7 @@
     updateStepStates();
     updateCameraControls();
 
-    // Label the popup as pending; XP and verification are not known yet.
+    // Label the popup as pending while upload and verification are in progress.
     elements.rewardTitle.textContent = "Check-in saved · Upload pending";
     elements.rewardDescription.textContent =
       "Your check-in is saved. Upload and location verification will continue when a connection is available.";
@@ -1192,8 +1106,6 @@
     document.getElementById("completion-verification").hidden = false;
     document.getElementById("completion-verification").textContent =
       "Upload and location verification will continue when a connection is available.";
-    document.getElementById("completion-xp-label").textContent = "XP status";
-    document.getElementById("completion-xp").textContent = "Pending";
     document.getElementById("completion-stamp-label").hidden = true;
     document.getElementById("completion-stamp").textContent = "";
     document.getElementById("completion-quest").hidden = true;
@@ -1204,7 +1116,7 @@
   }
 
   /**
-   * Finishes a photo that did not match a registered site. XP and level are
+   * Finishes a photo that did not match a registered site. Reward totals are
    * deliberately left untouched; the unverified check-in is recorded by the
    * check-in API without adding the photo to the local gallery.
    */
@@ -1228,10 +1140,9 @@
     updateStepStates();
     updateCameraControls();
 
-    // Tell the visitor no XP was earned and hide verified-only popup details.
-    elements.rewardTitle.textContent = "+0 XP · Photo saved to your gallery";
-    elements.rewardDescription.textContent =
-      "Location unverified. No XP or level was awarded.";
+    // Tell the visitor the photo was saved without verified-site details.
+    elements.rewardTitle.textContent = "Photo saved to your gallery";
+    elements.rewardDescription.textContent = "Location could not be verified.";
     document.getElementById("checkin-dialog-title").textContent = "Photo saved";
     document.getElementById("verification-status").textContent = "Location Unverified";
     document.getElementById("verification-status").classList.add("unverified");
@@ -1240,8 +1151,6 @@
     document.getElementById("completion-site-label").hidden = true;
     document.getElementById("completion-site").textContent = "";
     document.getElementById("completion-verification").hidden = true;
-    document.getElementById("completion-xp-label").textContent = "XP earned";
-    document.getElementById("completion-xp").textContent = "+0 XP";
     document.getElementById("completion-stamp-label").hidden = true;
     document.getElementById("completion-stamp").textContent =
       "Saved to my gallery";
@@ -1265,7 +1174,7 @@
       let questBeforeReward = activeQuest;
       if (!passportDataLoaded) {
         try {
-          const passport = await loadAccountXp();
+          const passport = await loadPassportData();
           questBeforeReward = passport.active_quest || null;
         } catch (error) {
           console.error("Could not load the active quest before check-in:", error);
@@ -1273,10 +1182,8 @@
       }
 
       const stampKey = `tourtrail-stamp:${verifiedSite.id}`;
-      // Get the authoritative XP, stamp, quest, and badge results from the API.
+      // Get the authoritative stamp, quest, and badge results from the API.
       const reward = await updateCheckInXpInDatabase(pendingPhoto.checkinId);
-      const gainedXp = Number(reward.xp_earned);
-      const totalXp = Number(reward.total_xp);
       const stampStatus = reward.stamp_status;
       if (stampStatus === "awarded") {
         // These keys are local UI markers only; the database response remains authoritative.
@@ -1287,8 +1194,8 @@
       // Refresh the quest and badge data after the reward has been committed.
       let passport = null;
       try {
-        // Reload Passport after PATCH so the dialog shows committed XP and quest progress.
-        passport = await loadAccountXp(totalXp);
+        // Reload Passport after PATCH so the dialog shows the committed quest progress.
+        passport = await loadPassportData();
         const questWasCompleted = questBeforeReward &&
           Array.isArray(passport.completed_quests) &&
           passport.completed_quests.some(
@@ -1299,7 +1206,7 @@
           questWasCompleted ? questBeforeReward : null
         );
       } catch (error) {
-        console.error("Could not load passport level progress:", error);
+        console.error("Could not load passport quest progress:", error);
         renderCompletionQuest(null, null, true);
       }
       // Notify the visitor only when the API reports a newly earned reward.
@@ -1322,7 +1229,7 @@
         });
         }
       }
-      completeCheckIn(totalXp, gainedXp, stampStatus);
+      completeCheckIn(stampStatus);
     } catch (error) {
       console.error("Could not award the verified stamp:", error);
       elements.previewCaption.textContent =
@@ -1333,8 +1240,8 @@
     }
   }
 
-  // Shows earned XP, stamp, and visit details in the verified completion popup.
-  function completeCheckIn(totalXp, gainedXp, stampStatus) {
+  // Shows stamp and visit details in the verified completion popup.
+  function completeCheckIn(stampStatus) {
     // Clear the pending state and display the completion as verified.
     pendingPhoto = null;
     checkInComplete = true;
@@ -1342,19 +1249,15 @@
     updateStepStates();
     const alreadyCollected = stampStatus === "already_collected";
     const stampUnavailable = stampStatus === "unavailable";
-    // Reward copy varies depending on whether the stamp was new, already earned, or unavailable.
+    // Reward copy varies depending on whether the stamp was new or unavailable.
     elements.rewardTitle.textContent = stampUnavailable
-      ? `+${gainedXp} XP · Check-in verified`
-      : `+${gainedXp} XP · Stamp: ${verifiedSite.stamp}`;
+      ? "Check-in verified"
+      : `Stamp: ${verifiedSite.stamp}`;
     elements.rewardDescription.textContent = alreadyCollected
-      ? "This site's stamp was already collected. XP is awarded once for each site's first verified visit."
+      ? "This site's stamp was already collected."
       : stampUnavailable
         ? "No passport stamp is configured for this site."
-        : `${verifiedSite.name} check-in verified. You earned the site's ${verifiedSite.xpReward} XP map reward.`;
-    // The header and level bar use total XP, while the popup reward uses gained XP.
-    // Show the updated account total and level progress separately from XP gained here.
-    elements.xpCount.textContent = formatXp(totalXp);
-    renderLevelProgress(totalXp);
+        : `${verifiedSite.name} check-in verified.`;
     // Reset verification and site labels to their successful-check-in state.
     document.getElementById("checkin-dialog-title").textContent =
       "Check-in complete!";
@@ -1365,12 +1268,10 @@
     document.getElementById("completion-verification").hidden = false;
     document.getElementById("completion-stamp-label").hidden = false;
     document.getElementById("completion-quest").hidden = false;
-    // Fill the popup with the verified site and the XP gained on this check-in.
+    // Fill the popup with the verified site's details.
     document.getElementById("completion-site-label").textContent = "Spot";
     document.getElementById("completion-site-label").hidden = true;
     document.getElementById("completion-site").textContent = verifiedSite.name;
-    document.getElementById("completion-xp-label").textContent = "XP earned";
-    document.getElementById("completion-xp").textContent = `+${formatXp(gainedXp)} XP`;
     // Show stamp status and distance for this verified site.
     document.getElementById("completion-stamp-label").textContent = stampUnavailable
       ? "Stamp status:"
@@ -1403,7 +1304,6 @@
     elements.rangeTag.textContent = "Locating you…";
     elements.rewardTitle.textContent = "Nearby site rewards";
     elements.rewardDescription.textContent = "Finding the closest tourist spot.";
-    elements.xpCount.textContent = "—";
     window.addEventListener("tourtrail-checkin-synced", (event) => {
       if (!queuedPhotoId || event.detail?.id !== queuedPhotoId) return;
       queuedPhotoId = null;
@@ -1412,7 +1312,7 @@
       document.getElementById("completion-verification").textContent =
         event.detail.verified
           ? "Your check-in was uploaded and verified by the server."
-          : "Your photo was uploaded. The server could not verify its location, so no XP was awarded.";
+          : "Your photo was uploaded, but the location could not be verified.";
       elements.rewardTitle.textContent = event.detail.verified
         ? "Check-in uploaded"
         : "Photo uploaded · Not verified";
