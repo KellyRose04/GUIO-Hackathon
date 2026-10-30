@@ -21,7 +21,7 @@ if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'PATCH'], true)) {
 try {
     $username = tourtrail_requested_username();
     $pdo = new PDO(
-        'mysql:host=localhost;dbname=tourtrail_db;charset=utf8mb4',
+        'mysql:host=localhost;dbname=guio_db;charset=utf8mb4',
         'root',
         '',
         [

@@ -5,7 +5,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 try {
     $pdo = new PDO(
-        'mysql:host=localhost;dbname=tourtrail_db;charset=utf8mb4',
+        'mysql:host=localhost;dbname=guio_db;charset=utf8mb4',
         'root',
         '',
         [

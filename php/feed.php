@@ -55,7 +55,7 @@ try {
     // Open the database connection with exceptions, assoc fetch mode,
     // and real (non-emulated) prepared statements
     $pdo = new PDO(
-        'mysql:host=localhost;dbname=tourtrail_db;charset=utf8mb4',
+        'mysql:host=localhost;dbname=guio_db;charset=utf8mb4',
         'root',
         '',
         [
