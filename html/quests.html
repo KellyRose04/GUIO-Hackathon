@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#174B83">
+  <title>GUIO — Quests</title>
+  <link rel="icon" type="image/png" href="../assets/guio_logo.png">
+  <link rel="stylesheet" href="../css/quests.css?v=quest-page-2">
+  <script src="../js/quests.js?v=quest-page-1" defer></script>
+</head>
+<body>
+  <header id="top-nav">
+    <h1 class="brand">
+      <a href="../index.html" aria-label="GUIO home">
+        <span class="logo"><img class="logo-icon" src="../assets/guio_logo.png" alt="GUIO logo"></span>GUIO
+      </a>
+    </h1>
+    <nav id="main-nav" aria-label="Main">
+      <ul>
+        <li><a href="../index.html">Map</a></li>
+        <li><a href="quests.html" aria-current="page">Quests</a></li>
+        <li><a href="profile.html">Profile</a></li>
+      </ul>
+    </nav>
+    <div class="header-stats" id="player-status">
+      <div class="avatar" id="player-avatar" role="img" aria-label="Profile">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.4-3.4 2.8-5.3 6.5-5.3s6.1 1.9 6.5 5.3"/></svg>
+      </div>
+    </div>
+  </header>
+
+  <main class="quest-page">
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">Explore Baguio</p>
+        <h1>Quests</h1>
+        <p class="page-intro">Follow a trail, discover local stories, and check in at each stop.</p>
+      </div>
+      <div class="heading-mark" aria-hidden="true">⚑</div>
+    </div>
+
+    <section class="current-card" aria-labelledby="current-heading">
+      <div class="section-kicker">
+        <div>
+          <h2 id="current-heading">Current quest</h2>
+        </div>
+        <span class="status-pill" id="current-status">Loading</span>
+      </div>
+      <div id="current-quest-content" aria-live="polite">
+        <p class="loading-copy" role="status">Checking your quest progress…</p>
+      </div>
+    </section>
+
+    <section class="browse-section" aria-labelledby="browse-heading">
+      <div class="section-heading-row">
+        <div>
+          <h2 id="browse-heading">Available quests</h2>
+        </div>
+        <span class="result-count" id="quest-count">3 routes</span>
+      </div>
+
+      <div class="filters" role="group" aria-label="Filter quests by category">
+        <button class="filter-chip is-active" type="button" data-filter="all" aria-pressed="true">All</button>
+        <button class="filter-chip" type="button" data-filter="active" aria-pressed="false">Active</button>
+        <button class="filter-chip" type="button" data-filter="heritage" aria-pressed="false">Heritage</button>
+        <button class="filter-chip" type="button" data-filter="food" aria-pressed="false">Food</button>
+        <button class="filter-chip" type="button" data-filter="art" aria-pressed="false">Art</button>
+      </div>
+
+      <div class="quest-grid" id="quest-grid" aria-live="polite">
+        <p class="loading-copy" role="status">Loading quests…</p>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="quest-dialog" id="quest-dialog" aria-labelledby="dialog-quest-title">
+    <div class="dialog-card">
+      <div class="dialog-topline">
+        <span class="eyebrow">Quest details</span>
+        <button class="icon-button" type="button" data-close-quest aria-label="Close quest details">×</button>
+      </div>
+      <div class="dialog-title-row">
+        <span class="quest-emblem" aria-hidden="true">⚑</span>
+        <div>
+          <div class="tag-row" id="dialog-tags"></div>
+          <h2 id="dialog-quest-title"></h2>
+        </div>
+      </div>
+      <p class="dialog-description" id="dialog-quest-description"></p>
+      <div class="progress-block">
+        <div class="progress-label"><strong id="dialog-progress-label">Missions</strong><span id="dialog-progress-count"></span></div>
+        <div class="progress-track"><span id="dialog-progress-fill"></span></div>
+      </div>
+      <div class="reward-row">
+        <span class="reward-icon" aria-hidden="true">✦</span>
+        <div><strong id="dialog-reward-title"></strong><span id="dialog-reward-copy"></span></div>
+      </div>
+      <div class="mission-section">
+        <div class="section-heading-row compact"><h3>Missions</h3><span id="dialog-mission-total"></span></div>
+        <ol class="mission-list" id="dialog-missions"></ol>
+      </div>
+      <button class="primary-button dialog-action" id="open-mission" type="button">View next mission</button>
+    </div>
+  </dialog>
+
+  <dialog class="quest-dialog mission-dialog" id="mission-dialog" aria-labelledby="mission-title">
+    <div class="dialog-card">
+      <div class="dialog-topline">
+        <button class="back-button" type="button" data-back-quest>← Quest details</button>
+        <button class="icon-button" type="button" data-close-mission aria-label="Close mission">×</button>
+      </div>
+      <div class="mission-image" aria-hidden="true"><span>⌖</span></div>
+      <div class="tag-row" id="mission-tags"></div>
+      <h2 id="mission-title"></h2>
+      <p class="mission-location" id="mission-location"></p>
+      <p class="dialog-description" id="mission-description">Visit this stop and check in to continue your quest.</p>
+      <section class="todo-card" aria-labelledby="mission-todo-heading">
+        <h3 id="mission-todo-heading">What to do here</h3>
+        <ol>
+          <li><span>1</span><span>Explore the site and its local story</span></li>
+          <li><span>2</span><span>Look for details that make this stop unique</span></li>
+          <li><span>3</span><span>Check in to record your mission</span></li>
+        </ol>
+      </section>
+      <div class="reward-row mission-reward">
+        <span class="reward-icon" aria-hidden="true">✦</span>
+        <div><strong>Mission reward</strong><span id="mission-reward-copy">Earn XP and a site stamp when you check in.</span></div>
+      </div>
+      <a class="primary-button dialog-action" id="mission-checkin" href="camera.html">Check in here</a>
+    </div>
+  </dialog>
+</body>
+</html>

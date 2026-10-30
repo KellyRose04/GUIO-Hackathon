@@ -16,51 +16,31 @@
 </head>
 
 <body>
-    <div class="app-window">
-        <!-- Header -->
-        <header id="top-nav">
-            <div class="brand">
-                <a href="../index.html">
-                    <span class="logo-circle">
-                        <img
-                            class="logo-icon"
-                            src="../assets/guio_logo.png"
-                            alt="GUIO logo"
-                            width="22"
-                            height="22"
-                        >
-                    </span>
-                    <span>GUIO</span>
-                </a>
-            </div>
-
-            <nav id="main-nav" class="desktop-only" aria-label="Main">
-                <ul>
-                    <li>
-                        <a href="../index.html" class="nav-item">Map</a>
-                    </li>
-                    <li>
-                        <a href="camera.html" class="nav-item">Quests</a>
-                    </li>
-                    <li>
-                        <a
-                            href="profile.html"
-                            class="nav-item active"
-                            aria-current="page"
-                        >Profile</a>
-                    </li>
-                </ul>
-            </nav>
-
+<!-- Main application wrapper for the header, dashboard, and mobile navigation -->
+<div class="app-window">
+        
+    <!-- Top Nav (Visible on both, links hidden on mobile) -->
+    <header id="top-nav">
+        <!-- GUIO logo and brand link to the Map page -->
+        <div class="brand">
+            <a href="../index.html">
+                <span class="logo-circle">
+                    <img class="logo-icon" src="../assets/guio_logo.png" alt="GUIO logo">
+                </span>
+                <span>GUIO</span>
+            </a>
+        </div>
+        <!-- Primary navigation links; styling changes with screen size -->
+        <nav id="main-nav" class="desktop-only" aria-label="Main">
+            <ul>
+                <li><a href="../index.html" class="nav-item">Map</a></li>
+                <li><a href="quests.html" class="nav-item">Quests</a></li>
+                <li><a href="profile.html" class="nav-item active" aria-current="page">Profile</a></li>
+            </ul>
+        </nav>
             <div class="header-stats" id="player-status">
-                <div class="avatar desktop-only" id="player-avatar">
-                    <img
-                        src="../assets/user.png"
-                        class="icon"
-                        alt=""
-                        width="22"
-                        height="22"
-                    >
+                <div class="avatar" id="player-avatar" role="img" aria-label="Profile">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.4-3.4 2.8-5.3 6.5-5.3s6.1 1.9 6.5 5.3"/></svg>
                 </div>
             </div>
         </header>
@@ -389,20 +369,15 @@
             </section>
         </main>
 
-        <!-- Mobile navigation -->
-        <nav
-            class="bottom-nav mobile-only-flex"
-            aria-label="Mobile Bottom"
-        >
-            <a href="../index.html" class="nav-item">Map</a>
-            <a href="camera.html" class="nav-item">Quests</a>
-            <a
-                href="profile.html"
-                class="nav-item active"
-                aria-current="page"
-            >Profile</a>
-        </nav>
-    </div>
+    <!-- MOBILE BOTTOM NAVIGATION (Hidden on Desktop) -->
+    <nav class="bottom-nav mobile-only-flex" aria-label="Mobile Bottom">
+        <!-- Mobile navigation uses the same destinations as the desktop menu -->
+        <a href="../index.html" class="nav-item">Map</a>
+        <a href="camera.html" class="nav-item">Quests</a>
+        <a href="profile.html" class="nav-item active" aria-current="page">Profile</a>
+    </nav>
+
+</div>
 
     <div id="toast" role="status" aria-live="polite"></div>
 

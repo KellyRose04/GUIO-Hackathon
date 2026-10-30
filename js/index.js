@@ -460,8 +460,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const checkinBtn = document.getElementById('drawer-checkin-btn');
         if (checkinBtn) {
             const cameraUrl = window.TourTrailAccount
-                ? window.TourTrailAccount.pageUrl(`camera.html?siteId=${site.id}`)
-                : `camera.html?siteId=${site.id}`;
+                ? window.TourTrailAccount.pageUrl(`html/camera.html?siteId=${site.id}`)
+                : `html/camera.html?siteId=${site.id}`;
             checkinBtn.href = cameraUrl;
             checkinBtn.onclick = (e) => {
                 e.preventDefault();
