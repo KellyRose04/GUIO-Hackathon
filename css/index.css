@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TourTrail: index.css (Full-Screen Map & Floating Collapsible Drawer)
+   GUIO: Map & Active Quest Sidebar
    ========================================================================== */
 
 :root {
@@ -293,44 +293,46 @@ button { cursor: pointer; }
   border-radius: 99px;
 }
 
-/* --- Search Box --- */
-.search-box {
+/* --- Current Quest Summary --- */
+.current-quest-box {
   display: flex;
+  flex-direction: column;
   gap: 8px;
   flex-shrink: 0;
 }
-.search-box input[type="text"] {
-  flex: 1;
-  min-height: 44px;
-  padding: 0 14px;
+.current-quest-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.current-quest-header h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+.current-quest-loading {
+  margin: 0;
+  padding: 12px;
   border: 2px solid var(--ink);
   border-radius: 12px;
   background: var(--white);
-  font-weight: 500;
+  color: var(--muted);
+  font-size: 12px;
 }
-#filter-btn {
-  min-height: 44px;
-  padding: 0 16px;
+.sidebar-toggle-btn {
+  display: none;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 10px;
   border: 2px solid var(--ink);
-  border-radius: 12px;
-  background: var(--teal);
-  color: var(--white);
+  border-radius: 9px;
+  background: var(--white);
+  color: var(--ink);
+  font-size: 11px;
   font-weight: 700;
-  box-shadow: 0 3px 0 var(--ink); /* Gives it a raised, tactile button look */
   cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
-}
-
-/* Hover state */
-#filter-btn:hover {
-  background: #123F6E;
-}
-
-/* Click/Active press effect */
-#filter-btn:active {
-  transform: translateY(3px); /* Pushes the button down */
-  box-shadow: 0 0 0 var(--ink); /* Flattens the shadow to mimic a physical click */
-  background: #10385F;
 }
 
 /* --- Category Chips (Fix 2: Fully Visible Filter Options) --- */
@@ -1103,30 +1105,36 @@ button { cursor: pointer; }
 /* Mobile-Only Collapsible Sidebar (< 768px) */
 @media (max-width: 767px) {
   .sidebar {
-    max-height: 70px; /* Collapsed: shows only the search box */
+    max-height: 204px; /* Collapsed: keeps the current quest visible */
     overflow: hidden;
     transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* When collapsed, explicitly hide everything except the search box */
+  .sidebar-toggle-btn {
+    display: inline-flex;
+  }
+
+  /* Keep the current quest visible while the site filters are collapsed. */
   .sidebar:not(.expanded) .categories,
-  .sidebar:not(.expanded) #sidebar-quest-card-container,
   .sidebar:not(.expanded) .list-header,
   .sidebar:not(.expanded) .sites-list {
     display: none !important;
   }
 
-  /* When expanded (search bar clicked), show everything and allow scrolling */
+  /* When expanded, show the site filters and list. */
   .sidebar.expanded {
     max-height: calc(100vh - 140px);
     overflow-y: auto;
   }
 
   .sidebar.expanded .categories,
-  .sidebar.expanded #sidebar-quest-card-container,
   .sidebar.expanded .list-header,
   .sidebar.expanded .sites-list {
     display: flex !important;
+  }
+
+  .sidebar.expanded #sidebar-quest-card-container {
+    display: block !important;
   }
 }
 
@@ -1186,5 +1194,9 @@ button { cursor: pointer; }
     width: 400px;
     max-height: calc(100% - 48px);
     overflow-y: auto;
+  }
+
+  .sidebar-toggle-btn {
+    display: none;
   }
 }
