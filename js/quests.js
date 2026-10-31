@@ -84,7 +84,7 @@
       title: raw.title || "Untitled quest",
       description: raw.description || "Explore the city and complete this quest.",
       category: categoryLabel(raw.category || "quest"),
-      questType: raw.quest_type || "sites",
+      questType: raw.quest_type || "site(s)",
       target: Math.max(0, Number(raw.target_count) || stops.length),
       icon: raw.icon || "⚑",
       stops,
