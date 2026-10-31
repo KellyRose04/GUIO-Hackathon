@@ -300,7 +300,7 @@
     progressCount.textContent = quest.isActive
       ? `${quest.progress} of ${quest.target}`
       : `${quest.target || stops.length} missions`;
-    document.getElementById("dialog-progress-label").textContent = quest.isActive ? "Quest progress" : "Route length";
+    document.getElementById("dialog-progress-label").textContent = "Quest Progress";
     const percent = quest.isActive && quest.target ? Math.min(100, (quest.progress / quest.target) * 100) : 0;
     progressFill.style.width = `${percent}%`;
     document.getElementById("dialog-mission-total").textContent = `${stops.length || quest.target || 0} total`;
