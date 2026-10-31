@@ -149,7 +149,7 @@ button {
 
 #main-nav ul {
     display: grid; /* Set how the element is laid out. */
-    grid-template-columns: repeat(3, minmax(0, 1fr)); /* Define the grid column layout. */
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* Define the grid column layout. */
     align-items: center; /* Align nav items vertically. */
     min-height: calc(var(--bottom-nav-h) - 2px); /* Keep footer height consistent. */
     gap: 8px; /* Set spacing between children. */
@@ -261,6 +261,14 @@ button {
 }
 
 @media (max-width: 767px) {
+    #main-nav .quest-nav-item {
+        display: none;
+    }
+
+    #main-nav ul {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     #main-nav a {
         display: flex;
         align-items: center;

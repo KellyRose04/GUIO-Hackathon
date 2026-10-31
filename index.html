@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#FBF9F2">
     <title>GUIO - Map</title>
     <link rel="icon" type="image/png" href="assets/guio_logo.png">
-    <link rel="stylesheet" href="css/index.css?v=map-drawer-close-centered-1">
+    <link rel="stylesheet" href="css/index.css?v=remove-map-quest-sidebar-1">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="api/leaflet/leaflet-css/leaflet.css">
 
@@ -26,7 +26,7 @@
         <nav id="main-nav" aria-label="Main">
             <ul>
                 <li><a href="index.html" aria-current="page">Map</a></li>
-                <li><a href="html/quests.html">Quests</a></li>
+                <li class="quest-nav-item"><a href="html/quests.html">Quests</a></li>
                 <li><a href="html/profile.html">Profile</a></li>
             </ul>
         </nav>
@@ -38,17 +38,8 @@
     </header>
 
     <main class="home-container">
-        <!-- Current quest and its next stop -->
+        <!-- Nearby recommendation for the active quest -->
         <aside class="sidebar">
-            <section class="current-quest-box" aria-labelledby="current-quest-heading">
-                <div class="current-quest-header">
-                    <h2 id="current-quest-heading">Current quest</h2>
-                </div>
-                <div id="sidebar-quest-card-container" aria-live="polite">
-                    <p class="current-quest-loading" role="status">Loading your current quest...</p>
-                </div>
-            </section>
-
             <section class="next-location-section" aria-labelledby="next-location-heading">
                 <h2 id="next-location-heading">Nearby Recommendation</h2>
                 <div id="next-location-container" aria-live="polite">
@@ -81,7 +72,7 @@
         <div id="quest-modal-overlay" class="modal-overlay" hidden>
             <div class="quest-modal">
                 <div class="quest-modal-header">
-                    <h2 class="quest-modal-title">Your Active Quests</h2>
+                    <h2 class="quest-modal-title" id="quest-modal-title">Your Active Quests</h2>
                     <button id="quest-modal-close" class="drawer-close-btn" aria-label="Close modal">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
                     </button>
@@ -96,12 +87,24 @@
         <!-- Map View Container -->
         <section class="map-view">
             <div id="map"></div>
-            <a class="map-camera-shortcut" id="map-camera-shortcut" href="html/camera.html" aria-label="Open camera">
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path d="M4 7.5h3l1.5-2h7l1.5 2h3a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 20 19.5H4A1.5 1.5 0 0 1 2.5 18V9A1.5 1.5 0 0 1 4 7.5Z" />
-                    <circle cx="12" cy="13" r="3.5" />
-                </svg>
-            </a>
+            <div class="map-bottom-controls" id="map-bottom-controls">
+                <div class="map-bottom-quest-progress" id="map-bottom-quest-progress" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="quest-modal-overlay" hidden>
+                    <div class="map-bottom-quest-context">
+                        <span class="map-bottom-quest-title" id="map-bottom-quest-title"></span>
+                        <span class="map-bottom-location" id="map-bottom-location"></span>
+                    </div>
+                    <div class="map-bottom-progress-row">
+                        <progress id="map-bottom-quest-progress-track" max="1" value="0" aria-label="Current quest progress"></progress>
+                        <span class="map-bottom-quest-count" id="map-bottom-quest-count"></span>
+                    </div>
+                </div>
+                <a class="map-camera-shortcut" id="map-camera-shortcut" href="html/camera.html" aria-label="Open camera">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M4 7.5h3l1.5-2h7l1.5 2h3a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 20 19.5H4A1.5 1.5 0 0 1 2.5 18V9A1.5 1.5 0 0 1 4 7.5Z" />
+                        <circle cx="12" cy="13" r="3.5" />
+                    </svg>
+                </a>
+            </div>
         </section>
 
     </main>
@@ -112,6 +115,6 @@
     <!-- Shared account context, then the extracted map API and map UI. -->
     <script src="js/account-context.js?v=2"></script>
     <script src="js/map-api.js?v=anonymous-device-1"></script>
-    <script src="js/index.js?v=active-quest-map-return-2"></script>
+    <script src="js/index.js?v=remove-map-quest-sidebar-1"></script>
 </body>
 </html>

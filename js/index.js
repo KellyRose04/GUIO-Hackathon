@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     let loadedSites = [];
+    let activeQuestForDetails = null;
     let markersMap = {}; 
     const markersGroup = L.layerGroup().addTo(map);
 
@@ -93,80 +94,50 @@ document.addEventListener("DOMContentLoaded", () => {
         const activeQuest = Array.isArray(quests) && quests.length ? quests[0] : null;
         renderMapMarkers(loadedSites, activeQuest);
         if (activeQuest) {
-            renderSidebarQuests(quests);
+            renderActiveQuest(quests);
         } else {
             renderNoActiveQuest();
         }
     }
 
-    // 5b. Render Quest Card Data from Database
-    function renderSidebarQuests(quests) {
-        const container = document.getElementById('sidebar-quest-card-container');
-        if (!container) return;
-
-        container.innerHTML = '';
-
+    // Render the active quest in the bottom map controls and recommendation.
+    function renderActiveQuest(quests) {
         if (!Array.isArray(quests) || quests.length === 0) {
             renderNoActiveQuest();
             return;
         }
 
         const quest = quests[0];
-        const unit = quest.quest_type === 'streak' ? 'days' : 'sites';
-        const daysText = quest.days_left ? ` · ${quest.days_left} days left` : '';
-
-        const card = document.createElement('div');
-        card.className = 'quest-card-banner';
-        card.setAttribute('role', 'button');
-        card.tabIndex = 0;
-        card.setAttribute('aria-label', `View details for ${quest.title}`);
-
-        card.innerHTML = `
-            <div class="quest-banner-header">
-                <div class="quest-flag-icon">🚩</div>
-                <div class="quest-banner-title-group">
-                    <div class="quest-banner-title">Quest: ${quest.title}</div>
-                    <div class="quest-banner-sub">${quest.description}${daysText}</div>
-                </div>
-                <div class="quest-banner-chevron">›</div>
-            </div>
-            <div class="quest-banner-progress-row">
-                <progress class="quest-banner-progress-bar" value="${quest.progress_count}" max="${quest.target_count}"></progress>
-                <div class="quest-banner-count">${quest.progress_count} / ${quest.target_count} ${unit}</div>
-            </div>
-        `;
-
-        const showQuestDetails = () => {
-            focusQuestLocation(quest);
-            openQuestsModal(quests);
-        };
-        card.addEventListener('click', showQuestDetails);
-        card.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                showQuestDetails();
-            }
-        });
-
-        container.appendChild(card);
+        activeQuestForDetails = quest;
+        renderMapQuestProgress(quest);
         renderNextLocation(quest);
     }
 
-    function focusQuestLocation(quest) {
-        const nextStop = Array.isArray(quest?.stops)
-            ? quest.stops.find(stop => stop.stop_state === 'next' || stop.state === 'next')
-            : null;
-        const siteId = nextStop?.site_id ?? quest?.next_site_id ?? quest?.next_stop_site_id;
-        const site = siteId == null
-            ? null
-            : loadedSites.find(candidate => String(candidate.id) === String(siteId));
+    function renderMapQuestProgress(quest) {
+        const controls = document.getElementById('map-bottom-controls');
+        const progressPanel = document.getElementById('map-bottom-quest-progress');
+        const questTitle = document.getElementById('map-bottom-quest-title');
+        const progressTrack = document.getElementById('map-bottom-quest-progress-track');
+        const progressCount = document.getElementById('map-bottom-quest-count');
+        if (!controls || !progressPanel || !questTitle || !progressTrack || !progressCount) return;
 
-        if (!site) {
-            console.warn("The active quest location is not available on the map.");
+        if (!quest) {
+            progressPanel.hidden = true;
+            controls.classList.remove('has-quest-progress');
             return;
         }
 
-        focusSiteOnMap(site);
+        const target = Math.max(1, Number(quest.target_count) || 1);
+        const progress = Math.min(target, Math.max(0, Number(quest.progress_count) || 0));
+        const unit = quest.quest_type === 'streak' ? 'days' : 'sites';
+        questTitle.textContent = quest.title || 'Current quest';
+        questTitle.title = questTitle.textContent;
+        progressPanel.setAttribute('aria-label', `Show details for ${questTitle.textContent}`);
+        progressTrack.max = target;
+        progressTrack.value = progress;
+        progressCount.textContent = `${progress} / ${target} ${unit}`;
+        progressPanel.hidden = false;
+        controls.classList.add('has-quest-progress');
     }
 
     function renderNextLocation(quest) {
@@ -204,6 +175,11 @@ document.addEventListener("DOMContentLoaded", () => {
             : null;
         const resolvedSite = nearbySite?.site || null;
         const title = resolvedSite?.title || (quest ? 'No nearby location' : 'No active quest');
+        const bottomLocation = document.getElementById('map-bottom-location');
+        if (bottomLocation) {
+            bottomLocation.textContent = title;
+            bottomLocation.title = title;
+        }
 
         const card = document.createElement('div');
         card.className = `next-location-card${resolvedSite ? '' : ' is-empty'}`;
@@ -282,29 +258,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function renderNoActiveQuest() {
-        const container = document.getElementById('sidebar-quest-card-container');
-        if (container) {
-            container.innerHTML = `
-                <div class="quest-card-banner" style="background: var(--white);">
-                    <div class="quest-banner-header">
-                        <div class="quest-flag-icon">🚩</div>
-                        <div class="quest-banner-title-group">
-                            <div class="quest-banner-title">No Active Quests</div>
-                            <div class="quest-banner-sub">Check back later for new quests</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+        activeQuestForDetails = null;
+        renderMapQuestProgress(null);
         renderNextLocation(null);
     }
 
     // Populate and display the active quests list in the Popup
-    function openQuestsModal(quests) {
+    function openQuestsModal(quests, title = 'Your Active Quests') {
     const modal = document.getElementById('quest-modal-overlay');
     const listContainer = document.getElementById('quest-modal-list');
+    const modalTitle = document.getElementById('quest-modal-title');
     if (!modal || !listContainer) return;
 
+    if (modalTitle) modalTitle.textContent = title;
     listContainer.innerHTML = '';
 
     quests.forEach(quest => {
@@ -321,7 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `;
 
-        if (quest.quest_type === 'sites' && loadedSites && loadedSites.length > 0) {
+        if (quest.quest_type === 'sites') {
             const nextBox = document.createElement('div');
             nextBox.className = 'quest-next-destination-box';
 
@@ -336,7 +302,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const missionDescription = nextMission?.description || quest.description || 'Complete this mission to continue the quest.';
 
             nextBox.innerHTML = `
-                <span class="quest-next-label">Mission details</span>
+                <span class="quest-next-label">Next location</span>
                 <div class="quest-next-copy">
                     <strong>${missionTitle}</strong>
                     <span>${missionLocation}</span>
@@ -352,6 +318,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     modal.hidden = false;
 }
+
+    const mapQuestProgress = document.getElementById('map-bottom-quest-progress');
+    const showCurrentQuestDetails = () => {
+        if (activeQuestForDetails) {
+            openQuestsModal([activeQuestForDetails], 'Quest Details');
+        }
+    };
+    mapQuestProgress?.addEventListener('click', showCurrentQuestDetails);
+    mapQuestProgress?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            showCurrentQuestDetails();
+        }
+    });
 
     // Close Modal Event Listeners
     document.getElementById('quest-modal-close')?.addEventListener('click', () => {

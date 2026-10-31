@@ -128,7 +128,7 @@ ol {
 
 #main-nav ul {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: center;
   min-height: calc(var(--bottom-nav-h) - 2px);
   gap: 8px;
@@ -146,6 +146,12 @@ ol {
   font-weight: 500;
   text-align: center;
   text-decoration: none;
+}
+
+@media (max-width: 767px) {
+  #main-nav .quest-nav-item {
+    display: none;
+  }
 }
 
 #main-nav a[aria-current="page"] {
