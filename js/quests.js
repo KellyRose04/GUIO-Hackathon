@@ -779,14 +779,18 @@
   loadQuestCatalog();
 })();
 
+
 /* =========================================================
    NEWTOWN SPEAKER QUESTION
    Correct answer: Statement B
+   Completing Statement B completes the quest (1/1)
+   and clears the current quest.
    ========================================================= */
 
 (() => {
   "use strict";
 
+  
   const questionSection = document.getElementById("newtown-question");
   const answerStatus = document.getElementById("newtown-answer-status");
   const statementButtons = document.querySelectorAll("[data-speaker-statement]");
@@ -795,8 +799,13 @@
     return;
   }
 
+  let answeredCorrectly = false;
+
   statementButtons.forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", async () => {
+      // Prevent multiple successful submissions
+      if (answeredCorrectly) return;
+
       const selectedStatement = button.dataset.speakerStatement;
 
       statementButtons.forEach((option) => {
@@ -806,27 +815,105 @@
 
       button.setAttribute("aria-pressed", "true");
 
-      if (selectedStatement === "B") {
-        button.classList.add("is-correct");
-
-        answerStatus.textContent =
-          "Correct! Statement B is the valid answer.";
-        answerStatus.classList.add("is-correct");
-        answerStatus.classList.remove("is-incorrect");
-
-        questionSection.dataset.answered = "true";
-        questionSection.dataset.correct = "true";
-      } else {
+      // Statement A: Incorrect
+      if (selectedStatement !== "B") {
         button.classList.add("is-incorrect");
 
         answerStatus.textContent =
           "Incorrect. Try again and choose Statement B.";
+
         answerStatus.classList.add("is-incorrect");
         answerStatus.classList.remove("is-correct");
 
         questionSection.dataset.answered = "false";
         questionSection.dataset.correct = "false";
+
+        return;
       }
+
+      // Statement B: Correct
+      answeredCorrectly = true;
+
+      button.classList.add("is-correct");
+
+      answerStatus.textContent =
+        "Correct! Statement B is valid. Mission completed!";
+
+      answerStatus.classList.add("is-correct");
+      answerStatus.classList.remove("is-incorrect");
+
+      questionSection.dataset.answered = "true";
+      questionSection.dataset.correct = "true";
+
+      // Update mission progress to 1/1
+      const progressLabel = document.getElementById("dialog-progress-label");
+      const progressCount = document.getElementById("dialog-progress-count");
+      const progressFill = document.getElementById("dialog-progress-fill");
+      const missionTotal = document.getElementById("dialog-mission-total");
+
+      if (progressLabel) {
+        progressLabel.textContent = "Missions completed";
+      }
+
+      if (progressCount) {
+        progressCount.textContent = "1/1";
+      }
+
+      if (progressFill) {
+        progressFill.style.width = "100%";
+        progressFill.setAttribute("aria-valuenow", "100");
+      }
+
+      if (missionTotal) {
+        missionTotal.textContent = "1/1 completed";
+      }
+
+      // Mark the mission as completed visually
+      const missionTitle = document.getElementById("mission-title");
+      if (missionTitle) {
+        missionTitle.textContent += " ✓";
+      }
+
+      // Update quest dialog action
+      const openMissionButton = document.getElementById("open-mission");
+      if (openMissionButton) {
+        openMissionButton.textContent = "Quest completed!";
+        openMissionButton.disabled = true;
+      }
+
+      // Clear the current quest section
+      const currentQuestContent = document.getElementById(
+        "current-quest-content"
+      );
+
+      const currentStatus = document.getElementById("current-status");
+
+      if (currentQuestContent) {
+        currentQuestContent.innerHTML = `
+          <div class="empty-current-quest">
+            <p>No current quest.</p>
+            <p>Choose an available quest to begin your next adventure!</p>
+          </div>
+        `;
+      }
+
+      if (currentStatus) {
+        currentStatus.textContent = "Ready";
+      }
+
+      // Close mission and quest dialogs after a short delay
+      setTimeout(() => {
+        const missionDialog = document.getElementById("mission-dialog");
+        const questDialog = document.getElementById("quest-dialog");
+
+        if (missionDialog?.open) {
+          missionDialog.close();
+        }
+
+        if (questDialog?.open) {
+          questDialog.close();
+        }
+      }, 1800);
     });
   });
 })();
