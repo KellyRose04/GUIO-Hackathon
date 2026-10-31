@@ -17,34 +17,63 @@
     button.classList.add("is-selected");
   }
 
-  function renderBadges(badges) {
-    const earned = (Array.isArray(badges) ? badges : []).filter((badge) => badge.earned);
-    badgesGrid.replaceChildren();
-    badgesCount.textContent = `${earned.length} earned`;
+  function createLockIcon() {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.classList.add("badge-lock-icon");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
 
-    earned.forEach((badge) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "badge-item unlocked";
-      button.dataset.badgeKey = badge.key || "";
+    const shackle = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    shackle.setAttribute("d", "M7 10V7a5 5 0 0 1 10 0v3");
+    const body = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    body.setAttribute("x", "5");
+    body.setAttribute("y", "10");
+    body.setAttribute("width", "14");
+    body.setAttribute("height", "11");
+    body.setAttribute("rx", "2");
+    svg.append(shackle, body);
+    return svg;
+  }
+
+  function renderBadges(badges) {
+    const catalog = Array.isArray(badges) ? badges : [];
+    const earned = catalog.filter((badge) => badge.earned);
+    badgesGrid.replaceChildren();
+    badgesCount.textContent = `${earned.length} / ${catalog.length} earned`;
+
+    catalog.forEach((badge) => {
+      const isEarned = badge.earned === true;
+      const item = document.createElement(isEarned ? "button" : "div");
+      item.className = `badge-item ${isEarned ? "unlocked" : "locked"}`;
+      if (isEarned) {
+        item.type = "button";
+        item.dataset.badgeKey = badge.key || "";
+      } else {
+        item.setAttribute("role", "group");
+        item.setAttribute("aria-label", "Secret badge. Finish a quest to unlock.");
+      }
 
       const circle = document.createElement("span");
       circle.className = "badge-circle";
-      const image = document.createElement("img");
-      image.src = badge.key === "welcome-explorer"
-        ? "../assets/guio_badge_logo.png"
-        : iconUrl(badge.icon);
-      image.alt = "";
-      image.width = 24;
-      image.height = 24;
-      circle.appendChild(image);
+      if (isEarned) {
+        const image = document.createElement("img");
+        image.src = badge.key === "welcome-explorer"
+          ? "../assets/guio_badge_logo.png"
+          : iconUrl(badge.icon);
+        image.alt = "";
+        image.width = 24;
+        image.height = 24;
+        circle.appendChild(image);
+      } else {
+        circle.appendChild(createLockIcon());
+      }
 
       const label = document.createElement("span");
       label.className = "badge-label";
-      label.textContent = badge.name || "Badge";
-      button.append(circle, label);
-      button.addEventListener("click", () => selectBadge(button));
-      badgesGrid.appendChild(button);
+      label.textContent = isEarned ? (badge.name || "Badge") : "Secret Badges";
+      item.append(circle, label);
+      if (isEarned) item.addEventListener("click", () => selectBadge(item));
+      badgesGrid.appendChild(item);
     });
 
     if (earned.some((badge) => badge.key === "welcome-explorer")) {
