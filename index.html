@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#FBF9F2">
     <title>GUIO - Map</title>
     <link rel="icon" type="image/png" href="assets/guio_logo.png">
-    <link rel="stylesheet" href="css/index.css?v=map-popup-close-alignment-1">
+    <link rel="stylesheet" href="css/index.css?v=map-drawer-close-centered-1">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="api/leaflet/leaflet-css/leaflet.css">
 
@@ -63,7 +63,9 @@
                 <div class="drawer-chips" id="drawer-chips">
                     <!-- Dynamically populated chips -->
                 </div>
-                <button id="drawer-close-btn" class="drawer-close-btn" onclick="closeSiteDrawer()" aria-label="Close panel">&times;</button>
+                <button id="drawer-close-btn" class="drawer-close-btn" onclick="closeSiteDrawer()" aria-label="Close panel">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                </button>
             </div>
 
             <div class="drawer-content">
@@ -80,7 +82,9 @@
             <div class="quest-modal">
                 <div class="quest-modal-header">
                     <h2 class="quest-modal-title">Your Active Quests</h2>
-                    <button id="quest-modal-close" class="drawer-close-btn" aria-label="Close modal">&times;</button>
+                    <button id="quest-modal-close" class="drawer-close-btn" aria-label="Close modal">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                    </button>
                 </div>
 
                 <div id="quest-modal-list" class="quest-modal-body">

@@ -481,19 +481,6 @@ button { cursor: pointer; }
   width: auto !important;
 }
 
-#map .leaflet-container a.leaflet-popup-close-button {
-  top: 16px;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  line-height: 1;
-  box-sizing: border-box;
-}
-
 .wireframe-popup-clean {
   width: 280px;
   padding: 16px;
@@ -619,13 +606,22 @@ button { cursor: pointer; }
   border: 1.5px solid var(--ink);
   border-radius: 50%;
   background: var(--white);
-  font-size: 18px;
-  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
   cursor: pointer;
   box-shadow: 0 2px 0 var(--ink);
+}
+
+.drawer-close-btn svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
 }
 
 .drawer-content {
