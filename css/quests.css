@@ -353,6 +353,11 @@ ol {
   line-height: 1.45;
 }
 
+.current-quest-info .gps-progress-note {
+  margin-top: 4px;
+  font-size: 11px;
+}
+
 .quest-incomplete-message {
   margin: 14px 0 0;
   color: var(--muted-blue);
@@ -761,6 +766,7 @@ ol {
 
 .mission-list li {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 9px;
   min-height: 43px;
@@ -770,7 +776,8 @@ ol {
   background: var(--white);
 }
 
-.mission-list li.is-next {
+.mission-list li.is-next,
+.mission-list li.is-arrived {
   background: var(--pale-blue);
 }
 
@@ -788,7 +795,8 @@ ol {
 }
 
 .mission-list li.is-done .mission-state,
-.mission-list li.is-next .mission-state {
+.mission-list li.is-next .mission-state,
+.mission-list li.is-arrived .mission-state {
   background: var(--pale-blue);
 }
 
@@ -810,6 +818,39 @@ ol {
 .mission-chevron {
   color: var(--navy);
   font-size: 18px;
+}
+
+.mission-speaker-question {
+  display: grid;
+  width: calc(100% - 34px);
+  gap: 7px;
+  margin-left: 34px;
+}
+
+.mission-speaker-question strong {
+  font-size: 10px;
+}
+
+.mission-speaker-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.speaker-choice-button {
+  padding: 5px 9px;
+  border: 1.5px solid var(--navy);
+  border-radius: 9px;
+  background: var(--white);
+  color: var(--navy);
+  font-size: 10px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.speaker-choice-button[aria-pressed="true"] {
+  background: var(--navy);
+  color: var(--white);
 }
 
 .primary-button {
@@ -916,6 +957,36 @@ ol {
   color: var(--navy);
   font-size: 10px;
   font-weight: 800;
+}
+
+.speaker-question {
+  margin-top: 14px;
+  padding: 13px;
+  border: 1.5px solid var(--navy);
+  border-radius: 12px;
+  background: var(--pale-blue);
+}
+
+.speaker-question h3 {
+  margin: 0 0 10px;
+  font-size: 13px;
+}
+
+.speaker-answer-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.speaker-answer-options button[aria-pressed="true"] {
+  background: var(--navy);
+  color: var(--white);
+}
+
+.speaker-question p {
+  margin: 9px 0 0;
+  color: var(--muted-blue);
+  font-size: 11px;
 }
 
 .mission-reward {

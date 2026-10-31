@@ -189,7 +189,7 @@ CREATE TABLE IF NOT EXISTS user_quests (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id BIGINT UNSIGNED NOT NULL,
     quest_id BIGINT UNSIGNED NOT NULL,
-    status ENUM('active', 'completed') NOT NULL DEFAULT 'active',
+    status ENUM('active', 'completed', 'abandoned') NOT NULL DEFAULT 'active',
     progress_count INT UNSIGNED NOT NULL DEFAULT 0,
     started_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     completed_at DATETIME NULL,
@@ -203,6 +203,22 @@ CREATE TABLE IF NOT EXISTS user_quests (
         FOREIGN KEY (quest_id) REFERENCES quests (id)
         ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+SET @add_abandoned_quest_status_sql = (
+    SELECT IF(
+        LOCATE('abandoned', COLUMN_TYPE) = 0,
+        'ALTER TABLE user_quests MODIFY status ENUM(''active'', ''completed'', ''abandoned'') NOT NULL DEFAULT ''active''',
+        'SELECT ''abandoned quest status already exists'' AS migration_status'
+    )
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'user_quests'
+      AND COLUMN_NAME = 'status'
+);
+
+PREPARE add_abandoned_quest_status_stmt FROM @add_abandoned_quest_status_sql;
+EXECUTE add_abandoned_quest_status_stmt;
+DEALLOCATE PREPARE add_abandoned_quest_status_stmt;
 
 
 -- ==========================================

@@ -12,6 +12,8 @@
   const qrInput = document.getElementById("destination-qr-token");
   const verifyButton = document.getElementById("verify-destination-qr");
   const qrStatus = document.getElementById("destination-qr-status");
+  const newtownQuestion = document.getElementById("newtown-question");
+  const newtownAnswerStatus = document.getElementById("newtown-answer-status");
   if (!questGrid || !currentContent || !filterContainer || !categoryDescription || !questDialog || !missionDialog) return;
 
   let selectedFilter = "all";
@@ -24,9 +26,14 @@
   let cameraStream = null;
   let scanFrame = null;
   let isVerifyingDestination = false;
+  let selectedSpeakerStatement = "";
 
   const account = window.GUIOAccount;
   const hasDeviceIdentity = Boolean(account?.anonymousId);
+  const ARRIVAL_RADIUS_METERS = 250;
+  let userPosition = null;
+  let gpsStatus = "checking";
+  let gpsWatchId = null;
 
   function identityHeaders(extraHeaders = {}) {
     if (!account) throw new Error("This device's anonymous ID could not be initialized. Reload the page.");
@@ -69,6 +76,7 @@
         }))
       : [];
     const status = raw.quest_status || raw.status || "available";
+    const progress = Math.max(0, Number(raw.progress_count) || 0);
 
     return {
       key: raw.quest_key || `quest-${raw.quest_id || "unknown"}`,
@@ -80,7 +88,7 @@
       target: Math.max(0, Number(raw.target_count) || stops.length),
       icon: raw.icon || "⚑",
       stops,
-      progress: Math.max(0, Number(raw.progress_count) || 0),
+      progress,
       status,
       isActive: status === "current",
       isDone: status === "done",
@@ -119,6 +127,7 @@
       questType: raw.quest_type || fallback?.questType || "sites",
       target,
       progress,
+      progressBeforeGps: progress,
       icon: raw.icon || fallback?.icon || "⚑",
       stops,
       status: "current",
@@ -181,11 +190,112 @@
           else if (quest.isActive && !nextMarked) { state = "next"; nextMarked = true; }
           else state = "locked";
         }
+        if (state === "next" && isNearStop(stop)) state = "arrived";
         if (state === "next") nextMarked = true;
+        if (state === "arrived") nextMarked = true;
         return { ...stop, state };
       });
     }
     return [];
+  }
+
+  function isNearStop(stop) {
+    if (
+      !userPosition ||
+      !Number.isFinite(userPosition.accuracy) ||
+      !stop ||
+      stop.latitude == null ||
+      stop.longitude == null
+    ) return false;
+    const latitude = Number(stop.latitude);
+    const longitude = Number(stop.longitude);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return false;
+
+    const radians = (degrees) => degrees * Math.PI / 180;
+    const latitudeDifference = radians(latitude - userPosition.latitude);
+    const longitudeDifference = radians(longitude - userPosition.longitude);
+    const haversine = Math.sin(latitudeDifference / 2) ** 2
+      + Math.cos(radians(userPosition.latitude))
+      * Math.cos(radians(latitude))
+      * Math.sin(longitudeDifference / 2) ** 2;
+    const distance = 6371000 * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+    return distance + userPosition.accuracy <= ARRIVAL_RADIUS_METERS;
+  }
+
+  function updateQuestProgressFromGps() {
+    if (!activeQuest) return;
+    const nextStop = activeQuest.stops.find((stop) =>
+      (stop.stop_state || stop.state) === "next"
+    );
+    const arrived = Boolean(nextStop && isNearStop(nextStop));
+    activeQuest.progress = Math.min(
+      activeQuest.target,
+      activeQuest.progressBeforeGps + (arrived ? 0.5 : 0)
+    );
+  }
+
+  function syncDisplayedQuests() {
+    displayedQuests = [...questCatalog];
+    if (activeQuest) {
+      const existingIndex = displayedQuests.findIndex((quest) =>
+        quest.key === activeQuest.key || quest.title === activeQuest.title
+      );
+      if (existingIndex >= 0) displayedQuests[existingIndex] = { ...displayedQuests[existingIndex], ...activeQuest };
+      else displayedQuests.unshift(activeQuest);
+    }
+  }
+
+  function handleGpsPosition(position) {
+    const wasAvailable = gpsStatus === "available";
+    const previousProgress = activeQuest?.progress;
+    userPosition = {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+      accuracy: position.coords.accuracy,
+    };
+    gpsStatus = "available";
+    updateQuestProgressFromGps();
+    if (wasAvailable && previousProgress === activeQuest?.progress) return;
+    syncDisplayedQuests();
+    renderCurrentQuest();
+    renderCards();
+    if (activeQuest && questDialog.open && selectedQuest?.isActive) {
+      selectedQuest = activeQuest;
+      renderQuestDetails(activeQuest);
+    }
+    if (activeQuest && missionDialog.open && selectedQuest?.isActive) {
+      selectedQuest = activeQuest;
+      updateMissionGpsCopy();
+    }
+  }
+
+  function startGpsTracking() {
+    if (!navigator.geolocation) {
+      gpsStatus = "unavailable";
+      renderCurrentQuest();
+      return;
+    }
+
+    gpsWatchId = navigator.geolocation.watchPosition(
+      handleGpsPosition,
+      () => {
+        gpsStatus = "unavailable";
+        userPosition = null;
+        updateQuestProgressFromGps();
+        syncDisplayedQuests();
+        renderCurrentQuest();
+        renderCards();
+        if (activeQuest && questDialog.open && selectedQuest?.isActive) {
+          selectedQuest = activeQuest;
+          renderQuestDetails(activeQuest);
+        }
+        if (activeQuest && missionDialog.open && selectedQuest?.isActive) {
+          selectedQuest = activeQuest;
+          updateMissionGpsCopy();
+        }
+      },
+      { enableHighAccuracy: true, maximumAge: 30000, timeout: 10000 }
+    );
   }
 
   function renderCurrentQuest() {
@@ -215,8 +325,19 @@
     const info = element("div", "current-quest-info");
     info.append(element("h3", "", activeQuest.title));
     info.append(element("span", "quest-tag", activeQuest.category || "Quest"));
-    const next = getQuestStops(activeQuest).find((stop) => stop.state === "next");
-    info.append(element("p", "", next ? `Next stop · ${next.title}` : activeQuest.description));
+    const activeStops = getQuestStops(activeQuest);
+    const next = activeStops.find((stop) => stop.state === "next");
+    const arrived = activeStops.find((stop) => stop.state === "arrived");
+    info.append(element("p", "", arrived
+      ? `GPS confirms you're at ${arrived.title}. Complete the mission to finish it.`
+      : next
+        ? `Next stop · ${next.title}`
+        : activeQuest.description));
+    if (!userPosition) {
+      info.append(element("p", "gps-progress-note", gpsStatus === "unavailable"
+        ? "Location unavailable. You can still complete missions by scanning their QR codes."
+        : "Checking your location to update mission progress…"));
+    }
     const actions = element("div", "current-quest-actions");
     actions.append(element("span", "progress-count", `${activeQuest.progress} / ${activeQuest.target}`));
     const button = element("button", "text-button", "View details");
@@ -279,8 +400,7 @@
     });
   }
 
-  function openQuest(quest) {
-    selectedQuest = quest;
+  function renderQuestDetails(quest) {
     const stops = getQuestStops(quest);
     const title = document.getElementById("dialog-quest-title");
     const description = document.getElementById("dialog-quest-description");
@@ -312,11 +432,35 @@
       stops.forEach((stop, index) => {
         const state = stop.state || (quest.isActive && index < quest.progress ? "done" : "locked");
         const item = element("li", `is-${state}`);
-        item.append(element("span", "mission-state", state === "done" ? "✓" : String(index + 1)));
+        item.append(element("span", "mission-state", state === "done" ? "✓" : state === "arrived" ? "½" : String(index + 1)));
         const name = element("span", "mission-name", stop.title);
-        const label = state === "done" ? "Visited" : state === "next" ? "Current mission" : "To be visited";
+        const label = state === "done"
+          ? "Mission complete"
+          : state === "arrived"
+            ? "At destination · mission incomplete"
+            : state === "next"
+              ? "Current mission"
+              : "To be visited";
         name.append(element("span", "mission-subtitle", label));
         item.append(name, element("span", "mission-chevron", state === "locked" ? "·" : "›"));
+        if (quest.key === "baguio-discover-newtown" && state !== "done") {
+          const question = element("div", "mission-speaker-question");
+          question.append(element("strong", "", "Answer the question raised by the speaker:"));
+          const choices = element("div", "mission-speaker-choices");
+          ["A", "B"].forEach((statement) => {
+            const button = element("button", "speaker-choice-button", `Statement ${statement}`);
+            button.type = "button";
+            button.dataset.speakerStatement = statement;
+            button.setAttribute("aria-pressed", String(selectedSpeakerStatement === statement));
+            button.addEventListener("click", () => {
+              selectedSpeakerStatement = statement;
+              updateNewtownQuestion();
+            });
+            choices.append(button);
+          });
+          question.append(choices);
+          item.append(question);
+        }
         missionList.append(item);
       });
     }
@@ -332,7 +476,46 @@
           ? "Start quest"
           : "Device ID unavailable";
     openMissionButton.disabled = quest.isDone || (!hasDeviceIdentity && !quest.isActive);
+  }
+
+  function openQuest(quest) {
+    selectedQuest = quest;
+    renderQuestDetails(quest);
     questDialog.showModal();
+  }
+
+  function updateMissionGpsCopy() {
+    const stops = getQuestStops(selectedQuest);
+    const arrived = stops.find((stop) => stop.state === "arrived");
+    const mission = stops.find((stop) => stop.state === "next" || stop.state === "arrived");
+    if (!mission) return;
+
+    document.getElementById("mission-tags").replaceChildren(
+      element("span", "quest-tag", selectedQuest.category || "Quest"),
+      element("span", "quest-tag", arrived ? "At destination" : "Current mission")
+    );
+    document.getElementById("mission-description").textContent = arrived
+      ? "GPS confirms you're at this destination. Scan the focal person's QR code to complete the mission."
+      : "Visit this destination and scan its QR code provided by the focal person.";
+    document.getElementById("mission-reward-copy").textContent = arrived
+      ? "You have earned halfway progress for this mission. Scan its QR code to complete it."
+      : "The focal person’s QR code verifies this destination.";
+  }
+
+  function updateNewtownQuestion() {
+    const isNewtownMission = selectedQuest?.key === "baguio-discover-newtown";
+    newtownQuestion.hidden = !isNewtownMission;
+    document.querySelectorAll("[data-speaker-statement]").forEach((button) => {
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.speakerStatement === selectedSpeakerStatement)
+      );
+    });
+    if (!isNewtownMission) return;
+
+    newtownAnswerStatus.textContent = selectedSpeakerStatement
+      ? `Statement ${selectedSpeakerStatement} selected. Scan the Newtown QR code to complete the mission.`
+      : "Choose a statement, then scan the Newtown QR code to complete the mission.";
   }
 
   function stopQrCamera() {
@@ -507,7 +690,7 @@
 
     if (selectedQuest.isDone) return;
     const stops = getQuestStops(selectedQuest);
-    const nextIndex = stops.findIndex((stop) => stop.state === "next");
+    const nextIndex = stops.findIndex((stop) => stop.state === "next" || stop.state === "arrived");
     const mission = nextIndex >= 0 ? stops[nextIndex] : stops[0];
     const title = mission?.title || "Explore the next stop";
     document.getElementById("mission-title").textContent = title;
@@ -533,6 +716,8 @@
       : "Start the quest to scan destination codes.";
     qrInput.value = "";
     stopQrCamera();
+    updateNewtownQuestion();
+    if (selectedQuest.isActive) updateMissionGpsCopy();
 
     questDialog.close();
     missionDialog.showModal();
@@ -554,6 +739,7 @@
       }
       questCatalog = payload.quests.map(normaliseQuest).filter(Boolean);
       activeQuest = normaliseActiveQuest(payload.active_quest);
+      updateQuestProgressFromGps();
       questCatalogStatus = "loaded";
       questCatalogError = "";
     } catch (error) {
@@ -564,12 +750,7 @@
       questCatalogError = error instanceof Error ? error.message : "The quest database could not be reached.";
     }
 
-    displayedQuests = [...questCatalog];
-    if (activeQuest) {
-      const existingIndex = displayedQuests.findIndex((quest) => quest.key === activeQuest.key || quest.title === activeQuest.title);
-      if (existingIndex >= 0) displayedQuests[existingIndex] = { ...displayedQuests[existingIndex], ...activeQuest };
-      else displayedQuests.unshift(activeQuest);
-    }
+    syncDisplayedQuests();
     renderFilters();
     renderCurrentQuest();
     renderCards();
@@ -588,6 +769,12 @@
   document.getElementById("open-mission").addEventListener("click", openMission);
   scanButton.addEventListener("click", startQrCamera);
   verifyButton.addEventListener("click", () => verifyDestinationQr(qrInput.value));
+  newtownQuestion.querySelectorAll("[data-speaker-statement]").forEach((button) => {
+    button.addEventListener("click", () => {
+      selectedSpeakerStatement = button.dataset.speakerStatement;
+      updateNewtownQuestion();
+    });
+  });
   qrInput.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -595,6 +782,10 @@
     }
   });
   missionDialog.addEventListener("close", stopQrCamera);
+  window.addEventListener("pagehide", () => {
+    if (gpsWatchId !== null) navigator.geolocation.clearWatch(gpsWatchId);
+  });
   renderFilters();
+  startGpsTracking();
   loadQuestCatalog();
 })();

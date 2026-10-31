@@ -17,7 +17,7 @@ function questStops(PDO $pdo, int $questId, ?int $userId, ?int $userQuestId = nu
 {
     if ($userQuestId !== null) {
         $statement = $pdo->prepare(
-            'SELECT qs.site_id, qs.stop_order, s.title,
+            'SELECT qs.site_id, qs.stop_order, s.title, s.latitude, s.longitude,
                     CASE
                         WHEN uqs.id IS NOT NULL THEN \'done\'
                         WHEN NOT EXISTS (
@@ -47,15 +47,20 @@ function questStops(PDO $pdo, int $questId, ?int $userId, ?int $userQuestId = nu
         ]);
     } elseif ($userId !== null) {
         $statement = $pdo->prepare(
-            'SELECT site_id, stop_order, destination AS title, destination_status
-               FROM v_user_quest_destinations
-              WHERE user_id = :user_id AND quest_id = :quest_id
-              ORDER BY stop_order'
+            'SELECT destinations.site_id, destinations.stop_order,
+                    destinations.destination AS title, destinations.destination_status,
+                    s.latitude, s.longitude
+               FROM v_user_quest_destinations AS destinations
+               JOIN sites AS s ON s.id = destinations.site_id
+              WHERE destinations.user_id = :user_id
+                AND destinations.quest_id = :quest_id
+              ORDER BY destinations.stop_order'
         );
         $statement->execute([':user_id' => $userId, ':quest_id' => $questId]);
     } else {
         $statement = $pdo->prepare(
-            'SELECT qs.site_id, qs.stop_order, s.title, \'to_visit\' AS destination_status
+            'SELECT qs.site_id, qs.stop_order, s.title, s.latitude, s.longitude,
+                    \'to_visit\' AS destination_status
                FROM quest_stops AS qs
                JOIN sites AS s ON s.id = qs.site_id
               WHERE qs.quest_id = :quest_id
@@ -78,6 +83,8 @@ function questStops(PDO $pdo, int $questId, ?int $userId, ?int $userQuestId = nu
             'site_id' => (int) $stop['site_id'],
             'stop_order' => (int) $stop['stop_order'],
             'title' => (string) $stop['title'],
+            'latitude' => $stop['latitude'] !== null ? (float) $stop['latitude'] : null,
+            'longitude' => $stop['longitude'] !== null ? (float) $stop['longitude'] : null,
             'destination_status' => $destinationStatus,
             'stop_state' => $stopState,
         ];
@@ -385,7 +392,7 @@ try {
                     q.target_count,
                     \'available\' AS quest_status, 0 AS progress_count
                FROM quests AS q
-              ORDER BY q.id'
+              ORDER BY CASE WHEN q.quest_key = \'baguio-discover-newtown\' THEN 0 ELSE 1 END, q.id'
         );
     } else {
         $statement = $pdo->prepare(
@@ -402,7 +409,7 @@ try {
                FROM quests AS q
                JOIN v_user_quest_status AS us
                   ON us.quest_id = q.id AND us.user_id = :user_id
-               ORDER BY q.id'
+               ORDER BY CASE WHEN q.quest_key = \'baguio-discover-newtown\' THEN 0 ELSE 1 END, q.id'
         );
         guio_ensure_default_active_quest($pdo, $userId);
         $statement->execute([':user_id' => $userId]);

@@ -147,7 +147,7 @@ function guio_find_user_id(PDO $pdo, string $username): ?int
     return $userId === false ? null : (int) $userId;
 }
 
-/** Start Newtown for users who do not already have an active quest or Newtown history. */
+/** Make Newtown the active quest unless the user has already completed it. */
 function guio_ensure_default_active_quest(PDO $pdo, int $userId): void
 {
     $pdo->beginTransaction();
@@ -157,17 +157,6 @@ function guio_ensure_default_active_quest(PDO $pdo, int $userId): void
         $userLock->execute([':user_id' => $userId]);
         if ($userLock->fetchColumn() === false) {
             throw new PDOException('Could not find the user for the default quest.');
-        }
-
-        $activeQuest = $pdo->prepare(
-            'SELECT id FROM user_quests
-              WHERE user_id = :user_id AND status = \'active\'
-              LIMIT 1 FOR UPDATE'
-        );
-        $activeQuest->execute([':user_id' => $userId]);
-        if ($activeQuest->fetchColumn() !== false) {
-            $pdo->commit();
-            return;
         }
 
         $newtownQuest = $pdo->query(
@@ -183,17 +172,42 @@ function guio_ensure_default_active_quest(PDO $pdo, int $userId): void
         }
 
         $existingNewtown = $pdo->prepare(
-            'SELECT id FROM user_quests
+            'SELECT id, status FROM user_quests
               WHERE user_id = :user_id AND quest_id = :quest_id
               LIMIT 1 FOR UPDATE'
         );
         $existingNewtown->execute([':user_id' => $userId, ':quest_id' => (int) $newtownQuest]);
-        if ($existingNewtown->fetchColumn() === false) {
+        $newtownProgress = $existingNewtown->fetch(PDO::FETCH_ASSOC);
+        if ($newtownProgress && $newtownProgress['status'] === 'completed') {
+            $pdo->commit();
+            return;
+        }
+
+        $abandonOtherQuests = $pdo->prepare(
+            'UPDATE user_quests
+                SET status = \'abandoned\'
+              WHERE user_id = :user_id
+                AND status = \'active\'
+                AND quest_id <> :quest_id'
+        );
+        $abandonOtherQuests->execute([
+            ':user_id' => $userId,
+            ':quest_id' => (int) $newtownQuest,
+        ]);
+
+        if ($newtownProgress === false) {
             $startQuest = $pdo->prepare(
                 'INSERT INTO user_quests (user_id, quest_id, status, progress_count)
                  VALUES (:user_id, :quest_id, \'active\', 0)'
             );
             $startQuest->execute([':user_id' => $userId, ':quest_id' => (int) $newtownQuest]);
+        } elseif ($newtownProgress['status'] !== 'active') {
+            $reactivateNewtown = $pdo->prepare(
+                'UPDATE user_quests
+                    SET status = \'active\', completed_at = NULL
+                  WHERE id = :user_quest_id'
+            );
+            $reactivateNewtown->execute([':user_quest_id' => (int) $newtownProgress['id']]);
         }
 
         $pdo->commit();

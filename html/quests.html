@@ -120,6 +120,14 @@
           <li><span>3</span><span>Ask the destination focal person for the QR code</span></li>
         </ol>
       </section>
+      <section class="speaker-question" id="newtown-question" aria-labelledby="newtown-question-prompt" hidden>
+        <h3 id="newtown-question-prompt">Answer the question raised by the speaker:</h3>
+        <div class="speaker-answer-options" role="group" aria-label="Choose a statement">
+          <button class="secondary-button" type="button" data-speaker-statement="A" aria-pressed="false">Statement A</button>
+          <button class="secondary-button" type="button" data-speaker-statement="B" aria-pressed="false">Statement B</button>
+        </div>
+        <p id="newtown-answer-status" role="status" aria-live="polite">Choose a statement.</p>
+      </section>
       <div class="reward-row mission-reward">
         <span class="reward-icon" aria-hidden="true">✦</span>
         <div><strong>Mission verification</strong><span id="mission-reward-copy">Scan the destination QR code to complete this mission.</span></div>
