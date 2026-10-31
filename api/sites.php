@@ -67,6 +67,7 @@ try {
     // Anonymous map visitors see public sites but no account-specific quests.
     $activeQuests = [];
     if ($userId !== null) {
+        guio_ensure_default_active_quest($pdo, $userId);
         $questStmt = $pdo->prepare("SELECT * FROM v_user_active_quest WHERE user_id = :account_user_id");
         $questStmt->execute([':account_user_id' => $userId]);
         $activeQuests = $questStmt->fetchAll();

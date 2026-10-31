@@ -316,6 +316,10 @@ ol {
   background: var(--pale-blue);
 }
 
+.current-quest {
+  flex-wrap: wrap;
+}
+
 .quest-emblem {
   display: grid;
   width: 46px;
@@ -346,6 +350,14 @@ ol {
   margin: 0;
   color: var(--muted-blue);
   font-size: 12px;
+  line-height: 1.45;
+}
+
+.quest-incomplete-message {
+  margin: 14px 0 0;
+  color: var(--muted-blue);
+  font-size: 13px;
+  font-weight: 700;
   line-height: 1.45;
 }
 

@@ -146,3 +146,61 @@ function guio_find_user_id(PDO $pdo, string $username): ?int
 
     return $userId === false ? null : (int) $userId;
 }
+
+/** Start Newtown for users who do not already have an active quest or Newtown history. */
+function guio_ensure_default_active_quest(PDO $pdo, int $userId): void
+{
+    $pdo->beginTransaction();
+
+    try {
+        $userLock = $pdo->prepare('SELECT id FROM users WHERE id = :user_id FOR UPDATE');
+        $userLock->execute([':user_id' => $userId]);
+        if ($userLock->fetchColumn() === false) {
+            throw new PDOException('Could not find the user for the default quest.');
+        }
+
+        $activeQuest = $pdo->prepare(
+            'SELECT id FROM user_quests
+              WHERE user_id = :user_id AND status = \'active\'
+              LIMIT 1 FOR UPDATE'
+        );
+        $activeQuest->execute([':user_id' => $userId]);
+        if ($activeQuest->fetchColumn() !== false) {
+            $pdo->commit();
+            return;
+        }
+
+        $newtownQuest = $pdo->query(
+            'SELECT q.id
+               FROM quests AS q
+              WHERE q.quest_key = \'baguio-discover-newtown\'
+                AND q.quest_type = \'sites\'
+                AND EXISTS (SELECT 1 FROM quest_stops AS qs WHERE qs.quest_id = q.id)
+              LIMIT 1'
+        )->fetchColumn();
+        if ($newtownQuest === false) {
+            throw new PDOException('The Newtown default quest is not configured.');
+        }
+
+        $existingNewtown = $pdo->prepare(
+            'SELECT id FROM user_quests
+              WHERE user_id = :user_id AND quest_id = :quest_id
+              LIMIT 1 FOR UPDATE'
+        );
+        $existingNewtown->execute([':user_id' => $userId, ':quest_id' => (int) $newtownQuest]);
+        if ($existingNewtown->fetchColumn() === false) {
+            $startQuest = $pdo->prepare(
+                'INSERT INTO user_quests (user_id, quest_id, status, progress_count)
+                 VALUES (:user_id, :quest_id, \'active\', 0)'
+            );
+            $startQuest->execute([':user_id' => $userId, ':quest_id' => (int) $newtownQuest]);
+        }
+
+        $pdo->commit();
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $error;
+    }
+}
