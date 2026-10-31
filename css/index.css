@@ -975,6 +975,110 @@ button { cursor: pointer; }
     bottom: 24px;
   }
 
+  .map-bottom-controls.has-quest-progress {
+    left: auto;
+    right: 24px;
+    bottom: 24px;
+    width: min(340px, calc(100vw - 48px));
+    gap: 8px;
+    padding: 6px;
+    border: 2px solid var(--ink);
+    border-radius: 16px;
+    background: var(--cream);
+    box-shadow: var(--shadow);
+  }
+
+  .map-bottom-quest-progress:not([hidden]) {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 2px 8px;
+  }
+
+  .map-bottom-quest-context,
+  .map-bottom-progress-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .map-bottom-quest-context {
+    justify-content: space-between;
+  }
+
+  .map-bottom-quest-title {
+    flex: 1 1 55%;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .map-bottom-location {
+    flex: 0 1 45%;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 10px;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .map-bottom-quest-count {
+    flex: 0 0 auto;
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  #map-bottom-quest-progress-track {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    height: 8px;
+    appearance: none;
+    overflow: hidden;
+    border: 1px solid var(--ink);
+    border-radius: 99px;
+    background: var(--white);
+  }
+
+  #map-bottom-quest-progress-track::-webkit-progress-bar {
+    border-radius: 99px;
+    background: var(--white);
+  }
+
+  #map-bottom-quest-progress-track::-webkit-progress-value {
+    border-radius: 99px;
+    background: var(--teal);
+  }
+
+  #map-bottom-quest-progress-track::-moz-progress-bar {
+    border-radius: 99px;
+    background: var(--teal);
+  }
+
+  .map-bottom-controls.has-quest-progress .map-camera-shortcut {
+    flex-basis: 44px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .map-bottom-controls.has-quest-progress .map-camera-shortcut svg {
+    width: 22px;
+    height: 22px;
+  }
+
   .sidebar {
     top: 24px;
     left: 24px;
