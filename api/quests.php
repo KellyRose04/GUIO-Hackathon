@@ -110,39 +110,6 @@ function activeQuestPayload(PDO $pdo, int $userQuestId, int $userId): ?array
     return $quest;
 }
 
-function awardQuestBadge(PDO $pdo, int $userId, int $questId): ?array
-{
-    $lookup = $pdo->prepare(
-        'SELECT q.reward_badge_key, b.badge_name, b.description, b.icon, b.rarity
-           FROM quests AS q
-           JOIN badges AS b ON b.badge_key = q.reward_badge_key
-          WHERE q.id = :quest_id'
-    );
-    $lookup->execute([':quest_id' => $questId]);
-    $badge = $lookup->fetch();
-    if (!$badge || $badge['reward_badge_key'] === null) {
-        return null;
-    }
-
-    $award = $pdo->prepare(
-        'INSERT IGNORE INTO user_badges (user_id, badge_key)
-         VALUES (:user_id, :badge_key)'
-    );
-    $award->execute([
-        ':user_id' => $userId,
-        ':badge_key' => $badge['reward_badge_key'],
-    ]);
-
-    return [
-        'key' => $badge['reward_badge_key'],
-        'name' => $badge['badge_name'],
-        'description' => $badge['description'],
-        'icon' => $badge['icon'],
-        'rarity' => $badge['rarity'],
-        'newly_awarded' => $award->rowCount() > 0,
-    ];
-}
-
 try {
     $pdo = guio_database();
 
@@ -253,16 +220,6 @@ try {
                 ':quest_stop_id' => (int) $stop['quest_stop_id'],
             ]);
 
-            $awardBadge = $pdo->prepare(
-                'INSERT IGNORE INTO user_badges (user_id, badge_key, is_new)
-                 VALUES (:user_id, :badge_key, 1)'
-            );
-            $awardBadge->execute([
-                ':user_id' => $userId,
-                ':badge_key' => $badge['badge_key'],
-            ]);
-            $badgeAwarded = $awardBadge->rowCount() === 1;
-
             $progress = $pdo->prepare(
                 'SELECT COUNT(*) AS completed_count,
                         (SELECT COUNT(*) FROM quest_stops WHERE quest_id = :total_quest_id) AS total_count
@@ -276,6 +233,27 @@ try {
             $counts = $progress->fetch();
             $completedCount = (int) $counts['completed_count'];
             $isComplete = $completedCount >= (int) $counts['total_count'];
+            $badgeAwarded = false;
+            $awardedBadge = null;
+            if ($isComplete) {
+                $awardBadge = $pdo->prepare(
+                    'INSERT IGNORE INTO user_badges (user_id, badge_key, is_new)
+                     VALUES (:user_id, :badge_key, 1)'
+                );
+                $awardBadge->execute([
+                    ':user_id' => $userId,
+                    ':badge_key' => $badge['badge_key'],
+                ]);
+                $badgeAwarded = $awardBadge->rowCount() === 1;
+                if ($badgeAwarded) {
+                    $awardedBadge = [
+                        'key' => $badge['badge_key'],
+                        'name' => $badge['badge_name'],
+                        'description' => $badge['description'],
+                        'icon' => $badge['icon'],
+                    ];
+                }
+            }
             $updateQuest = $pdo->prepare(
                 'UPDATE user_quests
                     SET progress_count = :progress_count,
@@ -290,10 +268,6 @@ try {
                 ':user_quest_id' => (int) $activeQuest['user_quest_id'],
             ]);
             $pdo->commit();
-
-            $awardedBadge = $isComplete
-                ? awardQuestBadge($pdo, $userId, (int) $activeQuest['quest_id'])
-                : null;
 
             respond(200, [
                 'status' => 'success',
