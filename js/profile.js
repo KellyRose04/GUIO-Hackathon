@@ -420,8 +420,9 @@
 
   function showBadge(badge, button) {
     badgesGrid.querySelectorAll(".badge-item.is-selected").forEach((el) => {
-      el.classList.remove("is-selected");
+        el.classList.remove("is-selected");
     });
+
     if (button) button.classList.add("is-selected");
 
     field("tag").textContent = "Badge";
@@ -430,50 +431,63 @@
     field("icon").src = iconSrc(badge.icon);
 
     const rarity = String(badge.rarity || "").trim();
+
     field("rarity-row").hidden = !rarity;
     field("rarity").textContent = rarity;
 
     field("meta").hidden = !badge.awarded_on;
-    field("meta").textContent = badge.awarded_on ? `Collected on ${badge.awarded_on}` : "";
+    field("meta").textContent = badge.awarded_on
+        ? `Collected on ${badge.awarded_on}`
+        : "";
 
     field("map").hidden = true;
-  }
+  } 
 
-  function renderEarnedBadges(badges) {
-    const earned = (Array.isArray(badges) ? badges : []).filter((badge) => badge.earned);
-    badgesCount.textContent = `${earned.length} earned`;
-    badgesGrid.replaceChildren();
+  
+function renderEarnedBadges(badges) {
+    const earnedBadges = badges.filter(badge => badge.earned);
 
-    earned.forEach((badge) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "badge-item unlocked";
-      button.dataset.badgeKey = badge.key || "";
+    badgesCount.textContent = `${earnedBadges.length} earned`;
+    badgesGrid.innerHTML = "";
 
-      if (iconSrc(badge.icon)) {
-        const img = document.createElement("img");
-        img.src = iconSrc(badge.icon);
-        img.alt = "";
-        img.width = 24;
-        img.height = 24;
-        circle.appendChild(img);
-      } else {
-        circle.textContent = badge.icon || "🏅";
-      }
+    earnedBadges.forEach(badge => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "badge-item unlocked";
+        button.dataset.badgeKey = badge.id;
 
-      const label = document.createElement("span");
-      label.className = "badge-label";
-      label.textContent = badge.name || "Badge";
+        // Badge circle
+        const circle = document.createElement("span");
+        circle.className = "badge-circle";
 
-      button.append(circle, label);
-      button.addEventListener("click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        showBadge(badge, button);
-      });
-      badgesGrid.appendChild(button);
+        // Badge icon
+        const icon = iconSrc(badge.icon);
+
+        if (icon) {
+            const img = document.createElement("img");
+            img.src = icon;
+            img.alt = badge.name || "Badge";
+            circle.appendChild(img);
+        } else {
+            circle.textContent = badge.emoji || "🏅";
+        }
+
+        // Badge name
+        const label = document.createElement("span");
+        label.className = "badge-label";
+        label.textContent = badge.name || "Badge";
+
+        // Make individual badges clickable
+        button.append(circle, label);
+
+        button.addEventListener("click", () => {
+            showBadge(badge, button);
+        });
+
+        badgesGrid.appendChild(button);
     });
   }
+
 
   resetPreview();
 

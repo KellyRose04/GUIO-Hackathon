@@ -96,12 +96,43 @@
                 </section>
 
                 <!-- Badge collection preview -->
-                <section class="neo-card passport-stamp-preview" aria-labelledby="stamp-preview-heading">
+                <section
+                    class="neo-card passport-stamp-preview"
+                    id="stamp-preview"
+                    aria-labelledby="stamp-preview-heading"
+                >
                     <div class="passport-stamp-emblem" aria-hidden="true">
-                        <img src="../assets/pin.png" alt="" width="36" height="36">
+                        <img
+                            data-preview="icon"
+                            src="../assets/pin.png"
+                            alt=""
+                            width="36"
+                            height="36"
+                        >
                     </div>
-                    <h3 id="stamp-preview-heading">Your Badge Collection</h3>
-                    <p class="stamp-preview-help">Select an unlocked badge to see its details.</p>
+
+                    <span class="stamp-preview-tag" data-preview="tag">Badge</span>
+
+                    <h3 id="stamp-preview-heading" data-preview="title">
+                        Your Badge Collection
+                    </h3>
+
+                    <p class="stamp-preview-help" data-preview="desc">
+                        Select an unlocked badge to see its details.
+                    </p>
+
+                    <div class="badge-preview-rarity" data-preview="rarity-row" hidden>
+                        <span>Rarity:</span>
+                        <strong data-preview="rarity"></strong>
+                    </div>
+
+                    <p class="stamp-preview-meta" data-preview="meta" hidden></p>
+
+                    <a
+                        class="badge-preview-map"
+                        data-preview="map"
+                        href="../index.html"
+                    >Explore sites on map</a>
                 </section>
             </div>
         </main>
