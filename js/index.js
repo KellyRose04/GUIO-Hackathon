@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const target = Math.max(1, Number(quest.target_count) || 1);
         const progress = Math.min(target, Math.max(0, Number(quest.progress_count) || 0));
-        const unit = quest.quest_type === 'streak' ? 'days' : 'sites';
+        const unit = quest.quest_type === 'streak' ? 'day(s)' : 'site(s)';
         questTitle.textContent = quest.title || 'Current quest';
         questTitle.title = questTitle.textContent;
         progressPanel.setAttribute('aria-label', `Show details for ${questTitle.textContent}`);
@@ -286,32 +286,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 <span>${quest.progress_count} / ${quest.target_count} ${unit}</span>
             </div>
         `;
-
-        // if (quest.quest_type === 'sites') {
-        //     const nextBox = document.createElement('div');
-        //     nextBox.className = 'quest-next-destination-box';
-
-        //     const nextMission = Array.isArray(quest.stops)
-        //         ? quest.stops.find(stop => stop.stop_state === 'next' || stop.state === 'next') || quest.stops[0]
-        //         : null;
-        //     const nextSite = nextMission?.site_id != null
-        //         ? loadedSites.find(site => String(site.id) === String(nextMission.site_id))
-        //         : null;
-        //     const missionTitle = nextMission?.title || 'Current mission';
-        //     const missionLocation = nextSite?.title || nextMission?.site_title || nextMission?.location || 'Explore the next destination';
-        //     const missionDescription = nextMission?.description || quest.description || 'Complete this mission to continue the quest.';
-
-        //     nextBox.innerHTML = `
-        //         <span class="quest-next-label">Next location</span>
-        //         <div class="quest-next-copy">
-        //             <strong>${missionTitle}</strong>
-        //             <span>${missionLocation}</span>
-        //             <small>${missionDescription}</small>
-        //         </div>
-        //     `;
-
-        //     item.appendChild(nextBox);
-        // }
 
         listContainer.appendChild(item);
     });
