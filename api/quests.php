@@ -89,7 +89,13 @@ function activeQuestPayload(PDO $pdo, int $userQuestId, int $userId): ?array
     $statement = $pdo->prepare(
         'SELECT uq.id AS user_quest_id, uq.progress_count, uq.status,
                 q.id AS quest_id, q.quest_key, q.title, q.description, q.icon,
-                q.quest_type, q.target_count
+                q.quest_type, q.target_count,
+                (SELECT s.category
+                   FROM quest_stops AS qs
+                   JOIN sites AS s ON s.id = qs.site_id
+                  WHERE qs.quest_id = q.id
+                  ORDER BY qs.stop_order
+                  LIMIT 1) AS category
            FROM user_quests AS uq
            JOIN quests AS q ON q.id = uq.quest_id
           WHERE uq.id = :user_quest_id AND uq.user_id = :user_id'
@@ -395,7 +401,14 @@ try {
     if ($userId === null) {
         $statement = $pdo->query(
             'SELECT q.id AS quest_id, q.quest_key, q.title, q.description, q.icon,
-                    q.quest_type, q.target_count,
+                    q.quest_type,
+                    (SELECT s.category
+                       FROM quest_stops AS qs
+                       JOIN sites AS s ON s.id = qs.site_id
+                      WHERE qs.quest_id = q.id
+                      ORDER BY qs.stop_order
+                      LIMIT 1) AS category,
+                    q.target_count,
                     \'available\' AS quest_status, 0 AS progress_count
                FROM quests AS q
               ORDER BY q.id'
@@ -403,7 +416,14 @@ try {
     } else {
         $statement = $pdo->prepare(
             'SELECT q.id AS quest_id, q.quest_key, q.title, q.description, q.icon,
-                    q.quest_type, q.target_count,
+                    q.quest_type,
+                    (SELECT s.category
+                       FROM quest_stops AS qs
+                       JOIN sites AS s ON s.id = qs.site_id
+                      WHERE qs.quest_id = q.id
+                      ORDER BY qs.stop_order
+                      LIMIT 1) AS category,
+                    q.target_count,
                     us.quest_status, us.progress_count, us.user_quest_id
                FROM quests AS q
                JOIN v_user_quest_status AS us
@@ -421,7 +441,6 @@ try {
         $quest['quest_id'] = $questId;
         $quest['target_count'] = (int) $quest['target_count'];
         $quest['progress_count'] = (int) $quest['progress_count'];
-        $quest['category'] = $quest['quest_type'];
         $quest['stops'] = questStops($pdo, $questId, $userId);
         if ($userId !== null && $quest['quest_status'] === 'current') {
             $currentQuest = [
@@ -432,6 +451,7 @@ try {
                 'description' => $quest['description'],
                 'icon' => $quest['icon'],
                 'quest_type' => $quest['quest_type'],
+                'category' => $quest['category'],
                 'target_count' => $quest['target_count'],
                 'progress_count' => $quest['progress_count'],
                 'status' => 'active',

@@ -354,8 +354,7 @@ ol {
 }
 
 .quest-incomplete-message {
-  flex: 1 0 100%;
-  margin: 4px 0 0;
+  margin: 14px 0 0;
   color: var(--muted-blue);
   font-size: 13px;
   font-weight: 700;

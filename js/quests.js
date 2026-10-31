@@ -75,7 +75,7 @@
       questId: raw.quest_id || null,
       title: raw.title || "Untitled quest",
       description: raw.description || "Explore the city and complete this quest.",
-      category: categoryLabel(raw.category || raw.quest_category || raw.quest_type),
+      category: categoryLabel(raw.category || "quest"),
       questType: raw.quest_type || "sites",
       target: Math.max(0, Number(raw.target_count) || stops.length),
       icon: raw.icon || "⚑",
@@ -113,7 +113,9 @@
       userQuestId: raw.user_quest_id || null,
       title: raw.title || fallback?.title || "Your active quest",
       description: raw.description || fallback?.description || "Continue exploring to complete this quest.",
-      category: fallback?.category || categoryLabel(raw.quest_category || raw.category || raw.quest_type),
+      category: raw.category
+        ? categoryLabel(raw.category)
+        : fallback?.category || categoryLabel("quest"),
       questType: raw.quest_type || fallback?.questType || "sites",
       target,
       progress,
@@ -139,6 +141,7 @@
     const filters = [
       { value: "all", label: "All" },
       { value: "active", label: "Active" },
+      { value: "completed", label: "Completed" },
       ...categories.map((category) => ({
         value: category.label.toLowerCase(),
         label: category.label,
@@ -220,12 +223,7 @@
     button.type = "button";
     button.addEventListener("click", () => openQuest(activeQuest));
     actions.append(button);
-    row.append(
-      icon,
-      info,
-      actions,
-      element("p", "quest-incomplete-message", "You still have not finished your current quest")
-    );
+    row.append(icon, info, actions);
     currentContent.append(row);
   }
 
@@ -234,6 +232,7 @@
     const filtered = displayedQuests.filter((quest) => {
       if (filter === "all") return true;
       if (filter === "active") return Boolean(quest.isActive);
+      if (filter === "completed") return Boolean(quest.isDone);
       return String(quest.category || "").toLowerCase() === filter;
     });
 
@@ -246,7 +245,9 @@
           ? questCatalogError
           : filter === "all"
             ? "No quests are available right now."
-            : "No quests in this category yet. Try another filter.";
+            : filter === "completed"
+              ? "No completed quests yet."
+              : "No quests in this category yet. Try another filter.";
       questGrid.append(element("p", "empty-results", message));
       return;
     }
@@ -322,8 +323,7 @@
 
     const openMissionButton = document.getElementById("open-mission");
     const incompleteMessage = document.getElementById("dialog-incomplete-message");
-    const isDefaultNewtownQuest = quest.key === "baguio-discover-newtown";
-    incompleteMessage.hidden = quest.isDone || (!quest.isActive && !isDefaultNewtownQuest);
+    incompleteMessage.hidden = quest.isDone;
     openMissionButton.textContent = quest.isActive
       ? "Go to current destination"
       : quest.isDone

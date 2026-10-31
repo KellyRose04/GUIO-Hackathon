@@ -576,14 +576,15 @@ ON DUPLICATE KEY UPDATE
 INSERT INTO quests
     (quest_key, title, description, icon, quest_type, quest_category, target_count)
 SELECT
-    quest_key,
-    quest_title,
-    quest_description,
-    quest_icon,
+    m.quest_key,
+    m.quest_title,
+    m.quest_description,
+    m.quest_icon,
     'sites',
-    'local_discovery',
+    s.category,
     1
-FROM tmp_baguio_quest_map
+FROM tmp_baguio_quest_map AS m
+JOIN sites AS s ON s.title = m.site_title
 ON DUPLICATE KEY UPDATE
     title = VALUES(title),
     description = VALUES(description),

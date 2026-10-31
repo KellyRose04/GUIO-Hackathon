@@ -2181,8 +2181,6 @@ html, body { font-size: 14px; line-height: 1.45; }
     text-align: center;
     min-height: 250px;
 }
-.passport-stamp-preview-head { display: flex; width: 100%; align-items: center; justify-content: space-between; }
-.stamp-preview-symbol { border: 1px solid var(--ink); border-radius: 50%; width: 24px; height: 24px; line-height: 21px; }
 .passport-stamp-emblem {
     display: flex; justify-content: center; align-items: center;
     width: 86px; height: 86px; margin: 16px 0 12px;
@@ -2192,14 +2190,6 @@ html, body { font-size: 14px; line-height: 1.45; }
 .passport-stamp-emblem img { width: 34px; height: 34px; object-fit: contain; }
 .passport-stamp-preview h3 { font-size: 17px; font-weight: 800; }
 .stamp-preview-help { margin: 8px 0 14px; max-width: 240px; color: var(--muted); font-size: 11px; line-height: 1.5; }
-.stamp-preview-map {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 100%; max-width: 230px; min-height: 36px;
-    background: var(--gold-tint); color: var(--ink);
-    border: 1.5px solid var(--ink); border-radius: 9px;
-    font-size: 11px; font-weight: 700; text-decoration: none;
-}
-.passport-stamp-preview a:hover { filter: brightness(.96); }
 #gallery-header {
     grid-template-columns: minmax(0,1fr) auto;
     gap: 12px; margin: 5px 0 0;
