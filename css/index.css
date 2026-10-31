@@ -119,7 +119,7 @@ button { cursor: pointer; }
 }
 #main-nav ul {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: center;
   min-height: calc(var(--bottom-nav-h) - 2px);
   gap: 8px;
@@ -808,14 +808,6 @@ button { cursor: pointer; }
 
 /* Mobile sidebar fits above the fixed bottom navigation. */
 @media (max-width: 767px) {
-  #main-nav .quest-nav-item {
-    display: none;
-  }
-
-  #main-nav ul {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   #main-nav a {
     display: flex;
     align-items: center;
