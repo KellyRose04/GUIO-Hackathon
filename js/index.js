@@ -224,7 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
         titleElement.textContent = title;
         const meta = document.createElement('p');
         const locationMeta = [
-            resolvedSite?.category ? capitalize(resolvedSite.category) : '',
+            resolvedSite?.category ? formatCategoryLabel(resolvedSite.category) : '',
             nearbySite ? `${nearbySite.distance.toFixed(1)} km from ${currentQuestSite.title}` : ''
         ].filter(Boolean);
         if (locationMeta.length) {
@@ -308,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
     listContainer.innerHTML = '';
 
     quests.forEach(quest => {
-        const unit = quest.quest_type === 'streak' ? 'days' : 'sites';
+        const unit = quest.quest_type === 'streak' ? 'day(s)' : 'site(s)';
         const item = document.createElement('div');
         item.className = 'modal-quest-item';
 
@@ -386,7 +386,7 @@ function renderMapMarkers(sites, activeQuest = null) {
         markersMap[site.id] = marker;
         if (isActiveQuestStop) activeQuestMarker = marker;
 
-        const metaText = `${site.formatted_distance} · ${capitalize(site.category)}${site.is_hidden_gem ? " · Hidden gem" : ""}`;
+        const metaText = `${site.formatted_distance} · ${formatCategoryLabel(site.category)}${site.is_hidden_gem ? " · Hidden gem" : ""}`;
 
         const popupContent = `
             <div class="popup-card wireframe-popup-clean">
@@ -446,7 +446,7 @@ if (mapContainer) {
         if (site.is_hidden_gem == 1) {
             chipsHtml += `<span class="chip-gem">★ Hidden gem</span>`;
         }
-        chipsHtml += `<span class="chip-category">${capitalize(site.category)}</span>`;
+        chipsHtml += `<span class="chip-category">${formatCategoryLabel(site.category)}</span>`;
         chipsContainer.innerHTML = chipsHtml;
 
         // Populate Content
@@ -489,9 +489,9 @@ if (mapContainer) {
         });
     }
 
-    function capitalize(str) {
-        if (!str) return '';
-        return str.charAt(0).toUpperCase() + str.slice(1);
+    function formatCategoryLabel(value) {
+        const label = String(value || '').trim().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ');
+        return label.replace(/\b\w/g, (letter) => letter.toUpperCase());
     }
 
     // 8. Inject Map Legend Bar
