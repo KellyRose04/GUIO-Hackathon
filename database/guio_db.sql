@@ -476,7 +476,7 @@ VALUES
     'cultural',
     16.4161000,
     120.6121000,
-    'assets/pin.png',
+    'assets/star-icon.png',
     'A convention and events venue at Newtown Plaza in Baguio City. Visitors can discover its architecture and check for public events and activities.',
     'Hours vary by event.',
     'Check current event information.'

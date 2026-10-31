@@ -778,3 +778,55 @@
   startGpsTracking();
   loadQuestCatalog();
 })();
+
+/* =========================================================
+   NEWTOWN SPEAKER QUESTION
+   Correct answer: Statement B
+   ========================================================= */
+
+(() => {
+  "use strict";
+
+  const questionSection = document.getElementById("newtown-question");
+  const answerStatus = document.getElementById("newtown-answer-status");
+  const statementButtons = document.querySelectorAll("[data-speaker-statement]");
+
+  if (!questionSection || !answerStatus || !statementButtons.length) {
+    return;
+  }
+
+  statementButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const selectedStatement = button.dataset.speakerStatement;
+
+      statementButtons.forEach((option) => {
+        option.setAttribute("aria-pressed", "false");
+        option.classList.remove("is-correct", "is-incorrect");
+      });
+
+      button.setAttribute("aria-pressed", "true");
+
+      if (selectedStatement === "B") {
+        button.classList.add("is-correct");
+
+        answerStatus.textContent =
+          "Correct! Statement B is the valid answer.";
+        answerStatus.classList.add("is-correct");
+        answerStatus.classList.remove("is-incorrect");
+
+        questionSection.dataset.answered = "true";
+        questionSection.dataset.correct = "true";
+      } else {
+        button.classList.add("is-incorrect");
+
+        answerStatus.textContent =
+          "Incorrect. Try again and choose Statement B.";
+        answerStatus.classList.add("is-incorrect");
+        answerStatus.classList.remove("is-correct");
+
+        questionSection.dataset.answered = "false";
+        questionSection.dataset.correct = "false";
+      }
+    });
+  });
+})();
