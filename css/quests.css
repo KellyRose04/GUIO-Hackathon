@@ -1232,3 +1232,23 @@ ol {
     transition-duration: 0.01ms !important;
   }
 }
+
+.speaker-answer-options button.is-correct {
+  background-color: #dff3e4;
+  border-color: #4b9862;
+  color: #245b32;
+}
+
+.speaker-answer-options button.is-incorrect {
+  background-color: #fbe3e0;
+  border-color: #c65b52;
+  color: #8a3029;
+}
+
+#newtown-answer-status.is-correct {
+  color: #2e7d42;
+}
+
+#newtown-answer-status.is-incorrect {
+  color: #b43c32;
+}
