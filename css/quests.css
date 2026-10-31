@@ -213,7 +213,7 @@ ol {
 }
 
 .page-intro {
-  max-width: 540px;
+  /* max-width: 540px; */
   margin: 0;
   color: var(--muted-blue);
   font-size: 13px;
@@ -1074,7 +1074,7 @@ ol {
   }
 
   .page-intro {
-    max-width: 290px;
+    /* max-width: 290px; */
     font-size: 12px;
   }
 
