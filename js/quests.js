@@ -266,7 +266,7 @@
       content.append(element("span", "quest-card-description", quest.description));
       const meta = element("span", "quest-card-meta");
       meta.append(element("span", "quest-tag", quest.category || "Quest"));
-      meta.append(element("span", "quest-tag", `${quest.target || quest.stops?.length || 0} missions`));
+      meta.append(element("span", "quest-tag", `${quest.target || quest.stops?.length || 0} mission/s`));
       if (quest.distance) meta.append(element("span", "quest-tag", quest.distance));
       content.append(meta);
       if (quest.isActive) {
