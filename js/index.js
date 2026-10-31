@@ -308,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
     listContainer.innerHTML = '';
 
     quests.forEach(quest => {
-        const unit = quest.quest_type === 'streak' ? 'days' : 'sites';
+        const unit = quest.quest_type === 'streak' ? 'day(s)' : 'site(s)';
         const item = document.createElement('div');
         item.className = 'modal-quest-item';
 
