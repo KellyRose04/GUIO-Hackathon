@@ -9,8 +9,6 @@
   const missionDialog = document.getElementById("mission-dialog");
   const scanButton = document.getElementById("scan-destination-qr");
   const qrVideo = document.getElementById("destination-qr-video");
-  const qrInput = document.getElementById("destination-qr-token");
-  const verifyButton = document.getElementById("verify-destination-qr");
   const qrStatus = document.getElementById("destination-qr-status");
   const newtownQuestion = document.getElementById("newtown-question");
   const newtownAnswerStatus = document.getElementById("newtown-answer-status");
@@ -553,12 +551,11 @@
     if (!hasDeviceIdentity || !activeQuest || isVerifyingDestination) return;
     const qrToken = qrTokenFromValue(rawValue);
     if (!qrToken) {
-      qrStatus.textContent = "Scan or enter a destination QR code.";
+      qrStatus.textContent = "Scan a destination QR code.";
       return;
     }
 
     isVerifyingDestination = true;
-    verifyButton.disabled = true;
     scanButton.disabled = true;
     qrStatus.textContent = "Verifying destination code…";
     try {
@@ -572,9 +569,8 @@
       if (!response.ok || payload.status !== "success") {
         throw new Error(payload.error || "This destination code could not be verified.");
       }
-
       stopQrCamera();
-      qrInput.value = "";
+      stopQrCamera();
       const badgeMessage = payload.badge_awarded?.name
         ? ` You earned the ${payload.badge_awarded.name} badge!`
         : "";
@@ -597,18 +593,17 @@
       qrStatus.textContent = error.message || "This destination code could not be verified.";
     } finally {
       isVerifyingDestination = false;
-      verifyButton.disabled = false;
       scanButton.disabled = false;
     }
   }
 
   async function startQrCamera() {
     if (typeof window.BarcodeDetector !== "function") {
-      qrStatus.textContent = "QR scanning isn't supported by this browser. Enter the code below.";
+      qrStatus.textContent = "QR scanning isn't supported by this browser.";
       return;
     }
     if (!navigator.mediaDevices?.getUserMedia) {
-      qrStatus.textContent = "Camera access is unavailable. Enter the QR code below.";
+      qrStatus.textContent = "Camera access is unavailable.";
       return;
     }
 
@@ -634,7 +629,7 @@
             return;
           }
         } catch (error) {
-          qrStatus.textContent = "Could not read the QR code. Try again or enter it below.";
+          qrStatus.textContent = "Could not read the QR code. Try scanning again.";
           stopQrCamera();
           return;
         }
@@ -644,8 +639,8 @@
     } catch (error) {
       stopQrCamera();
       qrStatus.textContent = error.name === "NotAllowedError"
-        ? "Allow camera access to scan, or enter the QR code below."
-        : "The camera couldn't be started. Enter the QR code below.";
+        ? "Allow camera access to scan the destination QR code."
+        : "The camera couldn't be started.";
     }
   }
 
@@ -713,12 +708,9 @@
       : "Start the quest to unlock its first destination.";
 
     scanButton.hidden = !selectedQuest.isActive;
-    qrInput.disabled = !selectedQuest.isActive;
-    verifyButton.disabled = !selectedQuest.isActive;
     qrStatus.textContent = selectedQuest.isActive
       ? "Scan the QR code at this destination."
       : "Start the quest to scan destination codes.";
-    qrInput.value = "";
     stopQrCamera();
     updateNewtownQuestion();
     if (selectedQuest.isActive) updateMissionGpsCopy();
@@ -772,18 +764,11 @@
   });
   document.getElementById("open-mission").addEventListener("click", openMission);
   scanButton.addEventListener("click", startQrCamera);
-  verifyButton.addEventListener("click", () => verifyDestinationQr(qrInput.value));
   newtownQuestion.querySelectorAll("[data-speaker-statement]").forEach((button) => {
     button.addEventListener("click", () => {
       selectedSpeakerStatement = button.dataset.speakerStatement;
       updateNewtownQuestion();
     });
-  });
-  qrInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      verifyDestinationQr(qrInput.value);
-    }
   });
   missionDialog.addEventListener("close", stopQrCamera);
   window.addEventListener("pagehide", () => {

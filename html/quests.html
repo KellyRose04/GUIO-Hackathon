@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#FBF9F2">
   <title>GUIO - Quests</title>
   <link rel="icon" type="image/png" href="../assets/guio_logo.png">
-  <link rel="stylesheet" href="../css/quests.css?v=restore-mobile-quest-tab-1">
+  <link rel="stylesheet" href="../css/quests.css?v=quest-qr-scan-only-1">
   <script src="../js/account-context.js?v=2" defer></script>
-  <script src="../js/quests.js?v=quest-next-location-description-1" defer></script>
+  <script src="../js/quests.js?v=quest-qr-scan-only-1" defer></script>
 </head>
 <body>
   <header id="top-nav">
@@ -137,11 +137,6 @@
         <video id="destination-qr-video" playsinline muted hidden></video>
         <button class="primary-button dialog-action" id="scan-destination-qr" type="button">Scan destination QR</button>
         <p id="destination-qr-status" role="status" aria-live="polite">Start the quest to scan destination codes.</p>
-        <label for="destination-qr-token">Or enter the QR code</label>
-        <div class="destination-qr-entry">
-          <input id="destination-qr-token" type="text" inputmode="text" autocomplete="off" placeholder="Paste QR code text" disabled>
-          <button class="secondary-button" id="verify-destination-qr" type="button" disabled>Verify</button>
-        </div>
       </div>
     </div>
   </dialog>

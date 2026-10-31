@@ -1016,24 +1016,9 @@ ol {
   object-fit: cover;
 }
 
-.destination-qr-controls p,
-.destination-qr-controls label {
+.destination-qr-controls p {
   color: var(--muted-blue);
   font-size: 12px;
-}
-
-.destination-qr-entry {
-  display: flex;
-  gap: 8px;
-}
-
-.destination-qr-entry input {
-  min-width: 0;
-  flex: 1;
-  padding: 9px 10px;
-  border: 1.5px solid var(--navy);
-  border-radius: 10px;
-  background: var(--white);
 }
 
 .secondary-button {
@@ -1045,8 +1030,7 @@ ol {
   font-weight: 800;
 }
 
-.destination-qr-controls button:disabled,
-.destination-qr-entry input:disabled {
+.destination-qr-controls button:disabled {
   opacity: .55;
   cursor: not-allowed;
 }
