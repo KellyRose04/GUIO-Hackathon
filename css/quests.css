@@ -670,6 +670,14 @@ ol {
   line-height: 1.55;
 }
 
+.dialog-next-location {
+  margin: -5px 0 15px;
+  color: var(--navy);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
 .progress-block {
   margin-bottom: 14px;
 }

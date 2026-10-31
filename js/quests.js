@@ -331,7 +331,7 @@
     info.append(element("p", "", arrived
       ? `GPS confirms you're at ${arrived.title}. Complete the mission to finish it.`
       : next
-        ? `Next stop · ${next.title}`
+        ? `Next location · ${next.title}`
         : activeQuest.description));
     if (!userPosition) {
       info.append(element("p", "gps-progress-note", gpsStatus === "unavailable"
@@ -404,6 +404,7 @@
     const stops = getQuestStops(quest);
     const title = document.getElementById("dialog-quest-title");
     const description = document.getElementById("dialog-quest-description");
+    const nextLocation = document.getElementById("dialog-quest-next-location");
     const tags = document.getElementById("dialog-tags");
     const progressCount = document.getElementById("dialog-progress-count");
     const progressFill = document.getElementById("dialog-progress-fill");
@@ -411,6 +412,9 @@
 
     title.textContent = quest.title;
     description.textContent = quest.description;
+    const currentStop = stops.find((stop) => stop.state === "next" || stop.state === "arrived");
+    nextLocation.hidden = !quest.isActive || !currentStop;
+    nextLocation.textContent = currentStop ? `Next location: ${currentStop.title}` : "";
     tags.replaceChildren(element("span", "quest-tag", quest.category || "Quest"));
     tags.append(element(
       quest.isActive ? "active-tag" : "quest-tag",
