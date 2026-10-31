@@ -1,7 +1,10 @@
 (() => {
   const badgesGrid = document.querySelector("#badges .badges-grid");
   const badgesCount = document.querySelector("#badges .badges-count");
-  if (!badgesGrid || !badgesCount) return;
+  const preview = document.getElementById("stamp-preview");
+  if (!badgesGrid || !badgesCount || !preview) return;
+
+  const previewField = (name) => preview.querySelector(`[data-preview="${name}"]`);
 
   function iconUrl(icon) {
     const value = String(icon || "").trim();
@@ -10,11 +13,41 @@
     return `../assets/${value}`;
   }
 
-  function selectBadge(button) {
+  function resetPreview() {
+    previewField("tag").textContent = "Badge";
+    previewField("title").textContent = "Your Badge Collection";
+    previewField("desc").textContent = "Select an unlocked badge to see its details.";
+    previewField("icon").src = "../assets/pin.png";
+    previewField("rarity-row").hidden = true;
+    previewField("meta").hidden = true;
+    previewField("meta").textContent = "";
+    previewField("map").hidden = false;
+  }
+
+  function selectBadge(button, badge) {
     badgesGrid.querySelectorAll(".badge-item.is-selected").forEach((item) => {
       item.classList.remove("is-selected");
+      item.setAttribute("aria-pressed", "false");
     });
     button.classList.add("is-selected");
+    button.setAttribute("aria-pressed", "true");
+
+    previewField("tag").textContent = "Badge";
+    previewField("title").textContent = badge.name || "Badge";
+    previewField("desc").textContent = badge.description || "No description available for this badge.";
+    previewField("icon").src = badge.key === "welcome-explorer"
+      ? "../assets/guio_badge_logo.png"
+      : iconUrl(badge.icon);
+
+    const rarity = String(badge.rarity || "").trim();
+    previewField("rarity-row").hidden = !rarity;
+    previewField("rarity").textContent = rarity;
+
+    previewField("meta").hidden = !badge.awarded_on;
+    previewField("meta").textContent = badge.awarded_on
+      ? `Collected on ${badge.awarded_on}`
+      : "";
+    previewField("map").hidden = true;
   }
 
   function createLockIcon() {
@@ -48,6 +81,7 @@
       if (isEarned) {
         item.type = "button";
         item.dataset.badgeKey = badge.key || "";
+        item.setAttribute("aria-pressed", "false");
       } else {
         item.setAttribute("role", "group");
         item.setAttribute("aria-label", "Secret badge. Finish a quest to unlock.");
@@ -72,14 +106,9 @@
       label.className = "badge-label";
       label.textContent = isEarned ? (badge.name || "Badge") : "Secret Badges";
       item.append(circle, label);
-      if (isEarned) item.addEventListener("click", () => selectBadge(item));
+      if (isEarned) item.addEventListener("click", () => selectBadge(item, badge));
       badgesGrid.appendChild(item);
     });
-
-    if (earned.some((badge) => badge.key === "welcome-explorer")) {
-      const welcomeButton = badgesGrid.querySelector('[data-badge-key="welcome-explorer"]');
-      if (welcomeButton) selectBadge(welcomeButton);
-    }
   }
 
   async function loadBadges() {
@@ -102,5 +131,6 @@
     }
   }
 
+  resetPreview();
   document.addEventListener("DOMContentLoaded", loadBadges, { once: true });
 })();
